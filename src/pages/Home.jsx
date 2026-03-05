@@ -167,8 +167,8 @@ export default function Home() {
               </p>
 
               <ul className="space-y-3 text-wineDark">
-                <li><strong>Tel:</strong> 3639 7058</li>
-                <li><strong>Cel:</strong> 33-3639-7058</li>
+                <li><strong>Tel:</strong> 33-3639-7058</li>
+                {/* <li><strong>Cel:</strong> 33-3639-7058</li> */}
                 <li><strong>Email:</strong> marketing@pasteleriaspetit.com</li>
                 <li>
                   <strong>{t("home.contactAddress")}:</strong> Francisco I. Madero No. 163, Tlaquepaque Centro

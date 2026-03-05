@@ -1,7 +1,7 @@
 // Subida consistente a Cloudinary para toda la app
 export async function uploadToCloudinary(file, { folder } = {}) {
-  const CLOUD = import.meta.env.dzjupasme;
-  const PRESET = import.meta.env.ml_default; 
+  const CLOUD = import.meta.env.VITE_CLOUDINARY_CLOUD;
+  const PRESET = import.meta.env.VITE_CLOUDINARY_PRESET; 
 
   if (!CLOUD || !PRESET) {
     throw new Error("Faltan variables de entorno: VITE_CLOUDINARY_CLOUD / VITE_CLOUDINARY_PRESET");

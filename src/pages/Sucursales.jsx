@@ -14,6 +14,7 @@ export default function Sucursales() {
       img: "",
       map: "https://maps.app.goo.gl/gVxk8zHbCwQdow1u7",
       rebanada: true,
+      rappi: true,
     },
     {
       id: "circunvalacion",

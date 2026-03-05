@@ -37,15 +37,9 @@ export default function Nosotros() {
       className: "row-span-2",
     },
     {
-      src: "https://res.cloudinary.com/dzjupasme/image/upload/v1765833947/k6f1uwvtqo7ne0joiv5j.jpg",
+      src: "https://res.cloudinary.com/dzjupasme/image/upload/v1772668700/nw0fewaj55pvbkuv9lwq.jpg",
       alt: "imagen2",
       caption: t("about.img2"),
-      className: "row-span-2",
-    },
-    {
-      src: "https://res.cloudinary.com/dzjupasme/image/upload/v1764703218/nctf4p9gfd2wrkojg9tn.jpg",
-      alt: "imagen1",
-      caption: t("about.img1"),
       className: "row-span-2",
     },
     {

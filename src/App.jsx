@@ -39,6 +39,7 @@ const OrdersAdmin = lazy(() => import("./pages/admin/OrdersAdmin"));
 const CheckoutSuccess = lazy(() => import("./pages/CheckoutSuccess"));
 const CheckoutPending = lazy(() => import("./pages/CheckoutPending"));
 const CheckoutCancel = lazy(() => import("./pages/CheckoutCancel"));
+const GoogleAnalytics = lazy(() => import("./pages/google2c9b13ae1cb961e7.html"));
 
 export default function App() {
   const [cartOpen, setCartOpen] = useState(false);
@@ -66,6 +67,10 @@ export default function App() {
                 <Route
                   path="/productos"
                   element={<Products />}
+                />
+                <Route 
+                path="/google2c9b13ae1cb961e7.html" 
+                element={<GoogleAnalytics />} 
                 />
                 <Route
                   path="/nosotros"

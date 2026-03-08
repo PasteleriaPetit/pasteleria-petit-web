@@ -84,7 +84,7 @@ export default function CheckoutSuccess() {
 
           {orderId ? (
             <Link
-              to="/VJ7iPLoC0nlfxKTVNEm6kXQRY8whYyc5FylrCG1sbrTNBEAHpV7Lw3ZKImMoosrW"
+              to="/checkout"
               className="border border-wine/30 text-wine px-4 py-2 rounded-lg hover:bg-rose/10 transition"
             >
               Volver al checkout

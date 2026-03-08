@@ -25,9 +25,9 @@ app.post("/create-checkout/mp", async (req, res) => {
         currency_id: "MXN",
       })),
       back_urls: {
-        success: `${process.env.PUBLIC_URL}/0NcCoYMCZ9bmJqits3+o5Z+emkUHfVRJaiUvORJZP8TzXO6cQy5nDxfTwRcWZjhn`,
-        failure: `${process.env.PUBLIC_URL}/HjYqq8/EN5361YMLgUtnh/9DIImr+9P4viv80ztopWy05SUi2hUiBEkmMWGU5FJB`,
-        pending: `${process.env.PUBLIC_URL}/eW+S7H8Amt+oNl+RBNgW8ON218Y499nUkFUp9mtJYvwKcyOgmQJkRJ7HqEZ3VGH`,
+        success: `${process.env.PUBLIC_URL}/checkout-success`,
+        failure: `${process.env.PUBLIC_URL}/checkout-cancel`,
+        pending: `${process.env.PUBLIC_URL}/checkout-pending`,
       },
       auto_return: "approved",
     };

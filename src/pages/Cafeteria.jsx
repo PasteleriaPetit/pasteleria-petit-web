@@ -112,7 +112,7 @@ export default function Cafeteria() {
         </div> */}
       <div className="flex justify-center mt-8">
         <a
-          href="/SD9wrfTl3r/mTdgppUT8fDJQL9UqI34oyF5kcfaYvNKjWscyJ5V1yiGGAx26KZB3"
+          href="/sucursales"
           className="inline-flex items-center justify-center bg-red text-white px-8 py-3 rounded-xl font-maison neue hover:opacity-90 transition"
         >
           {t("cafe.cafeteriaBranchButton")}

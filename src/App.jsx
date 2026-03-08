@@ -64,64 +64,64 @@ export default function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route
-                  path="/UmEFSY7AZFKVrotZ6mtdTWU5vthcO4fPeRgHPykBVUVuXFBOxELqnMJqYTHYkZvz"
+                  path="/productos"
                   element={<Products />}
                 />
                 <Route
-                  path="/TAUa+jdGkbZvT48lElgzfd9JEIUg3McoxqVV+CmDtn4yj9gDpGS8hOUNOT2CIPcb"
+                  path="/nosotros"
                   element={<Nosotros />}
                 />
                 <Route
-                  path="/c5f81wnh8tD29JX+apIYQpwFHwP3w5E31j71ZGa8knBwmdqvW/ttOpuAKiVu6sJe"
+                  path="/cafeteria"
                   element={<Cafeteria />}
                 />
                 <Route
-                  path="/SD9wrfTl3r/mTdgppUT8fDJQL9UqI34oyF5kcfaYvNKjWscyJ5V1yiGGAx26KZB3"
+                  path="/sucursales"
                   element={<Sucursales />}
                 />
                 <Route
-                  path="/PoztxJ04ullrJPmqS7ZpDhBQchWL8aWgNXt+tFGa1lHXxvAAjkg4QemCr06KR+ZP"
+                  path="/bolsa-de-trabajo"
                   element={<BolsaTrabajo />}
                 />
                 <Route
-                  path="/sWB7AuVkuH9cwxeonb7YJW4Td0nim7ISf8xNllbl1zow2SJX6BFY7t9MO4jMlW8o"
+                  path="/facturacion"
                   element={<Facturacion />}
                 />
                 <Route
-                  path="/au5Z4YhReMcxh1r0WdbGNrGiMU7+j6CfaUrMxP2TGJNv7ZgI72muOl1gie2Lc7da"
+                  path="/login"
                   element={<Login />}
                 />
                 <Route
-                  path="/R/pka3Igof2dpoOaMHXhACqm7+/L8K1PQ2ovWlhfFH3ZFeBwua4iQnLJmXLsd0aI"
+                  path="/register"
                   element={<Register />}
                 />
                 <Route
-                  path="/jdg9DL3muQqzJOuOLmae21cZvH861bBV3QmSQKCOJPGX5MI+t3LiP+XxEzj33EijLUREeoz/TW/JbZk9swdbsA"
+                  path="/pedidos-especiales"
                   element={<PedidosEspeciales />}
                 />
                 <Route
-                  path="/rUGzraozwH/Rl9yhSPMmJk+AYvq90MXIVMIJC9SP8QOlRSlGkait3xizUiWgY3Ff"
+                  path="/privacidad"
                   element={<Privacidad />}
                 />
                 <Route
-                  path="/ttfe/q/gwQysFs3gp3skmr7JaaQbw9Ehet1NTVeXeqROMFPrk1nu/A80K86WwSvM"
+                  path="/novedades"
                   element={<Novedades />}
                 />
 
                 <Route 
-                  path="/VJ7iPLoC0nlfxKTVNEm6kXQRY8whYyc5FylrCG1sbrTNBEAHpV7Lw3ZKImMoosrW" 
+                  path="/checkout"
                   element={<Checkout />} 
                 />
                 <Route 
-                  path="/0NcCoYMCZ9bmJqits3+o5Z+emkUHfVRJaiUvORJZP8TzXO6cQy5nDxfTwRcWZjhn" 
+                  path="/checkout-success"
                   element={<CheckoutSuccess />}
                 />
                 <Route 
-                  path="/eW+S7H8Amt+oNl+RBNgW8ON218Y499nUkFUp9mtJYvwKcyOgmQJkRJ7HqEZ3VGH" 
+                  path="/checkout-pending"
                   element={<CheckoutPending />} 
                 />
                 <Route 
-                  path="/HjYqq8/EN5361YMLgUtnh/9DIImr+9P4viv80ztopWy05SUi2hUiBEkmMWGU5FJB" 
+                  path="/checkout-cancel"
                   element={<CheckoutCancel />} 
                 />
 

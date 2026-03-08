@@ -52,9 +52,9 @@ export default async function handler(req, res) {
       metadata: { orderId: String(orderId) },
 
       back_urls: {
-        success: `${publicUrl}/0NcCoYMCZ9bmJqits3+o5Z+emkUHfVRJaiUvORJZP8TzXO6cQy5nDxfTwRcWZjhn?orderId=${encodeURIComponent(orderId)}`,
-        failure: `${publicUrl}/HjYqq8/EN5361YMLgUtnh/9DIImr+9P4viv80ztopWy05SUi2hUiBEkmMWGU5FJB?orderId=${encodeURIComponent(orderId)}`,
-        pending: `${publicUrl}/eW+S7H8Amt+oNl+RBNgW8ON218Y499nUkFUp9mtJYvwKcyOgmQJkRJ7HqEZ3VGH?orderId=${encodeURIComponent(orderId)}`,
+        success: `${publicUrl}/checkout-success?orderId=${encodeURIComponent(orderId)}`,
+        failure: `${publicUrl}/checkout-cancel?orderId=${encodeURIComponent(orderId)}`,
+        pending: `${publicUrl}/checkout-pending?orderId=${encodeURIComponent(orderId)}`,
       },
       auto_return: "approved",
 

@@ -119,22 +119,22 @@ export default function Header() {
           <NavLink to="/" className={linkClass}>
             {lang === "es" ? "Inicio" : "Home"}
           </NavLink>
-          <NavLink to="/TAUa+jdGkbZvT48lElgzfd9JEIUg3McoxqVV+CmDtn4yj9gDpGS8hOUNOT2CIPcb" className={linkClass}>
+          <NavLink to="/nosotros" className={linkClass}>
             {lang === "es" ? "Nosotros" : "Our Team"}
           </NavLink>
-          <NavLink to="/UmEFSY7AZFKVrotZ6mtdTWU5vthcO4fPeRgHPykBVUVuXFBOxELqnMJqYTHYkZvz" className={linkClass}>
+          <NavLink to="/productos" className={linkClass}>
             {lang === "es" ? "Productos" : "Products"}
           </NavLink>
-          <NavLink to="/ttfe/q/gwQysFs3gp3skmr7JaaQbw9Ehet1NTVeXeqROMFPrk1nu/A80K86WwSvM" className={linkClass}>
+          <NavLink to="/novedades" className={linkClass}>
             {lang === "es" ? "Novedades" : "News"}
           </NavLink>
-          <NavLink to="/c5f81wnh8tD29JX+apIYQpwFHwP3w5E31j71ZGa8knBwmdqvW/ttOpuAKiVu6sJe" className={linkClass}>
+          <NavLink to="/cafeteria" className={linkClass}>
             {lang === "es" ? "Cafetería" : "Coffee Shop"}
           </NavLink>
-          <NavLink to="/jdg9DL3muQqzJOuOLmae21cZvH861bBV3QmSQKCOJPGX5MI+t3LiP+XxEzj33EijLUREeoz/TW/JbZk9swdbsA" className={linkClass}>
+          <NavLink to="/pedidos-especiales" className={linkClass}>
             {lang === "es" ? "Pedidos Especiales" : "Special Orders"}
           </NavLink>
-          <NavLink to="/SD9wrfTl3r/mTdgppUT8fDJQL9UqI34oyF5kcfaYvNKjWscyJ5V1yiGGAx26KZB3" className={linkClass}>
+          <NavLink to="/sucursales" className={linkClass}>
             {lang === "es" ? "Sucursales" : "Branches"}
           </NavLink>
 
@@ -170,7 +170,7 @@ export default function Header() {
             }}
           >
             <NavLink
-              to="/PoztxJ04ullrJPmqS7ZpDhBQchWL8aWgNXt+tFGa1lHXxvAAjkg4QemCr06KR+ZP"
+              to="/bolsa-de-trabajo"
               className="block px-4 py-2 hover:bg-rose/20 text-left whitespace-nowrap"
               onClick={() => setMoreOpen(false)}
             >
@@ -220,13 +220,13 @@ export default function Header() {
           ) : (
             <>
               <Link
-                to="/au5Z4YhReMcxh1r0WdbGNrGiMU7+j6CfaUrMxP2TGJNv7ZgI72muOl1gie2Lc7da"
+                to="/login"
                 className="bg-red text-cream px-3 py-1 rounded hover:bg-wine/80 transition"
               >
                 {lang === "es" ? "Iniciar sesión" : "Login"}
               </Link>
               <Link
-                to="/R/pka3Igof2dpoOaMHXhACqm7+/L8K1PQ2ovWlhfFH3ZFeBwua4iQnLJmXLsd0aI"
+                to="/register"
                 className="bg-cream border border-wine px-3 py-1 rounded text-wine hover:bg-wine/20 transition"
               >
                 {lang === "es" ? "Crear cuenta" : "Register"}
@@ -253,30 +253,30 @@ export default function Header() {
           <NavLink to="/" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Inicio" : "Home"}
           </NavLink>
-          <NavLink to="/TAUa+jdGkbZvT48lElgzfd9JEIUg3McoxqVV+CmDtn4yj9gDpGS8hOUNOT2CIPcb" className={linkClass} onClick={toggleMenu}>
+          <NavLink to="/nosotros" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Nosotros" : "Our Team"}
           </NavLink>
-          <NavLink to="/UmEFSY7AZFKVrotZ6mtdTWU5vthcO4fPeRgHPykBVUVuXFBOxELqnMJqYTHYkZvz" className={linkClass} onClick={toggleMenu}>
+          <NavLink to="/productos" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Productos" : "Products"}
           </NavLink>
-          <NavLink to="/ttfe/q/gwQysFs3gp3skmr7JaaQbw9Ehet1NTVeXeqROMFPrk1nu/A80K86WwSvM" className={linkClass} onClick={toggleMenu}>
+          <NavLink to="/novedades" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Novedades" : "News"}
           </NavLink>
-          <NavLink to="/c5f81wnh8tD29JX+apIYQpwFHwP3w5E31j71ZGa8knBwmdqvW/ttOpuAKiVu6sJe" className={linkClass} onClick={toggleMenu}>
+          <NavLink to="/cafeteria" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Cafetería" : "Coffee Shop"}
           </NavLink>
           <NavLink
-            to="/jdg9DL3muQqzJOuOLmae21cZvH861bBV3QmSQKCOJPGX5MI+t3LiP+XxEzj33EijLUREeoz/TW/JbZk9swdbsA"
+            to="/pedidos-especiales"
             className={linkClass}
             onClick={toggleMenu}
           >
             {lang === "es" ? "Pedidos Especiales" : "Special Orders"}
           </NavLink>
-          <NavLink to="/SD9wrfTl3r/mTdgppUT8fDJQL9UqI34oyF5kcfaYvNKjWscyJ5V1yiGGAx26KZB3" className={linkClass} onClick={toggleMenu}>
+          <NavLink to="/sucursales" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Sucursales" : "Branches"}
           </NavLink>
           <NavLink
-            to="/PoztxJ04ullrJPmqS7ZpDhBQchWL8aWgNXt+tFGa1lHXxvAAjkg4QemCr06KR+ZP"
+            to="/bolsa-de-trabajo"
             className={linkClass}
             onClick={toggleMenu}
           >
@@ -310,14 +310,14 @@ export default function Header() {
           ) : (
             <>
               <Link
-                to="/au5Z4YhReMcxh1r0WdbGNrGiMU7+j6CfaUrMxP2TGJNv7ZgI72muOl1gie2Lc7da"
+                to="/login"
                 onClick={toggleMenu}
                 className="bg-red text-cream px-4 py-2 rounded-lg"
               >
                 {lang === "es" ? "Iniciar sesión" : "Login"}
               </Link>
               <Link
-                to="/R/pka3Igof2dpoOaMHXhACqm7+/L8K1PQ2ovWlhfFH3ZFeBwua4iQnLJmXLsd0aI"
+                to="/register"
                 onClick={toggleMenu}
                 className="border border-wine text-wine px-4 py-2 rounded-lg"
               >

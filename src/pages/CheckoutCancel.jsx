@@ -27,7 +27,7 @@ export default function CheckoutCancel() {
 
         <div className="mt-6 flex gap-3">
           <Link
-            to="/VJ7iPLoC0nlfxKTVNEm6kXQRY8whYyc5FylrCG1sbrTNBEAHpV7Lw3ZKImMoosrW"
+            to="/checkout"
             className="bg-wine text-cream px-4 py-2 rounded-lg hover:opacity-90 transition"
           >
             Volver al checkout

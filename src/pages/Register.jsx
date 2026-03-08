@@ -87,7 +87,7 @@ export default function Register() {
         </button>
 
         <p className="text-sm text-wineDark/70">
-          ¿Ya tienes cuenta? <Link to="/au5Z4YhReMcxh1r0WdbGNrGiMU7+j6CfaUrMxP2TGJNv7ZgI72muOl1gie2Lc7da" className="text-red underline">Inicia sesión</Link>
+          ¿Ya tienes cuenta? <Link to="/login" className="text-red underline">Inicia sesión</Link>
         </p>
       </form>
     </main>

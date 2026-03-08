@@ -333,7 +333,7 @@ export default function Nosotros() {
           <p className="font-maison neue opacity-90">{t("about.ctaSubtitle")}</p>
           <br />
           <a
-            href="/UmEFSY7AZFKVrotZ6mtdTWU5vthcO4fPeRgHPykBVUVuXFBOxELqnMJqYTHYkZvz"
+            href="/productos"
             className="bg-red px-6 py-3 rounded-lg font-maison neue hover:opacity-90 transition"
           >
             {t("home.bannerButton")}

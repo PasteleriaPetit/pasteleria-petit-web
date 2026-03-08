@@ -62,8 +62,8 @@ export default function ZipCodeModal({ onClose }) {
 
           <button
             type="submit"
-            disabled={zip.length !== 5}
-            className="bg-pink-600 text-white w-full py-2 rounded"
+            disabled={zip.length !== 5 }
+            className="w-full py-2 rounded text-white transition bg-pink-600 hover:bg-pink-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             Continuar
           </button>

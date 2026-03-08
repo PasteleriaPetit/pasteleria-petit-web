@@ -8,11 +8,25 @@ export default function ZipCodeModal({ onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!zip) return;
+    if (!/^\d{5}$/.test(zip)) {
+      alert("El código postal debe tener exactamente 5 números.");
+      return;
+    }
 
     try {
+      const res = await fetch(`https://api.zippopotam.us/mx/${zip}`);
+
+      if (!res.ok) {
+        alert("Código postal no válido.");
+        return;
+      }
+
+      const data = await res.json();
+
       await addDoc(collection(db, "zipCodes"), {
-        zip,
+        zip: zip.toString(),
+        city: data.places[0]["place name"],
+        state: data.places[0]["state"],
         createdAt: serverTimestamp()
       });
 
@@ -20,7 +34,7 @@ export default function ZipCodeModal({ onClose }) {
       onClose();
 
     } catch (error) {
-      console.error(error);
+      console.error("Error guardando código postal:", error);
     }
   };
 
@@ -34,14 +48,21 @@ export default function ZipCodeModal({ onClose }) {
         <form onSubmit={handleSubmit}>
           <input
             type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={5}
             placeholder="Código Postal"
             value={zip}
-            onChange={(e) => setZip(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, "");
+              setZip(value);
+            }}
             className="w-full border p-2 rounded mb-4"
           />
 
           <button
             type="submit"
+            disabled={zip.length !== 5}
             className="bg-pink-600 text-white w-full py-2 rounded"
           >
             Continuar

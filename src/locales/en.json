@@ -305,6 +305,12 @@
     "whatsapp": {
       "reserveHeader": "Hi! I'd like to reserve this order and pay in store:",
       "orderNumber": "Order number"
+    },
+
+    "codigoPostal": {
+      "title": "Where are you from?",
+      "placeholder": "Postal code",
+      "submit": "Continue"
     }
   }
 }

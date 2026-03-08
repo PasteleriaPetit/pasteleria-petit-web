@@ -310,6 +310,12 @@
     "whatsapp": {
       "reserveHeader": "Hola! Me gustaría apartar este pedido para pagar en sucursal:",
       "orderNumber": "Número de pedido"
+    },
+
+    "codigoPostal": {
+      "title": "¿Desde qué zona nos visitas?",
+      "placeholder": "Código Postal",
+      "submit": "Continuar"
     }
   }
 }

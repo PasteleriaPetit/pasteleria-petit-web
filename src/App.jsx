@@ -8,9 +8,12 @@ import Spinner from "./components/Spinner";
 import CartButton from "./components/CartButton";
 import CartDrawer from "./components/CartDrawer";
 
-// ✅ NUEVO
+// rappi
 import RappiButton from "./components/RappiButton";
 import RappiDrawer from "./components/RappiDrawer";
+//codigo postal
+import ZipCodeModal from "./components/ZipCodeModal";
+
 
 // Lazy imports
 const Home = lazy(() => import("./pages/Home"));
@@ -44,15 +47,29 @@ const GoogleAnalytics = lazy(() => import("./pages/google2c9b13ae1cb961e7.html")
 export default function App() {
   const [cartOpen, setCartOpen] = useState(false);
 
-  // NUEVO
+  //rappi estado
   const [rappiOpen, setRappiOpen] = useState(false);
+
+  //codigo postal estado
+  const [showZipModal, setShowZipModal] = useState(false);
+
 
   // Permite abrir el drawer desde cualquier parte sin prop-drilling:
   // window.dispatchEvent(new CustomEvent("open-rappi-drawer"))
+  //botones flotantes
   useEffect(() => {
     const handler = () => setRappiOpen(true);
     window.addEventListener("open-rappi-drawer", handler);
     return () => window.removeEventListener("open-rappi-drawer", handler);
+  }, []);
+
+  //codigo postal
+  useEffect(() => {
+    const zip = localStorage.getItem("userZip");
+
+    if (!zip) {
+      setShowZipModal(true);
+    }
   }, []);
 
   return (
@@ -224,7 +241,13 @@ export default function App() {
         {/* Drawers */}
         <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
         <RappiDrawer open={rappiOpen} onClose={() => setRappiOpen(false)} />
+
+        {/* codigo postal modal */}
+        {showZipModal && (
+          <ZipCodeModal onClose={() => setShowZipModal(false)} />
+        )}
       </>
     </AuthProvider>
+    
   );
 }

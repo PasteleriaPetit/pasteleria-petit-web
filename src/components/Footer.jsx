@@ -7,7 +7,7 @@ export default function Footer() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          © {new Date().getFullYear()} Petit Plaisir · Todos los derechos reservados
+          © {new Date().getFullYear()} Petit Reposteria con alma · Todos los derechos reservados
         </a>
       </footer>
     );

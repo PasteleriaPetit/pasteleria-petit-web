@@ -12,10 +12,10 @@ import {
     import { toast } from "react-toastify";
 
     const STATUS_OPTIONS = [
-    "pending_payment",
-    "pending_store_payment",
-    "paid",
-    "payment_failed",
+    "pago pendiente",
+    "pendiente de pago en sucursal",
+    "pago exitoso",
+    "pago fallido",
     "preparando",
     "en_ruta",
     "entregado",
@@ -78,13 +78,13 @@ import {
         }
     };
 
-    // 🔥 FILTRO POR ESTADO
+    //  FILTRO POR ESTADO
     const filteredOrders =
         statusFilter === "all"
         ? orders
         : orders.filter((o) => o.status === statusFilter);
 
-    // 🔥 PAGINACIÓN
+    //  PAGINACIÓN
     const totalPages = Math.ceil(filteredOrders.length / ORDERS_PER_PAGE);
 
     const paginatedOrders = filteredOrders.slice(
@@ -110,7 +110,7 @@ import {
             <p className="text-wineDark/70">Aún no hay pedidos registrados.</p>
             ) : (
             <>
-                {/* 🔥 CONTROLES: Filtro + Info */}
+                {/*  CONTROLES: Filtro + Info */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <div className="flex items-center gap-2">
                     <label className="text-sm text-wineDark">
@@ -135,7 +135,7 @@ import {
                 </p>
                 </div>
 
-                {/* 🔥 LISTA DE PEDIDOS (ahora paginada y filtrada) */}
+                {/*  LISTA DE PEDIDOS (ahora paginada y filtrada) */}
                 <div className="space-y-4">
                 {paginatedOrders.map((o) => (
                     <div
@@ -233,7 +233,7 @@ import {
                 ))}
                 </div>
 
-                {/* 🔥 PAGINACIÓN */}
+                {/*  PAGINACIÓN */}
                 {totalPages > 1 && (
                 <div className="flex justify-center items-center gap-2 mt-6">
                     <button

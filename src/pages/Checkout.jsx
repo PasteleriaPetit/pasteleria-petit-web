@@ -120,7 +120,7 @@ export default function Checkout() {
       const { id: orderId, base } = await createOrder("store", "pending_store_payment");
 
       // Mensaje para WhatsApp
-      const lines = [
+      /* const lines = [
         t("checkout.whatsapp.reserveHeader"),
         "",
         ...base.items.map(
@@ -134,12 +134,12 @@ export default function Checkout() {
         `${t("checkout.summary.total")}: ${mxn(base.totals.total)}`,
         "",
         `${t("checkout.whatsapp.orderNumber")}: ${orderId}`,
-      ];
+      ]; */
 
-      const text = encodeURIComponent(lines.join("\n"));
-      const whatsappNumber = "5213318501155";
-      const url = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${text}`;
-      window.open(url, "_blank");
+      /* const text = encodeURIComponent(lines.join("\n"));
+      const whatsappNumber = "5213318501155"; */
+      /* const url = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${text}`;
+      window.open(url, "_blank"); */
     } catch (e) {
       console.error(e);
       setError(t("checkout.errors.reserveFailed"));
@@ -198,14 +198,14 @@ export default function Checkout() {
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Columna izquierda: Dirección + Envío */}
         <div className="lg:col-span-2 space-y-6">
-          <AddressForm onSelected={setAddress} />
+          {/* <AddressForm onSelected={setAddress} /> */}
 
-          <div className="bg-white rounded-xl border border-rose/30 p-4 shadow-sm">
+          {/* <div className="bg-white rounded-xl border border-rose/30 p-4 shadow-sm">
             <h3 className="text-wine text-lg font-semibold mb-3">
               {t("checkout.shipping.title")}
             </h3>
             <ShippingPicker onChange={setShipping} />
-          </div>
+          </div> */}
 
           {/* ✅ Bloque Rappi */}
           <div className="bg-white rounded-xl border border-rose/30 p-4 shadow-sm">
@@ -297,13 +297,14 @@ export default function Checkout() {
                   </button>
 
                   {/* Apartar y pagar en sucursal */}
-                  <button
+                  
+                  {/* <button
                     disabled={!canReserveStore}
                     onClick={reserveInStore}
                     className="w-full bg-wine text-cream py-2 rounded-lg hover:opacity-90 transition disabled:opacity-50"
                   >
                     {loadingPay ? t("checkout.actions.processing") : t("checkout.actions.reserveStore")}
-                  </button>
+                  </button> */}
 
                   {/* Mercado Pago (si lo reactivas) */}
                   

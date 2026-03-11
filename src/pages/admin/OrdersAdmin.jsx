@@ -163,10 +163,23 @@ import {
                         </strong>
                         </p>
 
-                        <p className="text-xs text-wineDark/70 mb-2">
-                        Cliente:{" "}
-                        {o.userEmail || o.user?.email || "Sin correo registrado"}
-                        </p>
+                        {o.pickup && (
+                        <div className="text-xs text-wineDark/70">
+                            <p>Cliente: {o.customer.name}</p>
+                            <p>Telefono: {o.customer.phone}</p>
+                        </div>
+                        )}
+
+                        {o.pickup && (
+                        <div className="text-xs text-wineDark/70">
+                            <p>Recoger en: {o.pickup.branch} ·{" "}</p>
+                            <p>Hora estimada:  {new Date(`1970-01-01T${o.pickup.time}`).toLocaleTimeString("es-MX", {
+                            hour: "numeric",
+                            minute: "2-digit",
+                            hour12: true,
+                            })}</p>
+                        </div>
+                        )}
 
                         {/* Items */}
                         <ul className="text-xs text-wineDark/80 space-y-1 max-h-28 overflow-y-auto pr-1">

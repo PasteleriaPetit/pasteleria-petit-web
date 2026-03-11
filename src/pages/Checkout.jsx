@@ -5,6 +5,8 @@ import { useCart } from "../context/CartContext";
 import { mxn } from "../utils/money";
 import { createMPCheckout } from "../api/payments";
 import { useAuth } from "../auth/AuthProvider";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 // 🔹 Firestore
 import { db } from "../lib/firebase";
@@ -14,8 +16,47 @@ import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useTranslation } from "react-i18next";
 
 export default function Checkout() {
+  const navigate = useNavigate();
+
+  const [showPickupForm, setShowPickupForm] = useState(false);
+
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [pickupBranch, setPickupBranch] = useState("");
+  const [pickupTime, setPickupTime] = useState("");
+
+  const branches = [
+  "Sucursal San Juan Bosco",
+  "Sucursal Circunvalación",
+  "Sucursal El Salto",
+  "Sucursal Obsidiana",
+  "Sucursal Minerva",
+  "Sucursal Tlaquepaque",
+  "Sucursal Río Nilo",
+  "Sucursal Revolución",
+  "Sucursal Plan de San Luis",
+  "Sucursal Zapopan",
+  "Sucursal Patria",
+  ];
+
+  const isPickupFormValid =
+  customerName.trim().length > 2 &&
+  customerPhone.length === 10 &&
+  pickupBranch &&
+  pickupTime;
+
+  const now = new Date();
+  const currentHour = now.getHours();
+
+  const storeOpen = currentHour >= 8 && currentHour <= 21;
+  {!storeOpen && (
+  <p className="text-red text-sm">
+    Las sucursales están cerradas actualmente.
+  </p>
+)}
+
   const { t, i18n } = useTranslation();
-  const { cart, subtotal } = useCart();
+  const { cart, subtotal, clearCart } = useCart();
   const { user } = useAuth();
 
   const [address, setAddress] = useState(null); // objeto completo de AddressForm
@@ -87,7 +128,19 @@ export default function Checkout() {
       throw new Error(t("checkout.errors.loginRequiredToRegister"));
     }
 
-    const base = payloadBase();
+    const base = {
+    ...payloadBase(),
+
+    customer: {
+      name: customerName,
+      phone: customerPhone,
+    },
+
+    pickup: {
+      branch: pickupBranch,
+      time: pickupTime,
+    }
+  };
 
     const docRef = await addDoc(collection(db, "orders"), {
       ...base,
@@ -107,46 +160,25 @@ export default function Checkout() {
   // 1) Apartar y pagar en sucursal
   // ==========================
   const reserveInStore = async () => {
-    try {
-      setLoadingPay(true);
-      setError("");
+  try {
+    setLoadingPay(true);
+    setError("");
 
-      if (!user) {
-        setError(t("checkout.errors.loginRequiredToReserve"));
-        setLoadingPay(false);
-        return;
-      }
+    const { id: orderId } = await createOrder("store", "pending_store_payment");
 
-      const { id: orderId, base } = await createOrder("store", "pending_store_payment");
+    clearCart();
 
-      // Mensaje para WhatsApp
-      /* const lines = [
-        t("checkout.whatsapp.reserveHeader"),
-        "",
-        ...base.items.map(
-          (i) =>
-            `• ${i.title}${i.options?.size ? ` (${i.options.size})` : ""} x${i.qty} — ${mxn(
-              i.price * i.qty
-            )}`
-        ),
-        "",
-        `${t("checkout.summary.subtotal")}: ${mxn(base.totals.subtotal)}`,
-        `${t("checkout.summary.total")}: ${mxn(base.totals.total)}`,
-        "",
-        `${t("checkout.whatsapp.orderNumber")}: ${orderId}`,
-      ]; */
+    toast.success("Pedido registrado correctamente");
 
-      /* const text = encodeURIComponent(lines.join("\n"));
-      const whatsappNumber = "5213318501155"; */
-      /* const url = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${text}`;
-      window.open(url, "_blank"); */
-    } catch (e) {
-      console.error(e);
-      setError(t("checkout.errors.reserveFailed"));
-    } finally {
-      setLoadingPay(false);
-    }
-  };
+    navigate("/");
+
+  } catch (e) {
+    console.error(e);
+    setError("No se pudo registrar el pedido");
+  } finally {
+    setLoadingPay(false);
+  }
+};
 
   const payMP = async () => {
     try {
@@ -298,13 +330,71 @@ export default function Checkout() {
 
                   {/* Apartar y pagar en sucursal */}
                   
-                  {/* <button
+                  <button
                     disabled={!canReserveStore}
-                    onClick={reserveInStore}
+                    onClick={() => setShowPickupForm(true)}
                     className="w-full bg-wine text-cream py-2 rounded-lg hover:opacity-90 transition disabled:opacity-50"
                   >
-                    {loadingPay ? t("checkout.actions.processing") : t("checkout.actions.reserveStore")}
-                  </button> */}
+                    {t("checkout.actions.reserveStore")}
+                  </button>
+                  
+
+                  {showPickupForm && (
+                    <div className="bg-rose/10 border border-rose/30 rounded-xl p-4 mt-3 space-y-3">
+
+                      <input
+                        type="text"
+                        placeholder="Nombre"
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
+                        className="w-full border border-rose/30 rounded-lg px-3 py-2"
+                      />
+
+                      <input
+                        type="tel"
+                        placeholder="Teléfono"
+                        value={customerPhone}
+                        onChange={(e) => {
+                          const numbersOnly = e.target.value.replace(/\D/g, "");
+                          setCustomerPhone(numbersOnly.slice(0, 10));
+                        }}
+                        className="w-full border border-rose/30 rounded-lg px-3 py-2"
+                      />
+
+                      <select
+                        value={pickupBranch}
+                        onChange={(e) => setPickupBranch(e.target.value)}
+                        className="w-full border border-rose/30 rounded-lg px-3 py-2"
+                      >
+                        <option value="">Selecciona sucursal</option>
+                        {branches.map((b) => (
+                          <option key={b} value={b}>{b}</option>
+                        ))}
+                      </select>
+
+                      <input
+                        type="time"
+                        min="8:30"
+                        max="21:00"
+                        value={pickupTime}
+                        onChange={(e) => setPickupTime(e.target.value)}
+                        className="w-full border border-rose/30 rounded-lg px-3 py-2"
+                      />
+                      <p className="text-xs text-wineDark/60">
+                      Indique la hora en que pasara por su producto. El horario de recogida es de: 8:30 AM – 9:00 PM. (Esto puede variar segun la sucursal y el dia elegido)
+                      </p>
+
+                      <button
+                        onClick={reserveInStore}
+                        disabled={!isPickupFormValid || loadingPay}
+                        className="w-full bg-wine text-white py-2 rounded-lg transition
+                                  disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      >
+                        {loadingPay ? "Registrando pedido..." : "Confirmar pedido"}
+                      </button>
+                      
+                    </div>
+                  )}
 
                   {/* Mercado Pago (si lo reactivas) */}
                   

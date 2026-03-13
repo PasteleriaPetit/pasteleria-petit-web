@@ -12,14 +12,9 @@ import {
     import { toast } from "react-toastify";
 
     const STATUS_OPTIONS = [
-    "pago pendiente",
-    "pendiente de pago en sucursal",
-    "pago exitoso",
-    "pago fallido",
-    "preparando",
-    "en_ruta",
+    "Pendiente",
+    "Preparando",
     "entregado",
-    "cancelado",
     ];
 
     export default function OrdersAdmin() {

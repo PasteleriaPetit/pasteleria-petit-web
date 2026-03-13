@@ -81,7 +81,6 @@ export default function PedidosEspecialesAdmin() {
     "catego5",
     "catego6",
     "catego7",
-    "catego8",
   ];
 
   // Escuchar Firestore

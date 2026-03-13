@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 import { X } from "lucide-react";
 
+
 export default function PedidosEspeciales() {
   const { t, i18n } = useTranslation();
   const lang = i18n.language?.startsWith("en") ? "en" : "es";
@@ -25,14 +26,14 @@ export default function PedidosEspeciales() {
   // 🔹 Categorías por clave (se traducen con i18n) 
   const categories = [ 
   "catego0", 
-  "catego1", 
+  "catego1",
+  "catego6",  
+  "catego7",
+  "catego4", 
+  "catego5",
   "catego2", 
   "catego3", 
-  "catego4", 
-  "catego5", 
-  "catego6", 
-  "catego7", 
-  "catego8", ];
+  ];
 
   // 🔹 Imágenes por categoría
 const CATEGO1_IMG = "https://res.cloudinary.com/dzjupasme/image/upload/v1771202572/vlpizwdjxwutx92yue1d.png";
@@ -42,7 +43,6 @@ const CATEGO4_IMG = "https://res.cloudinary.com/dzjupasme/image/upload/v17706520
 const CATEGO5_IMG = "https://res.cloudinary.com/dzjupasme/image/upload/v1765901056/sallopl39yoljz7nwtgu.png";
 const CATEGO6_IMG = "https://res.cloudinary.com/dzjupasme/image/upload/v1770953863/jact3e5jagatlqiqg1wf.png";
 const CATEGO7_IMG = "https://res.cloudinary.com/dzjupasme/image/upload/v1771207542/jcru3xcwzlz5r5sjnl11.png";
-const CATEGO8_IMG = "https://res.cloudinary.com/dzjupasme/image/upload/v1770949723/zlmpk0yii2kkfdvzydzz.png";
 
 const CATEGORY_IMAGES = {
   catego1: CATEGO1_IMG,
@@ -52,7 +52,6 @@ const CATEGORY_IMAGES = {
   catego5: CATEGO5_IMG,
   catego6: CATEGO6_IMG,
   catego7: CATEGO7_IMG,
-  catego8: CATEGO8_IMG,
 };
 
 const categoryCards = categories

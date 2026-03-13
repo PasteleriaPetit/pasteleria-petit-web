@@ -6,12 +6,16 @@ import { db } from "../lib/firebase";
 import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from "firebase/firestore";
 import { toast } from "react-toastify";
 
-export default function Home() {
-  const BANNER_DESKTOP =
-    "https://res.cloudinary.com/dzjupasme/image/upload/c_pad,b_gen_fill,w_1920,h_1080/v1767902535/xhsojdjr9wtrnqlohopx.jpg";
+import BANNER_DESKTOP from "../assets/imagenes-home/banner-desktop.jpg";
+import BANNER_MOBILE from "../assets/imagenes-home/banner-movil.jpg";
+import REBANADA from "../assets/imagenes-home/rebanada.png";
+import ROMBO from "../assets/imagenes-home/rombos.png";
+import NATURALES from "../assets/imagenes-home/ingredientes-naturales.png";
+import ARTESANAL from "../assets/imagenes-home/procesos-tradicionales.png";
+import CONSERVADORES from "../assets/imagenes-home/sin-conservadores.png";
 
-  const BANNER_MOBILE =
-    "https://res.cloudinary.com/dzjupasme/image/upload/v1767894282/llruhi3rlz8eezns4tth.jpg";
+
+export default function Home() {
 
   const { t } = useTranslation();
 
@@ -57,7 +61,7 @@ export default function Home() {
   <section
   className="
     relative w-full
-    mt-20                     /* 👈 empuja el hero debajo del header */
+    mt-20                     
     h-[90vh] md:h-[90vh] lg:h-[115vh]
     overflow-hidden bg-cream
   "
@@ -83,7 +87,7 @@ export default function Home() {
   <section className="font-maison neue bg-rosepier text-wine py-10 flex flex-col items-center text-center">
     <div className="px-4 py-4">
       <img
-        src="https://res.cloudinary.com/dzjupasme/image/upload/v1765908539/xm3exyhaz3sgt4rbjhkk.png"
+        src={REBANADA}
         alt="La rebanada de tu antojo"
         className="w-full max-w-md h-auto mb-6"
       />
@@ -111,29 +115,29 @@ export default function Home() {
           <div
             className="
               absolute inset-0
-              bg-[url('https://res.cloudinary.com/dzjupasme/image/upload/v1767882752/sqbbw3kig8xx4mminiwn.png')]
               bg-repeat-x
               bg-center
               bg-contain
             "
+            style={{ backgroundImage: `url(${ROMBO})` }}
           />
           
         </div>
         {/* ICONOS DE CALIDAD */}
     <div className="flex justify-center items-center gap-18 mt-8 mb-8 px-4 overflow-x-auto">
       <img
-        src="https://res.cloudinary.com/dzjupasme/image/upload/v1769476682/d0kkhcefwqvnatatmrya.png"
+        src={CONSERVADORES}
         alt="Sin conservadores"
         className="w-32 md:w-36 h-auto"
       />
       
       <img
-        src="https://res.cloudinary.com/dzjupasme/image/upload/e_background_removal/f_png/v1769612892/x3h2dhyoe1w3tgjsglvw.jpg"
+        src={ARTESANAL}
         alt="Producto artesanal"
         className="w-32 md:w-36 h-auto"
       />
       <img
-        src="https://res.cloudinary.com/dzjupasme/image/upload/e_background_removal/f_png/v1769612892/hgh75ywru6ic34xbnjuf.jpg"
+        src={NATURALES}
         alt="Ingredientes naturales"
         className="w-32 md:w-36 h-auto"
       />
@@ -143,11 +147,11 @@ export default function Home() {
           <div
             className="
               absolute inset-0
-              bg-[url('https://res.cloudinary.com/dzjupasme/image/upload/v1767882752/sqbbw3kig8xx4mminiwn.png')]
               bg-repeat-x
               bg-center
               bg-contain
             "
+            style={{ backgroundImage: `url(${ROMBO})` }}
           />
           
         </div>

@@ -9,6 +9,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 import { X } from "lucide-react";
 
+import CATEGO1_IMG from "../assets/categorias-especiales/portada-dibujado.png";
+import CATEGO2_IMG from "../assets/categorias-especiales/portada-15-años.png";
+import CATEGO3_IMG from "../assets/categorias-especiales/portada-bodas.png";
+import CATEGO4_IMG from "../assets/categorias-especiales/portada-bautizo.png";
+import CATEGO5_IMG from "../assets/categorias-especiales/portada-comunion.png";
+import CATEGO6_IMG from "../assets/categorias-especiales/portada-oblea.png";
+import CATEGO7_IMG from "../assets/categorias-especiales/portada-fondant.png";
+
 
 export default function PedidosEspeciales() {
   const { t, i18n } = useTranslation();
@@ -35,14 +43,7 @@ export default function PedidosEspeciales() {
   "catego3", 
   ];
 
-  // 🔹 Imágenes por categoría
-const CATEGO1_IMG = "https://res.cloudinary.com/dzjupasme/image/upload/v1771202572/vlpizwdjxwutx92yue1d.png";
-const CATEGO2_IMG = "https://res.cloudinary.com/dzjupasme/image/upload/v1765906571/ds7q9k2kamkwdmqucisr.png";
-const CATEGO3_IMG = "https://res.cloudinary.com/dzjupasme/image/upload/v1765906754/wuneci4fzg0b0jdevgvk.png";
-const CATEGO4_IMG = "https://res.cloudinary.com/dzjupasme/image/upload/v1770652032/ded2up3nkrkbvrl6rfmj.png";
-const CATEGO5_IMG = "https://res.cloudinary.com/dzjupasme/image/upload/v1765901056/sallopl39yoljz7nwtgu.png";
-const CATEGO6_IMG = "https://res.cloudinary.com/dzjupasme/image/upload/v1770953863/jact3e5jagatlqiqg1wf.png";
-const CATEGO7_IMG = "https://res.cloudinary.com/dzjupasme/image/upload/v1771207542/jcru3xcwzlz5r5sjnl11.png";
+
 
 const CATEGORY_IMAGES = {
   catego1: CATEGO1_IMG,

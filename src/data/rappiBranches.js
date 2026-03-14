@@ -1,5 +1,12 @@
 // src/data/rappiBranches.js
 export const RAPPI_BRANCHES = [
+  /* {
+    id: "San-Juan-Bosco",
+    name: "Pastelerías Petit San Juan Bosco",
+    address:
+      "C. Juan de Dios Robledo 403, Las Huertas, 44739 Guadalajara, Jal., México",
+      url: "https://www.rappi.com.mx/restaurantes/1930218048-pastelerias-petit",
+  }, */
   {
     id: "circunvalacion",
     name: "Pastelerías Petit Circunvalación",

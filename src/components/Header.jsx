@@ -16,12 +16,7 @@ export default function Header() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [displayName, setDisplayName] = useState("");
 
-
-
-
-
-
-    // 🔹 Traer nombre del usuario desde Firestore
+    // Traer nombre del usuario desde Firestore
   useEffect(() => {
     if (!user?.uid) {
       setDisplayName("");
@@ -38,13 +33,13 @@ export default function Header() {
     return () => unsub();
   }, [user?.uid]);
 
-  // 🔹 Cargar idioma guardado
+  // Cargar idioma guardado
   useEffect(() => {
     const savedLang = localStorage.getItem("lang") || "es";
     setLang(i18n.language || localStorage.getItem("lang") || "es");
   }, []);
 
-  // 🔹 Cambiar idioma
+  // Cambiar idioma
   const toggleLang = () => {
     const newLang = lang === "es" ? "en" : "es";
     setLang(newLang);
@@ -52,7 +47,7 @@ export default function Header() {
     i18n.changeLanguage(newLang); // ✅ sin recargar la página
 };
 
-  // 🔹 Mostrar / ocultar header al hacer scroll
+  // Mostrar / ocultar header al hacer scroll
   useEffect(() => {
     const handleScroll = () => {
       const current = window.scrollY;
@@ -84,12 +79,7 @@ export default function Header() {
       className={` font-maison neue font-bold bg-rosepier fixed top-0 left-0 w-full z-50 text-wine shadow-md transition-transform duration-500 ease-in-out ${
         showHeader ? "translate-y-0" : "-translate-y-full"
       }`}
-      style={{
-      /* Acomodar el link de nuevo terminar el png cuando encontremos una mejor alternativa*/
-        backgroundImage: "url('https://res.cloudinary.com/dzjupasme/image/upload/v1761097033/carjwzmi1p4embimum5j.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
+      
     >
       {/* Overlay translúcido */}
       {/*Acomodar de nuevo el fondo cuando encontemos una mejor alternativa bg-rose/20*/}

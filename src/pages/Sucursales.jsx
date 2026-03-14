@@ -2,6 +2,10 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
+import rebanada from "../assets/imagenes-sucursales/rebanada.png";
+import cafeteria from "../assets/imagenes-sucursales/cafeteria.png";
+import rappi from "../assets/imagenes-sucursales/rappi.png";
+
 export default function Sucursales() {
   const { t } = useTranslation();
 
@@ -162,21 +166,21 @@ export default function Sucursales() {
             <div className="flex justify-center gap-3 mt-4">
               {s.rebanada && (
                 <img
-                  src="https://res.cloudinary.com/dzjupasme/image/upload/v1765560283/z3bonz0a3rfeaotmzsk7.png"
+                  src={rebanada}
                   alt="Rebanada"
                   className="h-14 w-14 object-contain"
                 />
               )}
               {s.cafeteria && (
                 <img
-                  src="https://res.cloudinary.com/dzjupasme/image/upload/v1760750658/xqav4uk0dkmxfnyymzdz.png"
+                  src={cafeteria}
                   alt="Cafetería"
                   className="h-14 w-14 object-contain"
                 />
               )}
               {s.rappi && (
                 <img
-                  src="https://res.cloudinary.com/dzjupasme/image/upload/v1760751843/ap94iwehcefphojg7nnh.png"
+                  src={rappi}
                   alt="Rappi"
                   className="h-14 w-14 object-contain"
                 />

@@ -14,6 +14,8 @@ import RappiDrawer from "./components/RappiDrawer";
 //codigo postal
 import ZipCodeModal from "./components/ZipCodeModal";
 
+import AnalyticsTracker from "./utils/AnalyticsTracker";
+
 
 // Lazy imports
 const Home = lazy(() => import("./pages/Home"));
@@ -77,6 +79,7 @@ export default function App() {
       <>
         <div className="flex flex-col min-h-screen">
           <Header />
+          <AnalyticsTracker />
           <main className="flex-1">
             <Suspense fallback={<Spinner />}>
               <Routes>

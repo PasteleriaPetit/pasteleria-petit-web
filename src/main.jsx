@@ -8,6 +8,9 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { CartProvider } from "./context/CartContext";
 import { Analytics } from "@vercel/analytics/react";
+import ReactGA from "react-ga4";
+
+ReactGA.initialize("G-67EL0CE4Q8");
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

@@ -9,6 +9,19 @@ import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { pickLang } from "../utils/locales";
 
+import CHOCOLATE from "../assets/categorias-productos/chocolate.png";
+import VANILLA from "../assets/categorias-productos/vainilla.png";
+import QUESO from "../assets/categorias-productos/queso.png";
+import TRES_LECHES from "../assets/categorias-productos/tres-leches.png";
+import CAFE from "../assets/categorias-productos/cafe.png";
+import CLASICO from "../assets/categorias-productos/clasico.png";
+import GELATINA from "../assets/categorias-productos/gelatina.png";
+import SIN_AZUCAR from "../assets/categorias-productos/sin-azucar.png";
+import GALLETERIA from "../assets/categorias-productos/galleteria.png";
+import PANADERIA from "../assets/categorias-productos/panaderia.png";
+import REPOSTERIA from "../assets/categorias-productos/reposteria.png"; 
+
+
 export default function Products() {
   const { t, i18n } = useTranslation();
   const lang = i18n?.language || "es";
@@ -48,31 +61,6 @@ export default function Products() {
     "productsPanaderia",
     "productsReposteria",
   ];
-
-  // ✅ NUEVO: imágenes por categoría (una por cada filtro, excepto productsAll)
-  // Cambia estas URLs por las tuyas.
-    const CHOCOLATE = 
-    "https://res.cloudinary.com/dzjupasme/image/upload/v1769808452/kqdxaleki7qp6hpvv9e6.png";
-    const VANILLA =
-    "https://res.cloudinary.com/dzjupasme/image/upload/v1769808453/uqo8lhn4s9v8ijhbbl2a.png";
-    const QUESO =
-    "https://res.cloudinary.com/dzjupasme/image/upload/v1769813277/h24woaaolz7ubigcufw8.png";
-    const TRES_LECHES =
-    "https://res.cloudinary.com/dzjupasme/image/upload/v1769812639/yqyrzveppfdwulkribwy.png";
-    const CAFE =
-    "https://res.cloudinary.com/dzjupasme/image/upload/v1769813534/wu8o7zvw0jberyvurd3b.png";
-    const CLASICO =
-    "https://res.cloudinary.com/dzjupasme/image/upload/v1769812605/upgkaepzuqmrtakgzhka.png";
-    const GELATINA =
-    "https://res.cloudinary.com/dzjupasme/image/upload/v1769812727/nqddcujogag7k01wq9qx.png";
-    const SIN_AZUCAR =
-    "https://res.cloudinary.com/dzjupasme/image/upload/v1769812845/qdgjw6ejro1mhtpjjywu.png";
-    const GALLETERIA =
-    "https://res.cloudinary.com/dzjupasme/image/upload/v1769812929/pnmbzxgzlxk3482xki7w.png";
-    const PANADERIA =
-    "https://res.cloudinary.com/dzjupasme/image/upload/v1769813021/amns6cqprfwytvb1jbaa.png";
-    const REPOSTERIA =
-    "https://res.cloudinary.com/dzjupasme/image/upload/v1769813137/lcgdojgt1mekimrhben9.png"; 
 
   const CATEGORY_IMAGES = {
     productsChoco: CHOCOLATE,

@@ -4,14 +4,21 @@ import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCakeCandles, faMugHot, faGift, faStore } from "@fortawesome/free-solid-svg-icons";
 
+import STORY_IMG from "../assets/imagenes-nosotros/estrella.png";
+import PIER_IMG from "../assets/imagenes-nosotros/pier-nosotros.png";
+import primer_pastel from "../assets/imagenes-nosotros/primer-pastel.jpg";
+import pedido_especial from "../assets/imagenes-nosotros/pedido-especial.jpg";
+import primer_remodelacion from "../assets/imagenes-nosotros/primer-remodelacion.jpg";
+import primer_sucursal from "../assets/imagenes-nosotros/primer-sucursal.jpg";
+import primer_boda from "../assets/imagenes-nosotros/primeros-boda.jpg";
+import produccion from "../assets/imagenes-nosotros/produccion.jpg";
+import segunda_sucursal from "../assets/imagenes-nosotros/segunda-sucursal.jpg";
+import audio from "../assets/imagenes-nosotros/audio-alma.wav";
+
 export default function Nosotros() {
   const { t } = useTranslation();
 
-  const STORY_IMG =
-    "https://res.cloudinary.com/dzjupasme/image/upload/e_background_removal/f_png/v1766505868/kzcjbkpzvcrv7sdosaya.png";
-
-  const PIER_IMG =
-    "https://res.cloudinary.com/dzjupasme/image/upload/c_crop,w_650,h_800/v1767149183/dygjbhogjoungfwdbiha.png";
+  
 
   const STORY_IMG_ALT = "";
   const STORY_IMG_LINK = ""; // opcional
@@ -25,44 +32,37 @@ export default function Nosotros() {
 
   const gallery = [
     {
-      src: "https://res.cloudinary.com/dzjupasme/image/upload/v1764703220/wwi99d9aizwfamwiybpo.jpg",
-      alt: "imagen5",
+      src: primer_pastel,
       caption: t("about.img3"),
       className: "",
     },
     {
-      src: "https://res.cloudinary.com/dzjupasme/image/upload/v1764807166/tnejiwmrjuczm0tpwfup.jpg",
-      alt: "imagen3",
+      src: pedido_especial,
       caption: t("about.img4"),
       className: "row-span-2",
     },
     {
-      src: "https://res.cloudinary.com/dzjupasme/image/upload/v1772668700/nw0fewaj55pvbkuv9lwq.jpg",
-      alt: "imagen2",
+      src: primer_boda,
       caption: t("about.img2"),
       className: "row-span-2",
     },
     {
-      src: "https://res.cloudinary.com/dzjupasme/image/upload/v1767153429/kqvoucflsw3bhjdnnhao.jpg",
-      alt: "imagen1",
+      src: produccion,
       caption: t("about.img5"),
       className: "row-span-2",
     },
     {
-      src: "https://res.cloudinary.com/dzjupasme/image/upload/v1764703220/i2d2ybodsdi84gpha2rm.jpg",
-      alt: "imagen7",
+      src: primer_sucursal,
       caption: t("about.img8"),
       className: "",
     },
     {
-      src: "https://res.cloudinary.com/dzjupasme/image/upload/v1767153604/uiv4rrurommydwdwhwtu.jpg",
-      alt: "imagen1",
+      src: primer_remodelacion,
       caption: t("about.img6"),
       className: "row-span-2",
     },
     {
-      src: "https://res.cloudinary.com/dzjupasme/image/upload/v1764703219/nmjlw4dijem019km1jm8.jpg",
-      alt: "imagen9",
+      src: segunda_sucursal,
       caption: t("about.img9"),
       className: "",
     },
@@ -294,7 +294,7 @@ export default function Nosotros() {
             <div className="mt-4 w-full flex justify-center">
               <audio controls className="w-full max-w-md rounded-xl border border-rose/30 shadow-sm">
                 <source
-                  src="https://res.cloudinary.com/dzjupasme/video/upload/v1765833581/kra3rfg0ukvdc06udkd1.wav"
+                  src={audio}
                   type="audio/wav"
                 />
                 {t("about.audioNotSupported")}

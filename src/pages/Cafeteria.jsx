@@ -3,41 +3,11 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
+import MENU_IMG_URL from "../assets/menu-cafeteria.jpg";
+
 export default function Cafeteria() {
   const { t } = useTranslation();
-
-  // 🔹 Sucursales con cafetería
-  /* const sucursalesCafeteria = [
-    {
-      id: "rio-nilo",
-      name: "" + t("cafe.cafeteriaBranch1"),
-      address: "Av. Río Nilo #2916, Jardines de la Paz, Guadalajara, Jalisco",
-      horario: "Lunes a Domingo · 8:30 AM – 9:00 PM",
-      img: "https://res.cloudinary.com/dzjupasme/image/upload/v1760671329/ejhq1mvjzbuphbstc3lx.png",
-      map: "https://maps.app.goo.gl/axywP3bFcfZMwCsS9",
-    },
-    {
-      id: "zapopan",
-      name: "" + t("cafe.cafeteriaBranch2"),
-      address:
-        "Francisco Javier Mina No. 204, Zapopan Centro, Zapopan, Jalisco 4510",
-      horario: "Lunes a Domingo · 8:30 AM – 9:00 PM",
-      img: "https://res.cloudinary.com/dzjupasme/image/upload/v1760671329/hpz2keuyaqnrv1lcsjgn.png",
-      map: "https://maps.app.goo.gl/7ga6Dsie43Q4kYfE9",
-    },
-    {
-      id: "minerva",
-      name: "" + t("cafe.cafeteriaBranch3"),
-      address:
-        "Av. López Mateos Nte. 1248, Col. Italia Providencia, Guadalajara, Jalisco",
-      horario: "Lunes a Sabado · 8:30 AM – 9:00 PM Domingo 8:30 AM - 8:00 PM",
-      img: "https://res.cloudinary.com/dzjupasme/image/upload/v1760671329/fk8npzd72yr3ccruqts1.png",
-      map: "https://maps.app.goo.gl/bK5pZN2rKKaPdgU97",
-    },
-  ]; */
-
-  const MENU_IMG_URL =
-    "https://res.cloudinary.com/dzjupasme/image/upload/v1764802574/oka2ql13jj2re6ajruhm.jpg";
+  
 
   return (
     <main className="bg-cream min-h-[calc(100vh-80px)] pt-[88px] px-4 sm:px-6 lg:px-12 pb-6">

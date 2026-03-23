@@ -160,7 +160,7 @@ export default function App() {
                   }
                 />
                 <Route
-                  path="/Fcm5Qpimck7lCl+L35tOt3qNoIe0FVVSmhdFs//ik+Xn3k+ZcwPpYgjUmlwytLRd"
+                  path="/Fcm5Qpimck7lCl+L35tOt3qNoIe0FVVSmhdFs/aik+Xn3k+ZcwPpYgjUmlwytLRd"
                   element={
                     <ProtectedRoute allow={["admin"]}>
                       <ProductsAdmin />

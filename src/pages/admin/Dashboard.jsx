@@ -7,7 +7,7 @@ export default function Dashboard() {
       <div className="grid sm:grid-cols-3 gap-6">
         {/* Productos */}
         <Link
-          to="/Fcm5Qpimck7lCl+L35tOt3qNoIe0FVVSmhdFs//ik+Xn3k+ZcwPpYgjUmlwytLRd"
+          to="/Fcm5Qpimck7lCl+L35tOt3qNoIe0FVVSmhdFs/aik+Xn3k+ZcwPpYgjUmlwytLRd"
           className="bg-white p-6 rounded-2xl border border-rose/30 text-center hover:bg-rose/20 transition"
         >
           <h2 className="text-xl text-center font-semibold text-wine mb-2">🧁 Pasteleria</h2>

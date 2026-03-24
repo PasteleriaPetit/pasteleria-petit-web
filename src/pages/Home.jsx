@@ -13,6 +13,7 @@ import ROMBO from "../assets/imagenes-home/rombos.png";
 import NATURALES from "../assets/imagenes-home/ingredientes-naturales.png";
 import ARTESANAL from "../assets/imagenes-home/procesos-tradicionales.png";
 import CONSERVADORES from "../assets/imagenes-home/sin-conservadores.png";
+import MENU from "../assets/menu-digital-pagina.pdf";
 
 
 export default function Home() {
@@ -20,7 +21,7 @@ export default function Home() {
   const { t } = useTranslation();
 
   // --- Estado comentarios ---
-  const [form, setForm] = useState({ nombre: "", correo: "", mensaje: "" });
+  const [form, setForm] = useState({ nombre: "", correo: "", telefono: "", mensaje: "" });
   const [sending, setSending] = useState(false);
   const [comentarios, setComentarios] = useState([]);
 
@@ -34,7 +35,7 @@ export default function Home() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.nombre || !form.correo || !form.mensaje) {
+    if (!form.nombre || !form.correo || !form.telefono || !form.mensaje) {
       toast.warning("⚠️ Por favor completa todos los campos");
       return;
     }
@@ -44,11 +45,12 @@ export default function Home() {
       await addDoc(collection(db, "comentarios"), {
         nombre: form.nombre.trim(),
         correo: form.correo.trim(),
+        telefono: form.telefono.trim(),
         mensaje: form.mensaje.trim(),
         fecha: serverTimestamp(),
       });
       toast.success("✅ Comentario enviado correctamente");
-      setForm({ nombre: "", correo: "", mensaje: "" });
+      setForm({ nombre: "", correo: "", telefono: "", mensaje: "" });
     } catch {
       toast.error("❌ Ocurrió un error al enviar tu mensaje");
     } finally {
@@ -98,7 +100,7 @@ export default function Home() {
     </p>
 
     <a
-      href="https://res.cloudinary.com/dzjupasme/image/upload/v1765899511/kxgjvmwlvdulddobsjly.pdf"
+      href={MENU}
       target="_blank"
       rel="noopener noreferrer"
       className="bg-red text-white px-8 py-3 rounded-xl font-semibold hover:opacity-90 transition"
@@ -235,6 +237,14 @@ export default function Home() {
                   className="w-full border rounded-lg px-4 py-2"
                   value={form.correo}
                   onChange={(e) => setForm({ ...form, correo: e.target.value })}
+                />
+
+                <input
+                  type="phone"
+                  placeholder={t("home.commentPhone")}
+                  className="w-full border rounded-lg px-4 py-2"
+                  value={form.telefono}
+                  onChange={(e) => setForm({ ...form, telefono: e.target.value })}
                 />
 
                 <textarea

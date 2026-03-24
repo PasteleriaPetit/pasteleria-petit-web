@@ -3,9 +3,9 @@ import React, { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { RAPPI_BRANCHES } from "../data/rappiBranches";
 import { useTranslation } from "react-i18next";
+import LOGORAPPI from "../assets/logo-rappi.png"; 
 
-const RAPPI_LOGO_URL =
-  "https://res.cloudinary.com/dzjupasme/image/upload/v1760751843/ap94iwehcefphojg7nnh.png";
+const RAPPI_LOGO_URL = LOGORAPPI;
 
 export default function RappiDrawer({ open, onClose }) {
   const { t } = useTranslation();

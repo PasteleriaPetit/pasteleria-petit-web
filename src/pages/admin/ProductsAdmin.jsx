@@ -179,7 +179,7 @@ export default function ProductsAdmin() {
       let imageUrl = form.img || "";
       if (file) imageUrl = await uploadToCloudinary(file);
       if (!imageUrl) {
-        imageUrl = "https://res.cloudinary.com/dzjupasme/image/upload/v1/placeholder_petit.jpg";
+        imageUrl = "https://res.cloudinary.com/drdabinip/image/upload/v1/placeholder_petit.jpg";
       }
 
       const pricesNormalized = normalizePrices(form.prices);

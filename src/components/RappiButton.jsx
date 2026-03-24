@@ -1,4 +1,5 @@
 import React from "react";
+import rappi from "../assets/rappi-button.webp";
 export default function RappiButton({ onClick }) {
   return (
     <button
@@ -21,7 +22,7 @@ export default function RappiButton({ onClick }) {
       "
     >
       <img
-        src="https://res.cloudinary.com/dzjupasme/image/upload/v1767206967/pwszugcik7wm0zflvvom.webp"
+        src={rappi}
         alt="Rappi"
         className="h-8 w-8 object-contain"
         draggable="false"

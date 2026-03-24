@@ -35,6 +35,7 @@
     "commentsTitle": "Leave a comment",
     "commentName": "Name",
     "commentEmail": "Email",
+    "commentPhone": "Phone",
     "commentMessage": "Message",
     "sendMessage": "Send message",
     "sending": "Sending...",

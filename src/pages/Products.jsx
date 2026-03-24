@@ -20,7 +20,8 @@ import SIN_AZUCAR from "../assets/categorias-productos/sin-azucar.png";
 import GALLETERIA from "../assets/categorias-productos/galleteria.png";
 import PANADERIA from "../assets/categorias-productos/panaderia.png";
 import REPOSTERIA from "../assets/categorias-productos/reposteria.png"; 
-
+import QR from "../assets/qr-menu.png";
+import MENU from "../assets/menu-digital-pagina.pdf";
 
 export default function Products() {
   const { t, i18n } = useTranslation();
@@ -28,10 +29,8 @@ export default function Products() {
 
   const FAV_KEY = "petitplaisir:favorites";
 
-  const QR_MENU =
-    "https://res.cloudinary.com/dzjupasme/image/upload/v1765921052/ox5roqywhdisaogvh97g.png";
-  const MENU_PDF =
-    "https://res.cloudinary.com/dzjupasme/image/upload/v1765899511/kxgjvmwlvdulddobsjly.pdf";
+  const QR_MENU = QR;
+  const MENU_PDF = MENU;
 
   const [items, setItems] = useState([]);
   const [filtered, setFiltered] = useState([]);

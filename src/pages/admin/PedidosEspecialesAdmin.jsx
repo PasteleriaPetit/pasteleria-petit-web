@@ -121,7 +121,7 @@ export default function PedidosEspecialesAdmin() {
 
       if (!imageUrl) {
         imageUrl =
-          "https://res.cloudinary.com/dzjupasme/image/upload/v1/placeholder_petit.jpg";
+          "https://res.cloudinary.com/drdabinip/image/upload/v1/placeholder_petit.jpg";
       }
 
       const payload = {

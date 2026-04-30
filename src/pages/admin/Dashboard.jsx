@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom"
+import { exportZipCodesToExcel } from "../../utils/exportZipCodes";
 
 export default function Dashboard() {
   return (
@@ -56,6 +57,13 @@ export default function Dashboard() {
           <h2 className="text-xl text-center font-semibold text-wine mb-2">📦 Pedidos</h2>
           <p className="text-sm text-center text-wineDark/70">Revisa y administra los pedidos en línea.</p>
         </Link>
+        <button
+          onClick={exportZipCodesToExcel}
+          className="bg-white text-wine px-6 py-3 rounded-xl"
+        >
+          <h2 className="text-xl text-center font-semibold text-wine mb-2">📥 Exportar códigos postales</h2>
+                    <p className="text-sm text-center text-wineDark/70">Descargar archivo de codigos postales (esperar unos segundos despues de dar clic para la descarga)</p>
+        </button>
 
       </div>
     </main>

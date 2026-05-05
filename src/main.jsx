@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { CartProvider } from "./context/CartContext";
 import { Analytics } from "@vercel/analytics/react";
 import ReactGA from "react-ga4";
+import "leaflet/dist/leaflet.css";
 
 ReactGA.initialize("G-67EL0CE4Q8");
 

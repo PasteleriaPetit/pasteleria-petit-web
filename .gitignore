@@ -37,6 +37,7 @@ dist-ssr/
 # Firebase cache
 .firebase/
 .firebase/*
+serviceAccountKey.json
 
 # Cloud functions node_modules
 functions/node_modules/

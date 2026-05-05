@@ -1,0 +1,990 @@
+{
+  "44860-La Paz-Jalisco": {
+    "lat": 20.5396776,
+    "lng": -103.0513766
+  },
+  "45400-El Zapote-Jalisco": {
+    "lat": 20.1327205,
+    "lng": -103.5344607
+  },
+  "45500-Tlaquepaque Centro-Jalisco": {
+    "lat": 20.6296403,
+    "lng": -103.3133873
+  },
+  "45410-Coyula-Jalisco": {
+    "lat": 20.6753577,
+    "lng": -103.2562149
+  },
+  "45160-Patria-Jalisco": {
+    "lat": 20.661561,
+    "lng": -103.42307
+  },
+  "44200-Jesus-Jalisco": {
+    "lat": 20.6828181,
+    "lng": -103.3494467
+  },
+  "44730-San Juan Bosco-Jalisco": {
+    "lat": 20.6679833,
+    "lng": -103.4040133
+  },
+  "45050-El Zapote-Jalisco": {
+    "lat": 20.661561,
+    "lng": -103.42307
+  },
+  "45559-Prados de Tlaquepaque-Jalisco": {
+    "lat": 20.593105,
+    "lng": -103.3904727
+  },
+  "45185-Emiliano Zapata-Jalisco": {
+    "lat": 19.3840031,
+    "lng": -104.965115
+  },
+  "44410-Medrano-Jalisco": {
+    "lat": 20.7860162,
+    "lng": -102.9021225
+  },
+  "45300-Tala Centro-Jalisco": {
+    "lat": 20.691031,
+    "lng": -103.2861617
+  },
+  "45140-El Vigia-Jalisco": {
+    "lat": 20.7299403,
+    "lng": -103.3901835
+  },
+  "45019-San Juan de Ocotan-Jalisco": {
+    "lat": 20.686133,
+    "lng": -103.444935
+  },
+  "45589-Rinconada San Francisco-Jalisco": {
+    "lat": 20.7539267,
+    "lng": -103.3864642
+  },
+  "45150-Tepeyac-Jalisco": {
+    "lat": 20.7299403,
+    "lng": -103.3901835
+  },
+  "44280-El Retiro-Jalisco": {
+    "lat": 20.7572906,
+    "lng": -103.3850225
+  },
+  "44600-Villaseñor-Jalisco": {
+    "lat": 20.691369,
+    "lng": -103.369205
+  },
+  "44100-Guadalajara Centro-Jalisco": {
+    "lat": 20.677507,
+    "lng": -103.3551832
+  },
+  "46400-Tequila Centro-Jalisco": {
+    "lat": 20.5317464,
+    "lng": -103.3809526
+  },
+  "44400-Revolucion-Jalisco": {
+    "lat": 20.6665639,
+    "lng": -103.3100943
+  },
+  "44750-Libertad-Jalisco": {
+    "lat": 20.5820282,
+    "lng": -103.3320768
+  },
+  "44970-Echeverria-Jalisco": {
+    "lat": 20.622004,
+    "lng": -103.367704
+  },
+  "45040-Ciudad de los Niños-Jalisco": {
+    "lat": 20.6579994,
+    "lng": -103.416834
+  },
+  "44320-Monumental-Jalisco": {
+    "lat": 20.701772,
+    "lng": -103.3228981
+  },
+  "38358-Santa Elena-Guanajuato": {
+    "lat": 20.6160864,
+    "lng": -101.3987848
+  },
+  "44510-Jardines de Plaza Del Sol-Jalisco": {
+    "lat": 20.6511913,
+    "lng": -103.3977212
+  },
+  "45560-Alamo-Jalisco": {
+    "lat": 20.6308055,
+    "lng": -103.4835293
+  },
+  "44260-Niños Heroes-Jalisco": {
+    "lat": 20.8107717,
+    "lng": -102.7647122
+  },
+  "44490-Lazaro Cardenas-Jalisco": {
+    "lat": 19.8895406,
+    "lng": -102.8337798
+  },
+  "45580-Los Cantaros-Jalisco": {
+    "lat": 20.5112804,
+    "lng": -103.3344472
+  },
+  "44380-San Martin-Jalisco": {
+    "lat": 21.1767208,
+    "lng": -102.4639489
+  },
+  "44890-Rancho Blanco-Jalisco": {
+    "lat": 19.6649536,
+    "lng": -103.354779
+  },
+  "45601-Santa Maria Tequepexpan-Jalisco": {
+    "lat": 20.604902,
+    "lng": -103.4201757
+  },
+  "44820-Figueroa-Jalisco": {
+    "lat": 20.2999041,
+    "lng": -103.6077646
+  },
+  "45685-San Jose Del Castillo-Jalisco": {
+    "lat": 20.5119945,
+    "lng": -103.2417559
+  },
+  "45086-Loma Bonita-Jalisco": {
+    "lat": 21.3697353,
+    "lng": -101.9041502
+  },
+  "45550-Quintero-Jalisco": {
+    "lat": 20.7340454,
+    "lng": -103.3470764
+  },
+  "45654-Real Del Valle-Jalisco": {
+    "lat": 20.5451035,
+    "lng": -103.3683206
+  },
+  "45653-Hacienda Santa Fe-Jalisco": {
+    "lat": 20.5173556,
+    "lng": -103.3829333
+  },
+  "45650-San Sebastian El Grande-Jalisco": {
+    "lat": 20.5340656,
+    "lng": -103.425704
+  },
+  "45590-Las Juntas-Jalisco": {
+    "lat": 20.6116722,
+    "lng": -103.333278
+  },
+  "44720-Arandas-Jalisco": {
+    "lat": 20.7058704,
+    "lng": -102.347912
+  },
+  "45680-La Mesa-Jalisco": {
+    "lat": 19.9705418,
+    "lng": -103.7753025
+  },
+  "44330-San Marcos-Jalisco": {
+    "lat": 20.7919487,
+    "lng": -104.1956497
+  },
+  "45020-Prados Vallarta-Jalisco": {
+    "lat": 20.6764562,
+    "lng": -103.4151853
+  },
+  "44230-Santa Elena de La Cruz-Jalisco": {
+    "lat": 20.715112,
+    "lng": -103.3425504
+  },
+  "41507-La Soledad-Guerrero": {
+    "lat": 17.547222,
+    "lng": -98.614167
+  },
+  "45030-Chapalita las Fuentes-Jalisco": {
+    "lat": 20.6561301,
+    "lng": -103.4280837
+  },
+  "44940-Zona Industrial-Jalisco": {
+    "lat": 20.6414343,
+    "lng": -103.3645287
+  },
+  "45017-Jocotan-Jalisco": {
+    "lat": 20.6830281,
+    "lng": -103.4359299
+  },
+  "44379-Independencia-Jalisco": {
+    "lat": 20.4457416,
+    "lng": -102.1430269
+  },
+  "44770-San Joaquin-Jalisco": {
+    "lat": 20.4832838,
+    "lng": -102.5003136
+  },
+  "45420-San Jose Tateposco-Jalisco": {
+    "lat": 20.4375482,
+    "lng": -103.8636113
+  },
+  "45130-San Francisco-Jalisco": {
+    "lat": 21.0290889,
+    "lng": -103.4442132
+  },
+  "45600-España-Jalisco": {
+    "lat": 20.6534139,
+    "lng": -105.2063108
+  },
+  "45138-El Tigre-Jalisco": {
+    "lat": 19.8882384,
+    "lng": -102.9702486
+  },
+  "44460-San Carlos-Jalisco": {
+    "lat": 20.5572856,
+    "lng": -103.3510297
+  },
+  "45067-Mariano Otero-Jalisco": {
+    "lat": 20.6034755,
+    "lng": -103.2698924
+  },
+  "45679-Alameda-Jalisco": {
+    "lat": 20.478281,
+    "lng": -103.253561
+  },
+  "44825-Parques de San Pedro-Jalisco": {
+    "lat": 20.6156529,
+    "lng": -103.4119496
+  },
+  "40640-Arroyo Grande-Guerrero": {
+    "lat": 16.7950651,
+    "lng": -98.1523667
+  },
+  "44270-Miraflores-Jalisco": {
+    "lat": 20.703767,
+    "lng": -103.3469
+  },
+  "55430-Jose Maria Pino Suarez-Mexico": {
+    "lat": 19.3347963,
+    "lng": -99.6134601
+  },
+  "45135-San Isidro-Jalisco": {
+    "lat": 20.7907026,
+    "lng": -103.3536931
+  },
+  "44450-La Bandera-Jalisco": {
+    "lat": 20.6641173,
+    "lng": -103.3339971
+  },
+  "44520-Jardines Del Bosque-Jalisco": {
+    "lat": 20.6619291,
+    "lng": -103.3909626
+  },
+  "45180-Division Del Norte-Jalisco": {
+    "lat": 20.7389379,
+    "lng": -103.3556245
+  },
+  "45609-Arroyo Seco-Jalisco": {
+    "lat": 20.6640145,
+    "lng": -103.2508198
+  },
+  "45010-La Castilla-Jalisco": {
+    "lat": 20.6568328,
+    "lng": -103.4422243
+  },
+  "44898-El Rosario-Jalisco": {
+    "lat": 19.9020485,
+    "lng": -103.7120037
+  },
+  "45880-Juanacaxtle-Jalisco": {
+    "lat": 20.5301824,
+    "lng": -103.1551065
+  },
+  "45412-Jalisco-Jalisco": {
+    "lat": 20.6887109,
+    "lng": -103.2650761
+  },
+  "45100-La Villa-Jalisco": {
+    "lat": 20.8554133,
+    "lng": -102.74455
+  },
+  "45645-Santa Anita-Jalisco": {
+    "lat": 20.5509918,
+    "lng": -103.4437644
+  },
+  "44360-La Perla-Jalisco": {
+    "lat": 20.6832094,
+    "lng": -103.3376348
+  },
+  "44420-Obrera-Jalisco": {
+    "lat": 20.6745578,
+    "lng": -103.3704642
+  },
+  "44440-Valle Del Alamo-Jalisco": {
+    "lat": 20.6409839,
+    "lng": -103.3436055
+  },
+  "45605-Mezquitera-Jalisco": {
+    "lat": 20.5623415,
+    "lng": -103.118861
+  },
+  "44340-Independencia Oriente-Jalisco": {
+    "lat": 20.6903905,
+    "lng": -103.3286624
+  },
+  "45520-Los Altos-Jalisco": {
+    "lat": 20.569783,
+    "lng": -103.2937967
+  },
+  "44896-Orozco El Mirador-Jalisco": {
+    "lat": 21.1275176,
+    "lng": -102.0048011
+  },
+  "44960-Polanco-Jalisco": {
+    "lat": 20.6307524,
+    "lng": -103.3742283
+  },
+  "45428-La Llave-Jalisco": {
+    "lat": 20.8109266,
+    "lng": -102.7319094
+  },
+  "45186-Nueva España-Jalisco": {
+    "lat": 20.7432346,
+    "lng": -103.3437111
+  },
+  "45168-Santa Fe-Jalisco": {
+    "lat": 20.5262746,
+    "lng": -103.0845072
+  },
+  "44810-San Andres-Jalisco": {
+    "lat": 20.6538437,
+    "lng": -103.437508
+  },
+  "44298-Jardines Alcalde-Jalisco": {
+    "lat": 20.7108275,
+    "lng": -103.3358049
+  },
+  "45088-La Giralda-Jalisco": {
+    "lat": 20.6444224,
+    "lng": -103.4063719
+  },
+  "44500-Jardines de los Arcos-Jalisco": {
+    "lat": 20.6698777,
+    "lng": -103.3927243
+  },
+  "45402-Rey Xolotl-Jalisco": {
+    "lat": 20.598867,
+    "lng": -103.2270469
+  },
+  "44990-Miravalle-Jalisco": {
+    "lat": 20.612166,
+    "lng": -103.3455796
+  },
+  "44259-Panoramica Huentitan-Jalisco": {
+    "lat": 20.7266732,
+    "lng": -103.3113121
+  },
+  "44190-Moderna-Jalisco": {
+    "lat": 20.6680284,
+    "lng": -103.3603933
+  },
+  "45404-Gavilanes-Jalisco": {
+    "lat": 19.5761392,
+    "lng": -105.0825237
+  },
+  "45238-La Loma-Jalisco": {
+    "lat": 20.8572176,
+    "lng": -103.2221623
+  },
+  "45429-El Vado-Jalisco": {
+    "lat": 20.6091291,
+    "lng": -103.155824
+  },
+  "44870-Atlas-Jalisco": {
+    "lat": 20.7158899,
+    "lng": -103.4016485
+  },
+  "45087-Navio-Jalisco": {
+    "lat": 20.6341555,
+    "lng": -103.411252
+  },
+  "44430-Gonzalez Gallo-Jalisco": {
+    "lat": 20.5419528,
+    "lng": -103.3353012
+  },
+  "44740-San Isidro-Jalisco": {
+    "lat": 20.7907026,
+    "lng": -103.3536931
+  },
+  "45403-Buenos Aires-Jalisco": {
+    "lat": 20.5804851,
+    "lng": -104.0311555
+  },
+  "45930-Atotonilquillo-Jalisco": {
+    "lat": 20.3915286,
+    "lng": -103.1227064
+  },
+  "44790-La Aurora-Jalisco": {
+    "lat": 20.7248653,
+    "lng": -103.3728096
+  },
+  "45870-La Capilla-Jalisco": {
+    "lat": 20.4424955,
+    "lng": -104.480136
+  },
+  "45058-Villas Del Tepeyac-Jalisco": {
+    "lat": 20.6541925,
+    "lng": -103.4264207
+  },
+  "45018-Ejidal-Jalisco": {
+    "lat": 20.623441,
+    "lng": -103.411826
+  },
+  "44290-Independencia Poniente-Jalisco": {
+    "lat": 20.7108275,
+    "lng": -103.3358049
+  },
+  "44610-Lomas Del Country-Jalisco": {
+    "lat": 20.7147707,
+    "lng": -103.3613011
+  },
+  "44760-Beatriz Hernandez-Jalisco": {
+    "lat": 20.7164629,
+    "lng": -103.3663173
+  },
+  "44950-Jardines de San Jose-Jalisco": {
+    "lat": 20.6330545,
+    "lng": -103.3870684
+  },
+  "45525-Parque Tlaquepaque-Jalisco": {
+    "lat": 20.6094928,
+    "lng": -103.4025385
+  },
+  "45148-La Arboleda-Jalisco": {
+    "lat": 20.6480558,
+    "lng": -103.3862875
+  },
+  "45405-Lomas Del Manantial-Jalisco": {
+    "lat": 20.6642219,
+    "lng": -103.2646883
+  },
+  "45129-Loma Real-Jalisco": {
+    "lat": 20.6918984,
+    "lng": -103.41487
+  },
+  "45618-Ojo de Agua-Jalisco": {
+    "lat": 20.2202611,
+    "lng": -103.9832568
+  },
+  "45427-Tololotlan-Jalisco": {
+    "lat": 20.6800331,
+    "lng": -103.2560227
+  },
+  "45110-Santa Isabel-Jalisco": {
+    "lat": 20.703934,
+    "lng": -103.4195746
+  },
+  "44719-Talpita-Jalisco": {
+    "lat": 20.3575955,
+    "lng": -103.8254002
+  },
+  "44986-Lomas Del Pedregal-Jalisco": {
+    "lat": 20.6134612,
+    "lng": -103.3726941
+  },
+  "45179-Santa Paula-Jalisco": {
+    "lat": 20.7241486,
+    "lng": -103.3642586
+  },
+  "45593-Alamo Industrial-Jalisco": {
+    "lat": 20.6270676,
+    "lng": -103.3324475
+  },
+  "45221-La Venta Del Astillero-Jalisco": {
+    "lat": 20.7264781,
+    "lng": -103.5276634
+  },
+  "44920-Las Torres-Jalisco": {
+    "lat": 20.6641921,
+    "lng": -103.253192
+  },
+  "45136-La Mora-Jalisco": {
+    "lat": 20.6861071,
+    "lng": -103.870148
+  },
+  "44824-Florencia-Jalisco": {
+    "lat": 20.7287306,
+    "lng": -103.4557078
+  },
+  "45430-La Ceja-Jalisco": {
+    "lat": 20.6882665,
+    "lng": -103.4155879
+  },
+  "45200-Estrada-Jalisco": {
+    "lat": 20.7915684,
+    "lng": -103.4746866
+  },
+  "45190-Indigena de Mezquitan-Jalisco": {
+    "lat": 20.7390482,
+    "lng": -103.3320583
+  },
+  "44670-Monraz-Jalisco": {
+    "lat": 20.6796923,
+    "lng": -103.390191
+  },
+  "45655-Santa Cruz Del Valle-Jalisco": {
+    "lat": 20.5114234,
+    "lng": -103.3360232
+  },
+  "45145-Belenes Norte-Jalisco": {
+    "lat": 20.7299099,
+    "lng": -103.397654
+  },
+  "45189-La Coronilla-Jalisco": {
+    "lat": 20.7601352,
+    "lng": -103.3272382
+  },
+  "44580-Santa Eduwiges-Jalisco": {
+    "lat": 19.5958524,
+    "lng": -105.1036517
+  },
+  "45602-La Calerilla-Jalisco": {
+    "lat": 20.5829695,
+    "lng": -103.4019532
+  },
+  "95000-Zongolica-Veracruz Llave": {
+    "lat": 18.6672979,
+    "lng": -96.996577
+  },
+  "45610-Toluquilla-Jalisco": {
+    "lat": 20.5820931,
+    "lng": -103.3815301
+  },
+  "44130-Los Arcos Sur-Jalisco": {
+    "lat": 20.672827,
+    "lng": -103.391553
+  },
+  "44160-Americana-Jalisco": {
+    "lat": 20.6718903,
+    "lng": -103.3592318
+  },
+  "49300-Sayula Centro-Jalisco": {
+    "lat": 20.6388679,
+    "lng": -103.331027
+  },
+  "45425-La Guadalupana-Jalisco": {
+    "lat": 20.7069899,
+    "lng": -103.3527726
+  },
+  "45630-Alameda-Jalisco": {
+    "lat": 20.5978705,
+    "lng": -103.2567993
+  },
+  "44110-Vallarta Poniente-Jalisco": {
+    "lat": 20.672827,
+    "lng": -103.391553
+  },
+  "45117-La Laja-Jalisco": {
+    "lat": 20.5729618,
+    "lng": -103.1157442
+  },
+  "45060-Miramar-Jalisco": {
+    "lat": 20.6398929,
+    "lng": -103.4528598
+  },
+  "45598-Romita-Jalisco": {
+    "lat": 20.5923315,
+    "lng": -103.3297487
+  },
+  "29400-San Lucas-Chiapas": {
+    "lat": 16.6120138,
+    "lng": -92.7182999
+  },
+  "45694-La Purisima-Jalisco": {
+    "lat": 19.4915811,
+    "lng": -103.3278003
+  },
+  "44240-Rancho Nuevo-Jalisco": {
+    "lat": 20.7204681,
+    "lng": -103.331331
+  },
+  "45597-Campesino-Jalisco": {
+    "lat": 20.6462997,
+    "lng": -103.2680046
+  },
+  "45417-Rancho La Campana-Jalisco": {
+    "lat": 21.3558834,
+    "lng": -101.9431859
+  },
+  "44210-Jardines Del Country-Jalisco": {
+    "lat": 20.7082042,
+    "lng": -103.3619351
+  },
+  "45407-Camichines-Jalisco": {
+    "lat": 20.6753577,
+    "lng": -103.2562149
+  },
+  "45230-Santa Ana Tepetitlan-Jalisco": {
+    "lat": 20.6398929,
+    "lng": -103.4528598
+  },
+  "45678-La Calera-Jalisco": {
+    "lat": 21.4979831,
+    "lng": -102.5856587
+  },
+  "45089-Victoria-Jalisco": {
+    "lat": 20.6424636,
+    "lng": -103.3955786
+  },
+  "44680-Circunvalacion Guevara-Jalisco": {
+    "lat": 20.6795821,
+    "lng": -103.3840288
+  },
+  "44895-El Mirador Alamo-Jalisco": {
+    "lat": 20.6297586,
+    "lng": -103.3237572
+  },
+  "45169-Lindavista-Jalisco": {
+    "lat": 20.7207167,
+    "lng": -103.3977433
+  },
+  "44549-Rinconada de La Arboleda-Jalisco": {
+    "lat": 20.6516895,
+    "lng": -103.3895043
+  },
+  "45235-Agua Blanca-Jalisco": {
+    "lat": 19.8653829,
+    "lng": -102.7815798
+  },
+  "45119-La Patria Universidad-Jalisco": {
+    "lat": 20.6870775,
+    "lng": -103.4169157
+  },
+  "44690-Villa Santa Rita-Jalisco": {
+    "lat": 21.8734436,
+    "lng": -103.5088766
+  },
+  "45693-Del Carmen-Jalisco": {
+    "lat": 21.3555443,
+    "lng": -101.9259946
+  },
+  "45623-San Gabriel-Jalisco": {
+    "lat": 19.7482208,
+    "lng": -103.766406
+  },
+  "45606-Buenos Aires-Jalisco": {
+    "lat": 20.5804851,
+    "lng": -104.0311555
+  },
+  "44756-El Porvenir-Jalisco": {
+    "lat": 21.124526,
+    "lng": -102.0060985
+  },
+  "44980-Emiliano Zapata-Jalisco": {
+    "lat": 19.3840031,
+    "lng": -104.965115
+  },
+  "46785-El Tepehuaje-Jalisco": {
+    "lat": 20.1703591,
+    "lng": -103.2134427
+  },
+  "44689-Terranova-Jalisco": {
+    "lat": 20.6822414,
+    "lng": -103.3883126
+  },
+  "44977-Lomas Del Sur-Jalisco": {
+    "lat": 20.4913673,
+    "lng": -103.4070143
+  },
+  "45080-Gustavo Diaz Ordaz-Jalisco": {
+    "lat": 20.6200034,
+    "lng": -103.4219931
+  },
+  "45608-El Sauz-Jalisco": {
+    "lat": 20.184084,
+    "lng": -103.3785473
+  },
+  "45116-Pontevedra-Jalisco": {
+    "lat": 20.7141028,
+    "lng": -103.4118894
+  },
+  "45120-Los Pinos-Jalisco": {
+    "lat": 19.9904772,
+    "lng": -103.7239864
+  },
+  "45406-Villas de Zalatitan-Jalisco": {
+    "lat": 20.6642174,
+    "lng": -103.2486979
+  },
+  "44716-Circunvalacion Oblatos-Jalisco": {
+    "lat": 20.6876964,
+    "lng": -103.3007213
+  },
+  "45647-Las Moras-Jalisco": {
+    "lat": 21.0095349,
+    "lng": -102.1692664
+  },
+  "55100-Francisco I Madero-Mexico": {
+    "lat": 19.4472479,
+    "lng": -99.2034254
+  },
+  "44620-Americas Colomos-Jalisco": {
+    "lat": 20.7029999,
+    "lng": -103.3762399
+  },
+  "44948-Villa Hermosa-Jalisco": {
+    "lat": 20.4960445,
+    "lng": -103.9920301
+  },
+  "44650-Rojas Ladron de Guevara-Jalisco": {
+    "lat": 20.6793603,
+    "lng": -103.3767288
+  },
+  "45686-Hacienda Vieja Del Castillo-Jalisco": {
+    "lat": 20.5367904,
+    "lng": -103.2532191
+  },
+  "16510-Tecacalanco-Distrito Federal": {
+    "lat": 19.23574,
+    "lng": -99.0715851
+  },
+  "45038-Lomas Del Seminario-Jalisco": {
+    "lat": 20.6678955,
+    "lng": -103.423127
+  },
+  "45236-El Briseño-Jalisco": {
+    "lat": 20.6239613,
+    "lng": -103.4367955
+  },
+  "44180-Mexicaltzingo-Jalisco": {
+    "lat": 20.6676831,
+    "lng": -103.3505867
+  },
+  "44560-Residencial Victoria-Jalisco": {
+    "lat": 20.6451653,
+    "lng": -103.4011577
+  },
+  "45643-San Martin Del Tajo-Jalisco": {
+    "lat": 20.5793693,
+    "lng": -103.4532772
+  },
+  "47820-Florida-Jalisco": {
+    "lat": 20.4137191,
+    "lng": -103.2367195
+  },
+  "44530-Mercado de Abastos-Jalisco": {
+    "lat": 20.6541439,
+    "lng": -103.3806454
+  },
+  "45037-Guadalupe Inn-Jalisco": {
+    "lat": 20.6603866,
+    "lng": -103.4464729
+  },
+  "45147-San Isidro Ejidal-Jalisco": {
+    "lat": 20.7299099,
+    "lng": -103.397654
+  },
+  "44966-Patria Nueva-Jalisco": {
+    "lat": 20.6215447,
+    "lng": -103.3758269
+  },
+  "45607-Del Bosque I-Jalisco": {
+    "lat": 20.7527264,
+    "lng": -103.4119732
+  },
+  "22406-Burocrata Ruiz Cortines-Baja California": {
+    "lat": 32.5277321,
+    "lng": -117.0069687
+  },
+  "44370-El Mirador-Jalisco": {
+    "lat": 21.1332589,
+    "lng": -102.007815
+  },
+  "44656-Jesus Garcia-Jalisco": {
+    "lat": 20.2933705,
+    "lng": -103.2396785
+  },
+  "40560-San Luis-Guerrero": {
+    "lat": 18.0645282,
+    "lng": -99.7978019
+  },
+  "77760-Chan Chen-Quintana Roo": {
+    "lat": 20.2133794,
+    "lng": -87.4695387
+  },
+  "45069-Paraisos Del Colli-Jalisco": {
+    "lat": 20.6500061,
+    "lng": -103.450271
+  },
+  "45418-Tonala-Jalisco": {
+    "lat": 20.6309506,
+    "lng": -103.2607402
+  },
+  "45234-La Florida-Jalisco": {
+    "lat": 21.3115503,
+    "lng": -101.9600022
+  },
+  "45820-San Juan Cosala-Jalisco": {
+    "lat": 20.2864393,
+    "lng": -103.3363649
+  },
+  "14470-Plan de Ayala 1a Seccion-Distrito Federal": {
+    "lat": 19.3341979,
+    "lng": -99.0970388
+  },
+  "45128-La Favorita-Jalisco": {
+    "lat": 20.6158415,
+    "lng": -103.4239559
+  },
+  "45187-Vistas Del Centinela-Jalisco": {
+    "lat": 20.7528603,
+    "lng": -103.373657
+  },
+  "47675-Jardines de La Rivera-Jalisco": {
+    "lat": 20.8061864,
+    "lng": -102.7834321
+  },
+  "45057-El Colli Primavera-Jalisco": {
+    "lat": 20.6464855,
+    "lng": -103.4304274
+  },
+  "45016-Villas de Vallarta-Jalisco": {
+    "lat": 20.6830281,
+    "lng": -103.4359299
+  },
+  "45059-Moctezuma Poniente-Jalisco": {
+    "lat": 20.6482492,
+    "lng": -103.4347034
+  },
+  "45424-San Francisco de La Soledad-Jalisco": {
+    "lat": 20.5678556,
+    "lng": -103.183403
+  },
+  "81900-Cubiri de La Cuesta-Sinaloa": {
+    "lat": 25.7485695,
+    "lng": -108.286314
+  },
+  "44989-Jardines de San Jose-Jalisco": {
+    "lat": 20.6330545,
+    "lng": -103.3870684
+  },
+  "44969-Polanquito-Jalisco": {
+    "lat": 20.6191448,
+    "lng": -103.3719753
+  },
+  "52140-San Mateo-Mexico": {
+    "lat": 19.5027285,
+    "lng": -99.2675253
+  },
+  "45036-Guadalupe Sur-Jalisco": {
+    "lat": 20.6537408,
+    "lng": -103.4375466
+  },
+  "45659-Ciudad de Guadalajara-Jalisco": {
+    "lat": 20.653613,
+    "lng": -103.3161669
+  },
+  "47750-Betania-Jalisco": {
+    "lat": 20.5806449,
+    "lng": -102.3792814
+  },
+  "44648-Italia Providencia-Jalisco": {
+    "lat": 20.691298,
+    "lng": -103.3842576
+  },
+  "45920-Ajijic Centro-Jalisco": {
+    "lat": 20.6327865,
+    "lng": -103.2564435
+  },
+  "41970-Igualapa-Guerrero": {
+    "lat": 16.743333,
+    "lng": -98.4775
+  },
+  "45640-Santa Cruz de las Flores-Jalisco": {
+    "lat": 20.4812562,
+    "lng": -103.5058506
+  },
+  "23232-El Sargento-Baja California Sur": {
+    "lat": 24.0753932,
+    "lng": -109.9924492
+  },
+  "45527-La Alborada-Jalisco": {
+    "lat": 20.7915347,
+    "lng": -103.4211943
+  },
+  "42200-El Cerrito-Hidalgo": {
+    "lat": 20.010278,
+    "lng": -99.351667
+  },
+  "45158-Los Laureles-Jalisco": {
+    "lat": 19.4824476,
+    "lng": -103.3716005
+  },
+  "45672-El Zapote Del Valle-Jalisco": {
+    "lat": 20.661561,
+    "lng": -103.42307
+  },
+  "45065-Lomas de La Primavera-Jalisco": {
+    "lat": 20.6419743,
+    "lng": -103.4780801
+  },
+  "45118-Atlas Colomos-Jalisco": {
+    "lat": 20.7158899,
+    "lng": -103.4016485
+  },
+  "45696-La Higuera-Jalisco": {
+    "lat": 20.5459495,
+    "lng": -104.0773646
+  },
+  "44766-Los Arrayanes-Jalisco": {
+    "lat": 20.6636851,
+    "lng": -103.4459275
+  },
+  "48600-Los Corrales-Jalisco": {
+    "lat": 20.0962792,
+    "lng": -104.0756078
+  },
+  "14010-Villa Charra Del Pedregal-Distrito Federal": {
+    "lat": 19.2970928,
+    "lng": -99.191382
+  },
+  "45675-El Capulin-Jalisco": {
+    "lat": 20.0268151,
+    "lng": -103.697328
+  },
+  "44399-Dr Atl-Jalisco": {
+    "lat": 20.6928567,
+    "lng": -103.3168889
+  },
+  "45883-Zapotlanejo-Jalisco": {
+    "lat": 20.6214366,
+    "lng": -103.0668511
+  },
+  "46470-Magdalena Centro-Jalisco": {
+    "lat": 20.470477,
+    "lng": -103.2843144
+  },
+  "45178-Lomas de Atemajac-Jalisco": {
+    "lat": 20.7156734,
+    "lng": -103.3649453
+  },
+  "45053-Hacienda Del Tepeyac-Jalisco": {
+    "lat": 20.6504579,
+    "lng": -103.440218
+  },
+  "45660-Cuyutlan-Jalisco": {
+    "lat": 20.4210677,
+    "lng": -103.3963809
+  },
+  "42260-El Naranjo-Hidalgo": {
+    "lat": 21.021389,
+    "lng": -99.003333
+  },
+  "16500-Santa Cruz Acalpixca-Distrito Federal": {
+    "lat": 19.24516,
+    "lng": -99.080603
+  },
+  "44967-Patria-Jalisco": {
+    "lat": 20.6250692,
+    "lng": -103.3827899
+  },
+  "22880-Bahia-Baja California": {
+    "lat": 28.9494508,
+    "lng": -113.561039
+  },
+  "45056-El Colli Ctm-Jalisco": {
+    "lat": 20.645944,
+    "lng": -103.4270101
+  },
+  "42210-Quetzalapa-Hidalgo": {
+    "lat": 20.855833,
+    "lng": -99.045
+  }
+}

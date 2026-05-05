@@ -1,42 +1,85 @@
 import { useState } from "react";
 import { db } from "../lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export default function ZipCodeModal({ onClose }) {
   const [zip, setZip] = useState("");
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!/^\d{5}$/.test(zip)) {
-      alert("El código postal debe tener exactamente 5 números.");
+  if (!/^\d{5}$/.test(zip)) {
+    alert("El código postal debe tener exactamente 5 números.");
+    return;
+  }
+
+  try {
+    
+    const res = await fetch(`https://api.zippopotam.us/mx/${zip}`);
+
+    if (!res.ok) {
+      alert("Código postal no válido.");
       return;
     }
 
-    try {
-      const res = await fetch(`https://api.zippopotam.us/mx/${zip}`);
+    const data = await res.json();
 
-      if (!res.ok) {
-        alert("Código postal no válido.");
-        return;
+    const city = data.places[0]["place name"];
+    const state = data.places[0]["state"];
+
+    // 2. Guardar visita (igual que ahora)
+    await addDoc(collection(db, "zipCodes"), {
+      zip: zip.toString(),
+      city,
+      state,
+      createdAt: serverTimestamp()
+    });
+
+    
+    const geoRef = doc(db, "zipGeo", zip);
+    const geoSnap = await getDoc(geoRef);
+
+    if (!geoSnap.exists()) {
+      
+      const geoRes = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${zip},${city},${state},Mexico`,
+        {
+          headers: {
+            "User-Agent": "pasteleria-app"
+          }
+        }
+      );
+
+      const geoData = await geoRes.json();
+
+      if (geoData.length > 0) {
+        const lat = parseFloat(geoData[0].lat);
+        const lng = parseFloat(geoData[0].lon);
+
+        // 5. Guardar en zipGeo (una sola vez en la vida)
+        await setDoc(geoRef, {
+          zip: zip.toString(),
+          city,
+          state,
+          lat,
+          lng,
+          createdAt: serverTimestamp()
+        });
+
+        console.log(" ZIP geocodificado:", zip);
+      } else {
+        console.warn(" No se pudo geocodificar:", zip);
       }
-
-      const data = await res.json();
-
-      await addDoc(collection(db, "zipCodes"), {
-        zip: zip.toString(),
-        city: data.places[0]["place name"],
-        state: data.places[0]["state"],
-        createdAt: serverTimestamp()
-      });
-
-      localStorage.setItem("userZip", zip);
-      onClose();
-
-    } catch (error) {
-      console.error("Error guardando código postal:", error);
     }
-  };
+
+    localStorage.setItem("userZip", zip);
+    onClose();
+
+  } catch (error) {
+    console.error("Error guardando código postal:", error);
+  }
+};
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">

@@ -330,16 +330,16 @@ export default function Checkout() {
 
                   {/* Apartar y pagar en sucursal */}
                   
-                  <button
+                  {/* <button
                     disabled={!canReserveStore}
                     onClick={() => setShowPickupForm(true)}
                     className="w-full bg-wine text-cream py-2 rounded-lg hover:opacity-90 transition disabled:opacity-50"
                   >
                     {t("checkout.actions.reserveStore")}
-                  </button>
+                  </button> */}
                   
 
-                  {showPickupForm && (
+                  {/* {showPickupForm && (
                     <div className="bg-rose/10 border border-rose/30 rounded-xl p-4 mt-3 space-y-3">
 
                       <input
@@ -394,7 +394,7 @@ export default function Checkout() {
                       </button>
                       
                     </div>
-                  )}
+                  )} */}
 
                   {/* Mercado Pago (si lo reactivas) */}
                   

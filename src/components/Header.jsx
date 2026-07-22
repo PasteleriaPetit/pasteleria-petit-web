@@ -240,11 +240,11 @@ export default function Header() {
       </div>
 
       {/* Menú móvil */}
-      <div
-        className={`md:hidden absolute top-full left-0 w-full bg-cream/95 backdrop-blur-md shadow-lg transition-all duration-300 ease-in-out overflow-hidden ${
-          menuOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
-        }`}
-      >
+        <div
+          className={`md:hidden fixed top-full left-0 w-full bg-cream/95 backdrop-blur-md shadow-lg transition-all duration-300 ease-in-out overflow-hidden z-[9999] ${
+            menuOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
         <nav className="flex flex-col gap-3 px-6 py-4 text-center font-medium">
           <NavLink to="/" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Inicio" : "Home"}

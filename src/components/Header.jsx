@@ -82,7 +82,6 @@ export default function Header() {
       
     >
       {/* Overlay translúcido */}
-      {/*Acomodar de nuevo el fondo cuando encontemos una mejor alternativa bg-rose/20*/}
       <div className="absolute inset-0 bg-rosepier backdrop-blur-sm"></div>
 
       <div className="relative max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-0 h-20">
@@ -159,6 +158,13 @@ export default function Header() {
               window._menuTimeout = setTimeout(() => setMoreOpen(false), 200);
             }}
           >
+            <NavLink
+              to="/radio-sucursales"
+              className="block px-4 py-2 hover:bg-rose/20 text-left whitespace-nowrap"
+              onClick={() => setMoreOpen(false)}
+            >
+              {lang === "es" ? "Rango de Entrega" : "Delivery Range"}
+            </NavLink>
             <NavLink
               to="/bolsa-de-trabajo"
               className="block px-4 py-2 hover:bg-rose/20 text-left whitespace-nowrap"

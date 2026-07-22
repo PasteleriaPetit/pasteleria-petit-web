@@ -81,8 +81,8 @@ export default function ZipMap() {
     <div className="relative">
 
       <MapContainer
-        center={[23.6345, -102.5528]} // México
-        zoom={5}
+        center={[20.6597, -103.3496]} // México
+        zoom={13}
         style={{ height: "500px", width: "100%" }}
       >
         <ZoomHandler />

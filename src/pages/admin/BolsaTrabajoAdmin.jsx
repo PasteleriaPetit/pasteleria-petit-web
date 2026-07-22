@@ -117,7 +117,7 @@ export default function BolsaTrabajoAdmin() {
         <div className="grid gap-4">
           {view.map((a) => (
             <article key={a.id} className="bg-white rounded-2xl shadow border p-5">
-              <div className="flex justify-between items-start gap-3">
+              <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                 <div>
                   <h3 className="font-semibold text-wine text-lg">{a.nombre} · <span className="text-wineDark/70">{a.area}</span></h3>
                   <p className="text-sm text-wineDark/80">📧 {a.correo} · 📞 {a.telefono} · 🎂 {a.fechaNacimiento ?? "-"}</p>

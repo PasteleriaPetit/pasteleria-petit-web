@@ -163,7 +163,7 @@ export default function Header() {
               className="block px-4 py-2 hover:bg-rose/20 text-left whitespace-nowrap"
               onClick={() => setMoreOpen(false)}
             >
-              {lang === "es" ? "Rango de Entrega" : "Delivery Range"}
+              {lang === "es" ? "Cobertura de Entrega" : "Delivery Range"}
             </NavLink>
             <NavLink
               to="/bolsa-de-trabajo"
@@ -270,6 +270,9 @@ export default function Header() {
           </NavLink>
           <NavLink to="/sucursales" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Sucursales" : "Branches"}
+          </NavLink>
+          <NavLink to="/radio-sucursales" className={linkClass} onClick={toggleMenu}>
+            {lang === "es" ? "Cobertura de Entrega" : "Delivery Range"}
           </NavLink>
           <NavLink
             to="/bolsa-de-trabajo"

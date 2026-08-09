@@ -159,11 +159,11 @@ export default function Header() {
             }}
           >
             <NavLink
-              to="/radio-sucursales"
+              to="/cobertura-entrega"
               className="block px-4 py-2 hover:bg-rose/20 text-left whitespace-nowrap"
               onClick={() => setMoreOpen(false)}
             >
-              {lang === "es" ? "Cobertura de Entrega" : "Delivery Range"}
+              {lang === "es" ? "Servicio a Domicilio" : "Home Delivery Service"}
             </NavLink>
             <NavLink
               to="/bolsa-de-trabajo"
@@ -261,31 +261,19 @@ export default function Header() {
           <NavLink to="/cafeteria" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Cafetería" : "Coffee Shop"}
           </NavLink>
-          <NavLink
-            to="/pedidos-especiales"
-            className={linkClass}
-            onClick={toggleMenu}
-          >
+          <NavLink to="/pedidos-especiales" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Pedidos Especiales" : "Special Orders"}
           </NavLink>
           <NavLink to="/sucursales" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Sucursales" : "Branches"}
           </NavLink>
-          <NavLink to="/radio-sucursales" className={linkClass} onClick={toggleMenu}>
-            {lang === "es" ? "Cobertura de Entrega" : "Delivery Range"}
+          <NavLink to="/cobertura-entrega" className={linkClass} onClick={toggleMenu}>
+            {lang === "es" ? "Servicio a Domicilio" : "Home Delivery Service"}
           </NavLink>
-          <NavLink
-            to="/bolsa-de-trabajo"
-            className={linkClass}
-            onClick={toggleMenu}
-          >
+          <NavLink to="/bolsa-de-trabajo" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Bolsa de Trabajo" : "Careers"}
           </NavLink>
-          <NavLink
-            to="https://forms.office.com/pages/responsepage.aspx?id=dKSvQewt306VB6VCW_6heqPTCc0G1CBFvjSh4go4PBRUNUtOWU5SOVY4TE0yQVkzRjhZMEY5NFUwNC4u&origin=lprLink&route=shorturl"
-            className={linkClass}
-            onClick={toggleMenu}
-          >
+          <NavLink to="https://forms.office.com/pages/responsepage.aspx?id=dKSvQewt306VB6VCW_6heqPTCc0G1CBFvjSh4go4PBRUNUtOWU5SOVY4TE0yQVkzRjhZMEY5NFUwNC4u&origin=lprLink&route=shorturl" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Facturación" : "Billing"}
           </NavLink>
           {role === "admin" && (

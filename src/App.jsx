@@ -93,8 +93,8 @@ export default function App() {
                 element={<GoogleAnalytics />} 
                 />
                 <Route 
-                path="/radio-sucursales" 
-                element={<RadioSucursales />} 
+                path="/cobertura-entrega"
+                element={<RadioSucursales />}
                 />  
                 <Route
                   path="/nosotros"

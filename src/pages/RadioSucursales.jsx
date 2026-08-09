@@ -1,11 +1,11 @@
-// RadioSucursales.jsx
-// Plantilla lista para completar.
-// NOTA: Sustituye los valores lat y lng por las coordenadas reales.
-
 import { MapContainer, TileLayer, Marker, Circle, Popup } from "react-leaflet";
 import { LatLngBounds } from "leaflet";
-import { useMemo } from "react";
+import { Fragment ,useMemo } from "react";
 import "leaflet/dist/leaflet.css";
+import { useTranslation } from "react-i18next";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
+
 
 export default function RadioSucursales() {
   const sucursales = [
@@ -24,6 +24,8 @@ export default function RadioSucursales() {
 
   const validas = sucursales.filter(s=>s.lat!=null && s.lng!=null);
 
+  const { t } = useTranslation();
+
   const bounds = useMemo(()=>{
     if(!validas.length) return null;
     return new LatLngBounds(validas.map(s=>[s.lat,s.lng]));
@@ -33,14 +35,15 @@ export default function RadioSucursales() {
     <main className="bg-cream min-h-screen pt-24 pb-16">
       <section className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-10">
-          <h1 className="text-5xl font-bold text-wine">Cobertura de Entrega</h1>
+          <h1 className="text-5xl font-bold text-wine">{t("cobertura.radioSucursales.title")}</h1>
           <p className="mt-4 text-gray-600 max-w-3xl mx-auto">
-            ¡Bienvenido a la página de cobertura de entrega de Petit
-            Repostería con Alma
+            {t("cobertura.radioSucursales.subtitle")}
           </p>
           <p className="mt-4 text-gray-600 max-w-3xl mx-auto">
-            Aquí podrás consultar las zonas de entrega y verificar si podemos llevar 
-            nuestro sabor que trasciende a tu hogar.
+            {t("cobertura.radioSucursales.explicacion1")}
+          </p>
+          <p className="mt-4 text-gray-600 max-w-3xl mx-auto">
+            {t("cobertura.radioSucursales.horarioentrega")}
           </p>
           
         </div>
@@ -58,20 +61,19 @@ export default function RadioSucursales() {
                 attribution="© OpenStreetMap"
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              {validas.map((s,i)=>(
-                <>
-                  <Marker key={"m"+i} position={[s.lat,s.lng]}>
+              {validas.map((s) => (
+                <Fragment key={s.nombre}>
+                  <Marker position={[s.lat,s.lng]}>
                     <Popup>
                       <strong>{s.nombre}</strong><br/>
                       {s.direccion}<br/><br/>
-                      Cobertura aproximada:<br/>
-                      5 km alrededor de esta sucursal.
+                      
+                      {t("cobertura.radioSucursales.radio")}
                     </Popup>
                   </Marker>
                   <Circle
-                    key={"c"+i}
                     center={[s.lat,s.lng]}
-                    radius={5000}
+                    radius={9000}
                     pathOptions={{
                       color:s.color,
                       fillColor:s.color,
@@ -79,18 +81,19 @@ export default function RadioSucursales() {
                       weight:2
                     }}
                   />
-                </>
+               </Fragment> 
               ))}
+              
             </MapContainer>
           </div>
 
           <aside className="bg-white rounded-2xl shadow-xl p-6 h-fit">
-            <h2 className="text-2xl font-bold text-wine mb-4">Sucursales</h2>
+            <h2 className="text-2xl font-bold text-wine mb-4">{t("cobertura.radioSucursales.sucursales")}</h2>
             
 
             <div className="space-y-3">
-              {sucursales.map((s,i)=>(
-                <div key={i} className="flex items-center gap-3">
+              {sucursales.map((s)=>(
+                <div key={s.nombre} className="flex items-center gap-3">
                   <span style={{
                     background:s.color,
                     width:16,
@@ -104,15 +107,24 @@ export default function RadioSucursales() {
             </div>
 
             <div className="mt-6 rounded-xl bg-cream p-4 border">
-              <h3 className="font-semibold text-wine mb-2">Información</h3>
+              <h3 className="font-semibold text-wine mb-2">{t("cobertura.radioSucursales.informacion")}</h3>
               <p className="text-sm text-gray-600">
-                El radio mostrado es aproximado y corresponde a 5 km alrededor
-                de cada sucursal. La disponibilidad final puede variar.
+                {t("cobertura.radioSucursales.cobertura")}
               </p>
             </div>
           </aside>
         </div>
       </section>
+      {/* WhatsApp - Servicio a domicilio */}
+      <a
+        href="https://wa.me/523334416133?text=Hola%20Petit%20Reposter%C3%ADa%20con%20Alma%2C%20quiero%20consultar%20sobre%20la%20cobertura%20de%20entrega."
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-24 right-5 z-[999] flex items-center justify-center bg-[#25D366] text-white w-16 h-16 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-300"
+        aria-label="Contactar por WhatsApp"
+      >
+        <FontAwesomeIcon icon={faWhatsapp} className="text-4xl" />
+      </a>
     </main>
   );
 }

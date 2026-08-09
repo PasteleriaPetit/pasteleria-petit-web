@@ -46,8 +46,8 @@
     "promoText1": "Day of the Dead bread so good even the skeleton enjoys it.",
     "promoText2": "Because even the dead have great taste.",
     "promoText3": "It’s not just bread… it’s memory, flavor, and tribute.",
-    "promoButton": "See more"
-
+    "promoButton": "See more",
+    "cobertura": "see delivery coverage"
   },
 
   "cart": {
@@ -103,7 +103,7 @@
     "productsCafe": "Coffee",
     "productsClasico": "Classic",
     "productsGelatina": "Gelatin",
-    "productsAzucar": "Sugar-Free",
+    "productsAzucar": "Without Blame",
     "productsPanaderia": "Bakery",
     "productsReposteria": "Pastry",
     "productsVelas": "Candles",
@@ -312,6 +312,20 @@
       "title": "Where are you from?",
       "placeholder": "Postal code",
       "submit": "Continue"
+    }
+  },
+
+  "cobertura": {
+      "radioSucursales": {
+      "title": "Home delivery service",
+      "subtitle": "Welcome to the delivery coverage page of Petit Repostería con Alma!",
+      "horarioentrega": "Delivery time: 8:00 AM to 8:00 PM",
+      "explicacion1": "Here you can check the delivery areas and verify if we can bring our delicious sauce to your home.",
+      "cobertura": "Approximate coverage: 9 km around the branches.",
+      "radio": "coverage: 9 km around this store.",
+      "explicacion2": "The shown radius is approximate and corresponds to 5 km around each store. The final availability may vary.",
+      "informacion": "Information",
+      "sucursales": "Branches"
     }
   }
 }

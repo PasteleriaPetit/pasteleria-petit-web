@@ -5,7 +5,12 @@ import { faWhatsapp, faFacebook, faInstagram } from "@fortawesome/free-brands-sv
 import { db } from "../lib/firebase";
 import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from "firebase/firestore";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
+
+
+import BANNER_DESKTOP_DELIVERY from "../assets/imagenes-home/banner-deskp-delivery.jpg";
+import BANNER_MOBILE_DELIVERY from "../assets/imagenes-home/banner-movil-delivery.jpg";
 import BANNER_DESKTOP from "../assets/imagenes-home/banner-desktop.jpg";
 import BANNER_MOBILE from "../assets/imagenes-home/banner-movil.jpg";
 import REBANADA from "../assets/imagenes-home/rebanada.png";
@@ -107,10 +112,51 @@ export default function Home() {
     >
       {t("home.ctaButton")}
     </a>
-
-    
   </section>
 
+  <div
+    className="
+      relative w-full
+      h-[90vh] md:h-[90vh] lg:h-[115vh]
+      overflow-hidden bg-cream
+    "
+  >
+    {/* Banner desktop */}
+    <img
+      src={BANNER_DESKTOP_DELIVERY}
+      alt="Promoción Petit Plaisir"
+      className="hidden md:block w-full h-full object-cover object-[center_top]"
+    />
+
+    {/* Banner móvil */}
+    <img
+      src={BANNER_MOBILE_DELIVERY}
+      alt="Promoción Petit Plaisir"
+      className="block md:hidden w-full h-full object-cover object-[center_top]"
+    />
+
+    {/* Botón de cobertura */}
+    <div className="absolute bottom-24 sm:bottom-8 left-0 right-0 flex justify-center z-10 px-4">
+      <Link
+        to="/cobertura-entrega"
+        className="
+          bg-wine
+          text-cream
+          font-semibold
+          px-6 py-3
+          rounded-full
+          shadow-lg
+          hover:bg-wineDark
+          hover:scale-105
+          transition-all
+          duration-300
+          text-center
+        "
+      >
+        {t("home.cobertura")}
+      </Link>
+    </div>
+  </div>
 
         {/* Separador rombos inferior */}
         <div className="relative w-full h-12 sm:h-10 md:h-12 lg:h-16 xl:h-20 bg-cream overflow-hidden">

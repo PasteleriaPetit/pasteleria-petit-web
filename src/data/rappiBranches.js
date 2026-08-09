@@ -1,18 +1,18 @@
 // src/data/rappiBranches.js
 export const RAPPI_BRANCHES = [
-  /* {
+  {
     id: "San-Juan-Bosco",
     name: "Pastelerías Petit San Juan Bosco",
     address:
       "C. Juan de Dios Robledo 403, Las Huertas, 44739 Guadalajara, Jal., México",
-      url: "https://www.rappi.com.mx/restaurantes/1930218048-pastelerias-petit",
-  }, */
+      url: "https://www.rappi.com.mx/restaurantes/1930385164-pastelerias-petit",
+  },
   {
     id: "circunvalacion",
     name: "Pastelerías Petit Circunvalación",
     address:
       "Av. Cvln. División del Nte. 67, Independencia, 44379 Guadalajara, Jal., México",
-    url: "https://www.rappi.com.mx/restaurantes/1930351717-pastelerias-petit",
+    url: "https://www.rappi.com.mx/restaurantes/1930418869-pastelerias-petit-turbo",
   },
   {
     id: "patria",
@@ -36,10 +36,10 @@ export const RAPPI_BRANCHES = [
     url: "https://www.rappi.com.mx/restaurantes/1930169381-pastelerias-petit",
   },
   {
-    id: "minerva-av-ignacio",
-    name: "Pastelería Petit - Minerva (Av. Ignacio)",
+    id: "zapopan",
+    name: "Pastelería Petit - Zapopan",
     address:
-      "Av. Ignacio L Vallarta 2916, Vallarta Nte., 44690 Guadalajara, Jal., México",
+      "Javier Mina 204, Loma Blanca, 45100 Zapopan, Jal.",
     url: "https://www.rappi.com.mx/restaurantes/1923265034-pasteleria-petit-minerva-av-ignacio?csr=true",
   },
   {

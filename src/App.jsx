@@ -7,12 +7,13 @@ import Footer from "./components/Footer";
 import Spinner from "./components/Spinner";
 import CartButton from "./components/CartButton";
 import CartDrawer from "./components/CartDrawer";
-
 // rappi
 import RappiButton from "./components/RappiButton";
 import RappiDrawer from "./components/RappiDrawer";
 //codigo postal
 import ZipCodeModal from "./components/ZipCodeModal";
+//whatsapp
+import WhatsappButton from "./components/WhatsappButton";
 
 import AnalyticsTracker from "./utils/AnalyticsTracker";
 
@@ -45,6 +46,7 @@ const CheckoutSuccess = lazy(() => import("./pages/CheckoutSuccess"));
 const CheckoutPending = lazy(() => import("./pages/CheckoutPending"));
 const CheckoutCancel = lazy(() => import("./pages/CheckoutCancel"));
 const GoogleAnalytics = lazy(() => import("./pages/google2c9b13ae1cb961e7.html"));
+const RadioSucursales = lazy(() => import("./pages/RadioSucursales"));
 
 export default function App() {
   const [cartOpen, setCartOpen] = useState(false);
@@ -92,6 +94,10 @@ export default function App() {
                 path="/google2c9b13ae1cb961e7.html" 
                 element={<GoogleAnalytics />} 
                 />
+                <Route 
+                path="/cobertura-entrega"
+                element={<RadioSucursales />}
+                />  
                 <Route
                   path="/nosotros"
                   element={<Nosotros />}
@@ -240,7 +246,10 @@ export default function App() {
         {/* Botones flotantes */}
         <CartButton onClick={() => setCartOpen(true)} />
         <RappiButton onClick={() => setRappiOpen(true)} />
-
+        <WhatsappButton
+          visible={!cartOpen && !rappiOpen}
+        />
+      
         {/* Drawers */}
         <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
         <RappiDrawer open={rappiOpen} onClose={() => setRappiOpen(false)} />

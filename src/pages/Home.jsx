@@ -5,7 +5,12 @@ import { faWhatsapp, faFacebook, faInstagram } from "@fortawesome/free-brands-sv
 import { db } from "../lib/firebase";
 import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from "firebase/firestore";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
+
+
+import BANNER_DESKTOP_DELIVERY from "../assets/imagenes-home/banner-deskp-delivery.jpg";
+import BANNER_MOBILE_DELIVERY from "../assets/imagenes-home/banner-movil-delivery.jpg";
 import BANNER_DESKTOP from "../assets/imagenes-home/banner-desktop.jpg";
 import BANNER_MOBILE from "../assets/imagenes-home/banner-movil.jpg";
 import REBANADA from "../assets/imagenes-home/rebanada.png";
@@ -107,10 +112,66 @@ export default function Home() {
     >
       {t("home.ctaButton")}
     </a>
-
-    
   </section>
 
+  <div className="w-full bg-cream overflow-hidden">
+
+    {/* Banner desktop */}
+    <img
+      src={BANNER_DESKTOP_DELIVERY}
+      alt="Servicio a domicilio Petit Repostería con Alma"
+      className="
+        hidden md:block
+        w-full
+        h-auto
+        object-cover
+      "
+    />
+
+    {/* Banner móvil */}
+    <img
+      src={BANNER_MOBILE_DELIVERY}
+      alt="Servicio a domicilio Petit Repostería con Alma"
+      className="
+        block md:hidden
+        w-full
+        h-auto
+        object-cover
+      "
+    />
+
+    {/* Botón de cobertura */}
+    <div className="flex justify-center items-center py-5 md:py-6 bg-cream">
+      <Link
+        to="/cobertura-entrega/"
+        className="
+          inline-flex
+          items-center
+          justify-center
+          bg-wine
+          text-cream
+          font-semibold
+          px-6 py-3
+          md:px-8 md:py-3
+          rounded-full
+          shadow-lg
+          text-sm
+          md:text-base
+          hover:bg-wineDark
+          hover:scale-105
+          transition-all
+          duration-300
+          text-center
+          whitespace-nowrap
+        "
+      >
+        {t("home.cobertura")}
+      </Link>
+    </div>
+
+  </div>
+
+ 
 
         {/* Separador rombos inferior */}
         <div className="relative w-full h-12 sm:h-10 md:h-12 lg:h-16 xl:h-20 bg-cream overflow-hidden">

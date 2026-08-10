@@ -95,6 +95,19 @@
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
+/* Evita que Leaflet se coloque sobre el menú */
+.leaflet-container {
+  z-index: 1;
+}
+
+.leaflet-pane {
+  z-index: 1;
+}
+
+.leaflet-control {
+  z-index: 2;
+}
+
 
 
 

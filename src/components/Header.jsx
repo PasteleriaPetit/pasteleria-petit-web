@@ -82,7 +82,6 @@ export default function Header() {
       
     >
       {/* Overlay translúcido */}
-      {/*Acomodar de nuevo el fondo cuando encontemos una mejor alternativa bg-rose/20*/}
       <div className="absolute inset-0 bg-rosepier backdrop-blur-sm"></div>
 
       <div className="relative max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-0 h-20">
@@ -160,6 +159,13 @@ export default function Header() {
             }}
           >
             <NavLink
+              to="/cobertura-entrega"
+              className="block px-4 py-2 hover:bg-rose/20 text-left whitespace-nowrap"
+              onClick={() => setMoreOpen(false)}
+            >
+              {lang === "es" ? "Servicio a Domicilio" : "Home Delivery Service"}
+            </NavLink>
+            <NavLink
               to="/bolsa-de-trabajo"
               className="block px-4 py-2 hover:bg-rose/20 text-left whitespace-nowrap"
               onClick={() => setMoreOpen(false)}
@@ -234,11 +240,11 @@ export default function Header() {
       </div>
 
       {/* Menú móvil */}
-      <div
-        className={`md:hidden absolute top-full left-0 w-full bg-cream/95 backdrop-blur-md shadow-lg transition-all duration-300 ease-in-out overflow-hidden ${
-          menuOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
-        }`}
-      >
+        <div
+          className={`md:hidden fixed top-full left-0 w-full bg-cream/95 backdrop-blur-md shadow-lg transition-all duration-300 ease-in-out overflow-hidden z-[9999] ${
+            menuOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
         <nav className="flex flex-col gap-3 px-6 py-4 text-center font-medium">
           <NavLink to="/" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Inicio" : "Home"}
@@ -255,28 +261,19 @@ export default function Header() {
           <NavLink to="/cafeteria" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Cafetería" : "Coffee Shop"}
           </NavLink>
-          <NavLink
-            to="/pedidos-especiales"
-            className={linkClass}
-            onClick={toggleMenu}
-          >
+          <NavLink to="/pedidos-especiales" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Pedidos Especiales" : "Special Orders"}
           </NavLink>
           <NavLink to="/sucursales" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Sucursales" : "Branches"}
           </NavLink>
-          <NavLink
-            to="/bolsa-de-trabajo"
-            className={linkClass}
-            onClick={toggleMenu}
-          >
+          <NavLink to="/cobertura-entrega" className={linkClass} onClick={toggleMenu}>
+            {lang === "es" ? "Servicio a Domicilio" : "Home Delivery Service"}
+          </NavLink>
+          <NavLink to="/bolsa-de-trabajo" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Bolsa de Trabajo" : "Careers"}
           </NavLink>
-          <NavLink
-            to="https://forms.office.com/pages/responsepage.aspx?id=dKSvQewt306VB6VCW_6heqPTCc0G1CBFvjSh4go4PBRUNUtOWU5SOVY4TE0yQVkzRjhZMEY5NFUwNC4u&origin=lprLink&route=shorturl"
-            className={linkClass}
-            onClick={toggleMenu}
-          >
+          <NavLink to="https://forms.office.com/pages/responsepage.aspx?id=dKSvQewt306VB6VCW_6heqPTCc0G1CBFvjSh4go4PBRUNUtOWU5SOVY4TE0yQVkzRjhZMEY5NFUwNC4u&origin=lprLink&route=shorturl" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Facturación" : "Billing"}
           </NavLink>
           {role === "admin" && (

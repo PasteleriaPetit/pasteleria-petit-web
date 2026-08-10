@@ -115,8 +115,8 @@ export default function RadioSucursales() {
           </aside>
         </div>
       </section>
-      {/* WhatsApp - Servicio a domicilio */}
-      <a
+      {/* /* {/* WhatsApp - Servicio a domicilio */}
+      {/* <a
         href="https://wa.me/523334416133?text=Hola%20Petit%20Reposter%C3%ADa%20con%20Alma%2C%20quiero%20consultar%20sobre%20la%20cobertura%20de%20entrega."
         target="_blank"
         rel="noopener noreferrer"
@@ -124,7 +124,7 @@ export default function RadioSucursales() {
         aria-label="Contactar por WhatsApp"
       >
         <FontAwesomeIcon icon={faWhatsapp} className="text-4xl" />
-      </a>
+      </a> */}
     </main>
   );
 }

@@ -12,6 +12,8 @@ import RappiButton from "./components/RappiButton";
 import RappiDrawer from "./components/RappiDrawer";
 //codigo postal
 import ZipCodeModal from "./components/ZipCodeModal";
+//whatsapp
+import WhatsappButton from "./components/WhatsappButton";
 
 import AnalyticsTracker from "./utils/AnalyticsTracker";
 
@@ -244,7 +246,10 @@ export default function App() {
         {/* Botones flotantes */}
         <CartButton onClick={() => setCartOpen(true)} />
         <RappiButton onClick={() => setRappiOpen(true)} />
-
+        <WhatsappButton
+          visible={!cartOpen && !rappiOpen}
+        />
+      
         {/* Drawers */}
         <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
         <RappiDrawer open={rappiOpen} onClose={() => setRappiOpen(false)} />

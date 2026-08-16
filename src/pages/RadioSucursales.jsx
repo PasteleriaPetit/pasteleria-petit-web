@@ -1,10 +1,25 @@
 import { MapContainer, TileLayer, Marker, Circle, Popup } from "react-leaflet";
-import { LatLngBounds } from "leaflet";
+import L, { LatLngBounds } from "leaflet";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { Fragment ,useMemo } from "react";
 import "leaflet/dist/leaflet.css";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
+
+const defaultIcon = L.icon({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+L.Marker.prototype.options.icon = defaultIcon;
 
 
 export default function RadioSucursales() {

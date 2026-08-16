@@ -56,6 +56,7 @@ const CATEGORIES = [
   { key: "productsVelas", labelEs: "Velas" },
   { key: "productsPedidos", labelEs: "Solo por pedido" },
   { key: "productsGalleteria", labelEs: "Galletería" },
+  {key: "productsVelas", labelEs: "Velas y accesorios"},
 ];
 
 const labelFromKey = (key) => CATEGORIES.find((c) => c.key === key)?.labelEs || "";

@@ -3,7 +3,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
-import MENU_IMG_URL from "../assets/menu-cafeteria.jpg";
+import MENU_IMG_URL from "../assets/menu-cafeteria-nuevo.jpg";
 
 export default function Cafeteria() {
   const { t } = useTranslation();

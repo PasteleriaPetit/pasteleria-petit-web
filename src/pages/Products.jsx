@@ -22,6 +22,7 @@ import PANADERIA from "../assets/categorias-productos/panaderia.png";
 import REPOSTERIA from "../assets/categorias-productos/reposteria.png"; 
 import QR from "../assets/qr-menu.png";
 import MENU from "../assets/menu-digital-pagina.pdf";
+import VELAS from "../assets/categorias-productos/velas.png";
 
 export default function Products() {
   const { t, i18n } = useTranslation();
@@ -59,6 +60,7 @@ export default function Products() {
     "productsGalleteria",
     "productsPanaderia",
     "productsReposteria",
+    "productsVelas",
   ];
 
   const CATEGORY_IMAGES = {
@@ -73,6 +75,7 @@ export default function Products() {
     productsGalleteria: GALLETERIA,
     productsPanaderia: PANADERIA,
     productsReposteria: REPOSTERIA,
+    productsVelas: VELAS,
   };
 
   // Construimos el grid a partir de tus filtros (uno por categoría)

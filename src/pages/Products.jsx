@@ -23,6 +23,9 @@ import REPOSTERIA from "../assets/categorias-productos/reposteria.png";
 import QR from "../assets/qr-menu.png";
 import MENU from "../assets/menu-digital-pagina.pdf";
 import VELAS from "../assets/categorias-productos/velas.png";
+import LOGO_SIN_AZUCAR from "../assets/categorias-productos/sello-sinazucar.png";
+import SELLO_SIN_AZUCAR from "../assets/categorias-productos/sello-sinazucar.png";
+import SELLO_KETO from "../assets/categorias-productos/sello-keto.png";
 
 export default function Products() {
   const { t, i18n } = useTranslation();
@@ -267,6 +270,42 @@ export default function Products() {
           </button>
         </div>
       )}
+
+      {!showCategoryGrid && activeCategory === "productsAzucar" && (
+  <div className="max-w-6xl mx-auto mb-10">
+    <div className="bg-cream  rounded-2xl ">
+      
+      <div className="flex flex-col items-center text-center gap-4">
+        {/* Submarca */}
+        {/* <img
+          src={LOGO_SIN_AZUCAR}
+          alt="Petit Sin Azúcar"
+          className="w-30 h-30 sm:w-40 sm:h-40 object-contain"
+        /> */}
+{/* 
+        <p className="text-wineDark/70 max-w-2xl text-sm sm:text-base">
+          Descubre nuestra línea de productos sin azúcar.
+        </p> */}
+
+        {/* Sellos */}
+        <div className="flex flex-wrap justify-center items-center gap-5 mt-2">
+          <img
+            src={SELLO_SIN_AZUCAR}
+            alt="Sello Sin Azúcar"
+            className="w-28 h-28 sm:w-30 sm:h-30 object-contain"
+          />
+
+          <img
+            src={SELLO_KETO}
+            alt="Sello Keto"
+            className="w-28 h-28 sm:w-30 sm:h-30 object-contain"
+          />
+        </div>
+      </div>
+
+    </div>
+  </div>
+)}
 
       {/* Lista (NO se toca; solo se oculta cuando estás en vitrinas) */}
       {!showCategoryGrid && (

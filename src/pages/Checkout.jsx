@@ -223,21 +223,23 @@ export default function Checkout() {
         <h1 className="font-display text-3xl text-wine">
           {t("checkout.title")}
         </h1>
-
-      
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      {<div className="grid lg:grid-cols-3 gap-8">
         {/* Columna izquierda: Dirección + Envío */}
         <div className="lg:col-span-2 space-y-6">
-          {/* <AddressForm onSelected={setAddress} /> */}
+           {/* <AddressForm onSelected={setAddress} /> 
 
-          {/* <div className="bg-white rounded-xl border border-rose/30 p-4 shadow-sm">
+           <div className="bg-white rounded-xl border border-rose/30 p-4 shadow-sm">
             <h3 className="text-wine text-lg font-semibold mb-3">
               {t("checkout.shipping.title")}
             </h3>
-            <ShippingPicker onChange={setShipping} />
-          </div> */}
+            
+            <ShippingPicker
+              address={address}
+              onChange={setShipping}
+            />
+        </div> */} 
 
           {/* ✅ Bloque Rappi */}
           <div className="bg-white rounded-xl border border-rose/30 p-4 shadow-sm">
@@ -398,7 +400,7 @@ export default function Checkout() {
 
                   {/* Mercado Pago (si lo reactivas) */}
                   
-                  {/* <button
+                   {/* <button
                     disabled={!canPayOnline}
                     onClick={payMP}
                     className="w-full bg-blue-600 text-white py-2 rounded-lg hover:opacity-90 transition disabled:opacity-50"
@@ -416,7 +418,7 @@ export default function Checkout() {
             )}
           </div>
         </div>
-      </div>
+      </div>}
     </main>
   );
 }

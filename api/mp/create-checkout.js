@@ -69,7 +69,11 @@ export default async function handler(req, res) {
       preferenceId: response?.id,
     });
   } catch (e) {
-    console.error("create-checkout error:", e);
-    return res.status(500).json({ error: "mp_failed" });
-  }
+  console.error("create-checkout error:", e);
+
+  return res.status(500).json({
+    error: "mp_failed",
+    message: e?.message || "Error desconocido",
+  });
+}
 }

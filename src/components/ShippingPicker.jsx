@@ -1,107 +1,373 @@
 import React, { useEffect, useState } from "react";
+
+import {
+  doc,
+  getDoc,
+} from "firebase/firestore";
+
 import { db } from "../lib/firebase";
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
-import { computeShipping } from "../utils/shipping";
+
+import {
+  computeShippingFromCoverage,
+} from "../utils/shipping";
+
 import { mxn } from "../utils/money";
 
-const DIST_CORRECTION = 1.35; // factor opcional para aproximar carretera si no usas API de rutas
+export default function ShippingPicker({
+  address,
+  onChange,
+}) {
+  const [loading, setLoading] = useState(false);
 
-export default function ShippingPicker({ onChange }) {
-  const [branches, setBranches] = useState([]);
-  const [rules, setRules] = useState(null);
-  const [customer, setCustomer] = useState(null);
   const [shipping, setShipping] = useState(null);
-  const [express, setExpress] = useState(false);
+
+  const [status, setStatus] = useState("waiting");
+
+  const [message, setMessage] = useState("");
+
+  const postalCode = String(
+    address?.postalCode || ""
+  )
+    .replace(/\D/g, "")
+    .slice(0, 5);
 
   useEffect(() => {
-    (async () => {
-      const snap = await getDocs(collection(db, "branches"));
-      setBranches(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    let cancelled = false;
 
-      const r = await getDoc(doc(db, "shippingRules", "default"));
-      setRules(r.exists() ? r.data() : null);
-    })();
-  }, []);
+    async function loadCoverage() {
+      // ==============================
+      // SIN DIRECCIÓN
+      // ==============================
 
-  const geolocate = () => {
-    if (!navigator.geolocation) return alert("Geolocalización no disponible");
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setCustomer({ coords, municipality: "" }); // si luego usas geocoder, rellenas municipality
-      },
-      () => alert("No se pudo obtener ubicación")
-    );
-  };
+      if (!address) {
+        setShipping(null);
+        setStatus("waiting");
+        setMessage("");
 
-  useEffect(() => {
-    if (customer && branches.length && rules) {
-      // computeShipping puede aceptar un drivingKm opcional; mientras, aplico corrección
-      const sh = computeShipping({ customer, branches, rules });
-      // corrige distancia visual (opcional)
-      if (sh?.distanceKm) {
-        sh.distanceKm = Number((sh.distanceKm * DIST_CORRECTION).toFixed(1));
-        // Recalcula monto si tu computeShipping usa distanceKm; si no, puedes aumentar basePerKm en rules
-        if (typeof sh.recalcAmountFromKm === "function") {
-          sh.amount = sh.recalcAmountFromKm(sh.distanceKm);
+        onChange?.(null);
+
+        return;
+      }
+
+      // ==============================
+      // CP INCOMPLETO
+      // ==============================
+
+      if (postalCode.length !== 5) {
+        setShipping(null);
+        setStatus("waiting");
+
+        setMessage(
+          "Ingresa un código postal válido de 5 dígitos."
+        );
+
+        onChange?.(null);
+
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setStatus("loading");
+        setMessage("");
+
+        // ==============================
+        // deliveryCoverage/{CP}
+        // ==============================
+
+        const coverageRef = doc(
+          db,
+          "deliveryCoverage",
+          postalCode
+        );
+
+        const coverageSnap =
+          await getDoc(coverageRef);
+
+        if (cancelled) return;
+
+        // ==============================
+        // CP NO REGISTRADO
+        // ==============================
+
+        if (!coverageSnap.exists()) {
+          const result =
+            computeShippingFromCoverage(
+              null,
+              postalCode
+            );
+
+          setShipping(result);
+
+          setStatus("not-covered");
+
+          setMessage(
+            "Por el momento no contamos con servicio a domicilio para este código postal."
+          );
+
+          onChange?.(null);
+
+          return;
+        }
+
+        // ==============================
+        // INTERPRETAR COBERTURA
+        // ==============================
+
+        const coverage = {
+          id: coverageSnap.id,
+          ...coverageSnap.data(),
+        };
+
+        const result =
+          computeShippingFromCoverage(
+            coverage,
+            postalCode
+          );
+
+        if (!result.available) {
+          setShipping(result);
+
+          setStatus("not-covered");
+
+          switch (result.reason) {
+            case "inactive":
+              setMessage(
+                "El servicio a domicilio para este código postal se encuentra temporalmente deshabilitado."
+              );
+              break;
+
+            case "invalid_rate":
+              setMessage(
+                "No fue posible determinar el costo de envío para este código postal. Por favor contáctanos."
+              );
+              break;
+
+            case "out_of_coverage":
+            default:
+              setMessage(
+                "Por el momento no contamos con servicio a domicilio para este código postal."
+              );
+              break;
+          }
+
+          // IMPORTANTE:
+          // Checkout recibe null y no puede continuar.
+          onChange?.(null);
+
+          return;
+        }
+
+        // ==============================
+        // COBERTURA CORRECTA
+        // ==============================
+
+        setShipping(result);
+
+        setStatus("covered");
+
+        setMessage("");
+
+        onChange?.(result);
+      } catch (error) {
+        console.error(
+          "Error consultando cobertura:",
+          error
+        );
+
+        if (cancelled) return;
+
+        setShipping(null);
+
+        setStatus("error");
+
+        setMessage(
+          "No pudimos consultar la cobertura en este momento. Intenta nuevamente."
+        );
+
+        onChange?.(null);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
         }
       }
-      setShipping(sh);
-      onChange?.({ ...sh, express, expressFee: express ? sh.expressFee : 0 });
     }
-    // eslint-disable-next-line
-  }, [customer, branches, rules]);
 
-  useEffect(() => {
-    if (shipping) onChange?.({ ...shipping, express, expressFee: express ? shipping.expressFee : 0 });
-    // eslint-disable-next-line
-  }, [express]);
+    loadCoverage();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [postalCode]);
+
+  // ==============================
+  // SIN DIRECCIÓN
+  // ==============================
+
+  if (!address) {
+    return (
+      <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-900">
+          Envío a domicilio
+        </h3>
+
+        <p className="mt-2 text-sm text-gray-500">
+          Selecciona o captura tu dirección para
+          consultar la cobertura y el costo de envío.
+        </p>
+      </section>
+    );
+  }
 
   return (
-    <div className="p-3 rounded-lg border border-rose/40 bg-white space-y-2">
-      <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-wine">Entrega</h3>
-        <button onClick={geolocate} className="text-sm underline text-wine">Usar mi ubicación</button>
+    <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold text-gray-900">
+          Envío a domicilio
+        </h3>
+
+        <p className="mt-1 text-sm text-gray-500">
+          Consultaremos la cobertura utilizando el
+          código postal de tu dirección.
+        </p>
       </div>
 
-      {!shipping ? (
-        <p className="text-sm text-wineDark/70">Selecciona ubicación para calcular envío.</p>
-      ) : (
-        <>
-          <div className="text-sm text-wineDark/80 space-y-1">
-            <div><span className="font-medium">Sucursal asignada:</span> {shipping.branchName}</div>
-            <div><span className="font-medium">Distancia aprox:</span> {shipping.distanceKm} km</div>
-            <div><span className="font-medium">Envío:</span> {mxn(shipping.amount)}</div>
+      {/* Código postal */}
 
-            {/* Mostrar origen coords + link (opcional) */}
-            {customer?.coords && (
-              <div className="text-xs text-wineDark/60">
-                Origen: {customer.coords.lat.toFixed(5)}, {customer.coords.lng.toFixed(5)} ·{" "}
-                <a
-                  href={`https://www.google.com/maps?q=${customer.coords.lat},${customer.coords.lng}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline"
-                >
-                  Ver en Maps
-                </a>
-              </div>
-            )}
+      <div className="mb-4 rounded-xl bg-gray-50 px-4 py-3">
+        <p className="text-xs uppercase tracking-wide text-gray-500">
+          Código postal
+        </p>
 
-            {shipping.notes?.length ? <div className="text-xs text-wineDark/60">{shipping.notes.join(" · ")}</div> : null}
-            {shipping.earlyOnly && <div className="text-xs text-red">Zona lejana: solo horarios tempranos</div>}
-          </div>
+        <p className="mt-1 font-semibold text-gray-900">
+          {postalCode || "Sin especificar"}
+        </p>
+      </div>
 
-          <label className="flex items-center gap-2 text-sm mt-2">
-            <input
-              type="checkbox"
-              checked={express}
-              onChange={(e) => setExpress(e.target.checked)}
-            />
-            <span>Entrega express (+{mxn(shipping.expressFee)})</span>
-          </label>
-        </>
+      {/* Cargando */}
+
+      {loading && (
+        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+          <p className="text-sm text-gray-600">
+            Consultando cobertura...
+          </p>
+        </div>
       )}
-    </div>
+
+      {/* Sin cobertura */}
+
+      {!loading &&
+        status === "not-covered" && (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+            <p className="font-medium text-red-700">
+              Dirección fuera de cobertura
+            </p>
+
+            <p className="mt-1 text-sm text-red-600">
+              {message}
+            </p>
+          </div>
+        )}
+
+      {/* Error */}
+
+      {!loading && status === "error" && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <p className="font-medium text-amber-800">
+            No pudimos validar el envío
+          </p>
+
+          <p className="mt-1 text-sm text-amber-700">
+            {message}
+          </p>
+        </div>
+      )}
+
+      {/* CP incompleto */}
+
+      {!loading &&
+        status === "waiting" &&
+        message && (
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+            <p className="text-sm text-gray-600">
+              {message}
+            </p>
+          </div>
+        )}
+
+      {/* Cobertura */}
+
+      {!loading &&
+        status === "covered" &&
+        shipping && (
+          <div className="space-y-4">
+            <div className="rounded-xl border border-green-200 bg-green-50 p-4">
+              <p className="font-semibold text-green-800">
+                ✓ Servicio disponible
+              </p>
+
+              <p className="mt-1 text-sm text-green-700">
+                Esta dirección se encuentra dentro de
+                nuestra cobertura de servicio a domicilio.
+              </p>
+            </div>
+
+            <div className="divide-y divide-gray-100 rounded-xl border border-gray-200">
+              {shipping.municipality && (
+                <div className="flex items-center justify-between gap-4 p-4">
+                  <span className="text-sm text-gray-500">
+                    Municipio
+                  </span>
+
+                  <span className="text-right text-sm font-medium text-gray-900">
+                    {shipping.municipality}
+                  </span>
+                </div>
+              )}
+
+              {shipping.branchName && (
+                <div className="flex items-center justify-between gap-4 p-4">
+                  <span className="text-sm text-gray-500">
+                    Sucursal asignada
+                  </span>
+
+                  <span className="text-right text-sm font-medium text-gray-900">
+                    {shipping.branchName}
+                  </span>
+                </div>
+              )}
+
+              {Number.isFinite(
+                shipping.distanceKm
+              ) && (
+                <div className="flex items-center justify-between gap-4 p-4">
+                  <span className="text-sm text-gray-500">
+                    Distancia de referencia
+                  </span>
+
+                  <span className="text-right text-sm font-medium text-gray-900">
+                    {shipping.distanceKm} km
+                  </span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between gap-4 p-4">
+                <span className="font-medium text-gray-700">
+                  Costo de envío
+                </span>
+
+                <span className="text-xl font-bold text-gray-900">
+                  {mxn(shipping.amount)}
+                </span>
+              </div>
+            </div>
+
+            <p className="text-xs text-gray-400">
+              El costo corresponde a la tarifa oficial
+              asignada al código postal seleccionado.
+            </p>
+          </div>
+        )}
+    </section>
   );
 }

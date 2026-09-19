@@ -79,6 +79,7 @@
   "special": {
   "title": "Special Orders",
   "subtitle": "Celebrate your most important moments with a unique cake made especially for you. Browse our categories and contact us on WhatsApp to request a quote.",
+  "order" : "Special orders must be placed at least 5 days before the date of your event.",
   "loading": "Loading special cakes...",
   "cta": "For more information, contact us",
   "catego0": "All",

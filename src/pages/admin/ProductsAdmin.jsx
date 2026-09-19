@@ -11,6 +11,7 @@ import {
 } from "firebase/firestore";
 import { toast } from "react-toastify";
 import { cld } from "../../utils/cloudinary";
+import { compressContentImage } from "../../utils/compressContentImage";
 
 // ===== Helpers i18n =====
 const safeText = (v) => {
@@ -105,6 +106,8 @@ export default function ProductsAdmin() {
 
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [imageInfo, setImageInfo] = useState(null);
+  const [compressing, setCompressing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -168,6 +171,57 @@ export default function ProductsAdmin() {
       ...prev,
       prices: prev.prices.map((p, i) => (i === idx ? { ...p, ...patch } : p)),
     }));
+  };
+  // ===== Selección y optimización de imagen =====
+  const handleImageChange = async (e) => {
+    const originalFile = e.target.files?.[0];
+
+    if (!originalFile) {
+      setFile(null);
+      setPreview(null);
+      setImageInfo(null);
+      return;
+    }
+
+    try {
+      setCompressing(true);
+      setImageInfo(null);
+
+      const result =
+        await compressContentImage(originalFile);
+
+      // `file` ahora contiene la versión optimizada,
+      // no la imagen pesada original.
+      setFile(result.file);
+
+      setPreview(
+        URL.createObjectURL(result.file)
+      );
+
+      setImageInfo(result);
+
+      toast.success(
+        `🖼️ Imagen optimizada: ${result.original.sizeFormatted} → ${result.optimized.sizeFormatted}`
+      );
+    } catch (error) {
+      console.error(
+        "Error optimizando imagen:",
+        error
+      );
+
+      setFile(null);
+      setPreview(null);
+      setImageInfo(null);
+
+      // Permite volver a seleccionar el mismo archivo.
+      e.target.value = "";
+
+      toast.error(
+        `❌ ${error.message}`
+      );
+    } finally {
+      setCompressing(false);
+    }
   };
 
   // ===== Guardar =====
@@ -236,6 +290,8 @@ export default function ProductsAdmin() {
     });
     setFile(null);
     setPreview(null);
+    setImageInfo(null);
+    setCompressing(false);
     setEditingId(null);
     setActiveLangTab("es");
   };
@@ -391,18 +447,70 @@ export default function ProductsAdmin() {
           {/* Imagen */}
           <input
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp"
+            disabled={compressing || uploading}
             className="block w-full text-sm text-wineDark
               file:mr-3 file:py-2 file:px-3
               file:rounded-md file:border-0
               file:bg-red file:text-cream
-              hover:file:bg-red/80"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              setFile(f || null);
-              setPreview(f ? URL.createObjectURL(f) : null);
-            }}
+              hover:file:bg-red/80
+              disabled:opacity-50"
+            onChange={handleImageChange}
           />
+
+          {imageInfo && !compressing && (
+            <div className="rounded-xl border border-rose/30 bg-cream p-4">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <p className="font-semibold text-wine">
+                  ✓ Imagen optimizada
+                </p>
+
+                <span className="text-sm font-semibold text-green-700">
+                  -{imageInfo.reductionPercent}%
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="text-wineDark/60">
+                    Original
+                  </p>
+
+                  <p className="font-medium text-wineDark">
+                    {imageInfo.original.sizeFormatted}
+                  </p>
+
+                  <p className="text-xs text-wineDark/60">
+                    {imageInfo.original.width} ×{" "}
+                    {imageInfo.original.height}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-wineDark/60">
+                    Optimizada
+                  </p>
+
+                  <p className="font-medium text-green-700">
+                    {imageInfo.optimized.sizeFormatted}
+                  </p>
+
+                  <p className="text-xs text-wineDark/60">
+                    {imageInfo.optimized.width} ×{" "}
+                    {imageInfo.optimized.height} · WebP
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {compressing && (
+            <div className="rounded-lg border border-rose/30 bg-cream p-4">
+              <p className="text-sm text-wine">
+                Optimizando imagen...
+              </p>
+            </div>
+          )}
 
           {(preview || form.img) && (
             <img
@@ -415,11 +523,11 @@ export default function ProductsAdmin() {
           {/* Acciones */}
           <div className="flex flex-wrap gap-3">
             <button
-              disabled={uploading}
+              disabled={uploading || compressing}
               onClick={save}
               className={`${uploading ? "bg-gray-400" : "bg-red"} text-cream px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition`}
             >
-              {uploading ? "Subiendo..." : editingId ? "Guardar cambios" : "Agregar"}
+              {compressing ? "Optimizando imagen..." : uploading? "Subiendo...": editingId? "Guardar cambios": "Agregar"}
             </button>
             {editingId && (
               <button

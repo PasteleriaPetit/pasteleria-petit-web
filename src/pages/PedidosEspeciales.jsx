@@ -132,6 +132,10 @@ const categoryCards = categories
             "Celebra tus momentos más importantes con un pastel único, hecho especialmente para ti. Consulta nuestras categorías y contáctanos por WhatsApp para cotizar tu pedido."
           )}
         </p>
+        <br/>
+        <p className="font-maison neue text-wineDark/80 max-w-2xl mx-auto">
+          {t("special.order", "Los pedidos especiales deben ser realizados al menos 5 días antes de la fecha de tu evento.")}
+        </p>
       </motion.div>
 
       {/* Filtros */}

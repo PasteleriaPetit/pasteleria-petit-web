@@ -118,13 +118,15 @@ export default function Checkout() {
   // =========================================================
 
   const canPayOnline =
-    cart.length > 0 &&
-    !!address &&
-    !!shipping &&
-    shipping.available === true &&
-    shipping.covered === true &&
-    !loadingPay &&
-    !!user;
+  cart.length > 0 &&
+  !!user &&
+  !!address &&
+  !!address.deliveryDate &&
+  !!address.deliveryWindow &&
+  !!shipping &&
+  shipping.available === true &&
+  shipping.covered === true &&
+  !loadingPay;
 
   const canReserveStore =
     cart.length > 0 &&
@@ -202,10 +204,10 @@ export default function Checkout() {
     }
 
     if (!address) {
-      throw new Error(
-        "Selecciona una dirección, fecha y horario de entrega."
-      );
-    }
+  throw new Error(
+    "Selecciona una dirección de entrega."
+  );
+}
 
     if (
       !shipping ||
@@ -213,7 +215,19 @@ export default function Checkout() {
       shipping.covered !== true
     ) {
       throw new Error(
-        "La dirección no cuenta con una opción de envío válida."
+        "La dirección seleccionada no cuenta con cobertura de entrega."
+      );
+    }
+
+    if (!address.deliveryDate) {
+      throw new Error(
+        "Selecciona una fecha de entrega."
+      );
+    }
+
+    if (!address.deliveryWindow) {
+      throw new Error(
+        "Selecciona un horario de entrega."
       );
     }
 

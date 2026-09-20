@@ -4,7 +4,7 @@ import admin from "firebase-admin";
 // FIREBASE ADMIN
 // ============================================================
 
-function getFirebaseAdmin() {
+function getDb() {
   if (!admin.apps.length) {
     const {
       FIREBASE_PROJECT_ID,
@@ -18,22 +18,18 @@ function getFirebaseAdmin() {
       !FIREBASE_PRIVATE_KEY
     ) {
       throw new Error(
-        "Faltan variables de Firebase Admin."
+        "Faltan variables de entorno de Firebase Admin."
       );
     }
 
     admin.initializeApp({
       credential: admin.credential.cert({
         projectId: FIREBASE_PROJECT_ID.trim(),
-
-        clientEmail:
-          FIREBASE_CLIENT_EMAIL.trim(),
-
-        privateKey:
-          FIREBASE_PRIVATE_KEY.replace(
-            /\\n/g,
-            "\n"
-          ),
+        clientEmail: FIREBASE_CLIENT_EMAIL.trim(),
+        privateKey: FIREBASE_PRIVATE_KEY.replace(
+          /\\n/g,
+          "\n"
+        ),
       }),
     });
   }
@@ -42,18 +38,14 @@ function getFirebaseAdmin() {
 }
 
 // ============================================================
-// TELÉFONO
+// TELÉFONOS
 // ============================================================
 
 function normalizeMexicanPhone(phone = "") {
-  const digits = String(phone).replace(
-    /\D/g,
-    ""
-  );
+  const digits = String(phone).replace(/\D/g, "");
 
   if (!digits) return "";
 
-  // Ya viene con 52
   if (
     digits.length === 12 &&
     digits.startsWith("52")
@@ -61,21 +53,19 @@ function normalizeMexicanPhone(phone = "") {
     return `+${digits}`;
   }
 
-  // Teléfono mexicano de 10 dígitos
   if (digits.length === 10) {
     return `+52${digits}`;
   }
 
-  // Fallback
   return `+${digits}`;
 }
 
 // ============================================================
-// DIRECCIÓN DEL CLIENTE
+// DIRECCIÓN CLIENTE
 // ============================================================
 
 function buildCustomerAddress(address = {}) {
-  const streetLine = [
+  const street = [
     address.street,
     address.extNumber,
   ]
@@ -87,7 +77,7 @@ function buildCustomerAddress(address = {}) {
     : "";
 
   return [
-    streetLine,
+    street,
     interior,
     address.neighborhood,
     address.city,
@@ -102,18 +92,17 @@ function buildCustomerAddress(address = {}) {
 }
 
 // ============================================================
-// DIRECCIÓN DE SUCURSAL
+// DIRECCIÓN SUCURSAL
 // ============================================================
 
 function buildBranchAddress(branch = {}) {
-  // Preferimos el formatted que agregamos en Etapa 1.
   if (branch.address?.formatted) {
     return branch.address.formatted;
   }
 
   const address = branch.address || {};
 
-  const streetLine = [
+  const street = [
     address.street,
     address.extNumber,
   ]
@@ -121,7 +110,7 @@ function buildBranchAddress(branch = {}) {
     .join(" ");
 
   return [
-    streetLine,
+    street,
     address.neighborhood,
     address.city,
     address.state,
@@ -135,35 +124,29 @@ function buildBranchAddress(branch = {}) {
 }
 
 // ============================================================
-// HORARIOS
+// HORARIO
 // ============================================================
 
-function parseDeliveryWindow(window = "") {
-  const [start, end] = String(window).split(
-    "-"
-  );
+function parseWindow(window = "") {
+  const [start, end] = String(window).split("-");
 
   if (!start || !end) {
     throw new Error(
-      "La ventana de entrega no es válida."
+      `Ventana de entrega inválida: ${window}`
     );
   }
 
   return {
-    start: `${start}:00`,
-    end: `${end}:00`,
+    localStart: `${start}:00`,
+    localEnd: `${end}:00`,
   };
 }
 
 // ============================================================
-// HANDLER
+// API
 // ============================================================
 
 export default async function handler(req, res) {
-  // ----------------------------------------------------------
-  // SOLO GET PARA ESTA PRUEBA
-  // ----------------------------------------------------------
-
   if (req.method !== "GET") {
     return res.status(405).json({
       ok: false,
@@ -181,7 +164,7 @@ export default async function handler(req, res) {
         ok: false,
         error: "missing_order_id",
         message:
-          "Debes proporcionar ?orderId=ID_DEL_PEDIDO",
+          "Debes proporcionar ?orderId=ID_DEL_DOCUMENTO",
       });
     }
 
@@ -195,29 +178,29 @@ export default async function handler(req, res) {
       });
     }
 
-    const db = getFirebaseAdmin();
+    const db = getDb();
 
     // ========================================================
-    // LEER PEDIDO
+    // 1. LEER ORDER
     // ========================================================
 
-    const orderRef = db
+    const orderSnap = await db
       .collection("orders")
-      .doc(orderId);
-
-    const orderSnap = await orderRef.get();
+      .doc(orderId)
+      .get();
 
     if (!orderSnap.exists) {
       return res.status(404).json({
         ok: false,
         error: "order_not_found",
+        orderId,
       });
     }
 
     const order = orderSnap.data();
 
     // ========================================================
-    // VALIDAR SUCURSAL
+    // 2. OBTENER SUCURSAL ASIGNADA
     // ========================================================
 
     const branchId =
@@ -230,16 +213,10 @@ export default async function handler(req, res) {
       });
     }
 
-    // ========================================================
-    // LEER SUCURSAL
-    // ========================================================
-
-    const branchRef = db
+    const branchSnap = await db
       .collection("branches")
-      .doc(branchId);
-
-    const branchSnap =
-      await branchRef.get();
+      .doc(branchId)
+      .get();
 
     if (!branchSnap.exists) {
       return res.status(404).json({
@@ -255,81 +232,114 @@ export default async function handler(req, res) {
     };
 
     // ========================================================
-    // VALIDAR DATOS DEL PEDIDO
+    // 3. VALIDACIONES
     // ========================================================
 
     if (!order.orderNumber) {
       throw new Error(
-        "El pedido no tiene orderNumber."
+        "El pedido no contiene orderNumber."
       );
     }
 
     if (!order.customer?.name) {
       throw new Error(
-        "El pedido no tiene nombre del cliente."
+        "El pedido no contiene nombre del cliente."
       );
     }
 
     if (!order.customer?.phone) {
       throw new Error(
-        "El pedido no tiene teléfono del cliente."
+        "El pedido no contiene teléfono del cliente."
+      );
+    }
+
+    if (!order.address?.postalCode) {
+      throw new Error(
+        "El pedido no contiene código postal."
       );
     }
 
     if (!order.delivery?.date) {
       throw new Error(
-        "El pedido no tiene fecha de entrega."
+        "El pedido no contiene fecha de entrega."
       );
     }
 
     if (!order.delivery?.window) {
       throw new Error(
-        "El pedido no tiene horario de entrega."
+        "El pedido no contiene horario de entrega."
       );
     }
 
     // ========================================================
-    // HORARIO
+    // 4. HORARIO
     // ========================================================
 
-    const deliveryWindow =
-      parseDeliveryWindow(
-        order.delivery.window
-      );
+    const window = parseWindow(
+      order.delivery.window
+    );
 
     // ========================================================
-    // ITEMS
+    // 5. PRODUCTOS
     // ========================================================
 
-    const orderItem = Array.isArray(
-      order.items
-    )
+    const orderItem = Array.isArray(order.items)
       ? order.items.map((item) => {
-          const result = {
-            name:
-              String(
-                item.title || "Producto"
-              ).trim(),
+          const product = {
+            name: String(
+              item.title || "Producto"
+            ),
 
-            unitPrice:
-              Number(item.price || 0),
+            unitPrice: Number(
+              item.price || 0
+            ),
 
-            quantity:
-              Number(item.qty || 1),
+            quantity: Number(
+              item.qty || 1
+            ),
           };
 
-          // Por ahora ponemos la variante como detalle.
-          if (item.options?.variantLabel) {
-            result.detail =
-              `Variante: ${item.options.variantLabel}`;
+          const details = [];
+
+          if (item.variantLabel) {
+            details.push(
+              `Variante: ${item.variantLabel}`
+            );
           }
 
-          return result;
+          if (item.options?.variantLabel) {
+            details.push(
+              `Variante: ${item.options.variantLabel}`
+            );
+          }
+
+          if (details.length) {
+            product.detail =
+              [...new Set(details)].join(" | ");
+          }
+
+          return product;
         })
       : [];
 
     // ========================================================
-    // PAYLOAD SHIPDAY
+    // 6. INSTRUCCIONES
+    // ========================================================
+
+    const instructions = [
+      order.address?.references
+        ? `Referencias: ${order.address.references}`
+        : "",
+
+      order.delivery?.notes
+        ? `Notas: ${order.delivery.notes}`
+        : "",
+    ]
+      .filter(Boolean)
+      .join(" | ");
+
+    // ========================================================
+    // 7. PAYLOAD SHIPDAY
     // ========================================================
 
     const shipdayPayload = {
@@ -345,9 +355,7 @@ export default async function handler(req, res) {
         ),
 
       customerEmail:
-        String(
-          order.customer.email || ""
-        ),
+        String(order.customer.email || ""),
 
       customerPhoneNumber:
         normalizeMexicanPhone(
@@ -373,55 +381,36 @@ export default async function handler(req, res) {
         order.delivery.date,
 
       /*
-       * IMPORTANTE:
+       * TEMPORAL:
+       * estos son todavía horarios locales de Petit.
        *
-       * Todavía NO enviaremos este payload.
-       *
-       * Shipday documenta estos horarios como UTC.
-       * En esta prueba queremos comprobar primero
-       * que todos los datos y la ventana sean correctos.
-       *
-       * La conversión Guadalajara -> UTC se hará
-       * antes del POST real.
+       * Antes del POST real los convertiremos
+       * correctamente a UTC.
        */
-
       expectedPickupTime:
-        deliveryWindow.start,
+        window.localStart,
 
       expectedDeliveryTime:
-        deliveryWindow.end,
+        window.localEnd,
 
       orderItem,
 
       tips: 0,
-
       tax: 0,
-
       discountAmount: 0,
 
       deliveryFee:
         Number(
-          order.totals?.shipping ||
-            order.delivery?.shippingCost ||
+          order.totals?.shipping ??
+            order.delivery?.shippingCost ??
             0
         ),
 
       totalOrderCost:
-        Number(
-          order.totals?.total || 0
-        ),
+        Number(order.totals?.total || 0),
 
-      deliveryInstruction: [
-        order.address?.references
-          ? `Referencias: ${order.address.references}`
-          : "",
-
-        order.delivery?.notes
-          ? `Notas: ${order.delivery.notes}`
-          : "",
-      ]
-        .filter(Boolean)
-        .join(" | "),
+      deliveryInstruction:
+        instructions,
 
       orderSource:
         "Petit Repostería Web",
@@ -429,64 +418,67 @@ export default async function handler(req, res) {
       additionalId:
         String(orderId),
 
-      /*
-       * NetPay será pago en línea.
-       * Shipday documenta credit_card para este endpoint.
-       */
       paymentMethod:
         "credit_card",
     };
 
     // ========================================================
-    // COORDENADAS DE SUCURSAL
+    // 8. COORDENADAS DE RECOLECCIÓN
     // ========================================================
 
-    if (
-      Number.isFinite(
-        Number(branch.coords?.lat)
-      ) &&
-      Number.isFinite(
-        Number(branch.coords?.lng)
-      )
-    ) {
-      shipdayPayload.pickupLatitude =
-        Number(branch.coords.lat);
+    const lat = Number(
+      branch.coords?.lat
+    );
 
-      shipdayPayload.pickupLongitude =
-        Number(branch.coords.lng);
+    const lng = Number(
+      branch.coords?.lng
+    );
+
+    if (
+      Number.isFinite(lat) &&
+      Number.isFinite(lng)
+    ) {
+      shipdayPayload.pickupLatitude = lat;
+      shipdayPayload.pickupLongitude = lng;
     }
 
     // ========================================================
-    // RESPUESTA
+    // 9. RESPUESTA
     //
-    // NO HAY FETCH A SHIPDAY AQUÍ.
+    // IMPORTANTE:
+    // AQUÍ NO EXISTE NINGÚN FETCH A SHIPDAY.
     // ========================================================
 
     return res.status(200).json({
       ok: true,
 
       message:
-        "Payload de Shipday generado. No se creó ninguna entrega.",
+        "Payload generado correctamente. No se creó ninguna orden en Shipday.",
 
       source: {
         orderId,
         branchId,
       },
 
+      localDeliveryWindow: {
+        date: order.delivery.date,
+        window: order.delivery.window,
+        start: window.localStart,
+        end: window.localEnd,
+        timezone: "America/Mexico_City",
+      },
+
       shipdayPayload,
     });
   } catch (error) {
     console.error(
-      "Error generando preview Shipday:",
+      "Error generando payload Shipday:",
       error
     );
 
     return res.status(500).json({
       ok: false,
-
-      error:
-        "shipday_preview_error",
-
+      error: "shipday_preview_error",
       message:
         error?.message ||
         "No fue posible generar el payload.",

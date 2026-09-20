@@ -1,106 +1,274 @@
 import React, { useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
-import { computeShipping } from "../utils/shipping";
+import { computeShippingFromCoverage } from "../utils/shipping";
 import { mxn } from "../utils/money";
 
-const DIST_CORRECTION = 1.35; // factor opcional para aproximar carretera si no usas API de rutas
-
-export default function ShippingPicker({ onChange }) {
-  const [branches, setBranches] = useState([]);
-  const [rules, setRules] = useState(null);
-  const [customer, setCustomer] = useState(null);
+export default function ShippingPicker({ address, onChange }) {
   const [shipping, setShipping] = useState(null);
-  const [express, setExpress] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    (async () => {
-      const snap = await getDocs(collection(db, "branches"));
-      setBranches(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    let cancelled = false;
 
-      const r = await getDoc(doc(db, "shippingRules", "default"));
-      setRules(r.exists() ? r.data() : null);
-    })();
-  }, []);
+    const loadShipping = async () => {
+      setError("");
 
-  const geolocate = () => {
-    if (!navigator.geolocation) return alert("Geolocalización no disponible");
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setCustomer({ coords, municipality: "" }); // si luego usas geocoder, rellenas municipality
-      },
-      () => alert("No se pudo obtener ubicación")
-    );
-  };
+      const postalCode = String(
+        address?.postalCode || ""
+      )
+        .trim()
+        .replace(/\D/g, "");
 
-  useEffect(() => {
-    if (customer && branches.length && rules) {
-      // computeShipping puede aceptar un drivingKm opcional; mientras, aplico corrección
-      const sh = computeShipping({ customer, branches, rules });
-      // corrige distancia visual (opcional)
-      if (sh?.distanceKm) {
-        sh.distanceKm = Number((sh.distanceKm * DIST_CORRECTION).toFixed(1));
-        // Recalcula monto si tu computeShipping usa distanceKm; si no, puedes aumentar basePerKm en rules
-        if (typeof sh.recalcAmountFromKm === "function") {
-          sh.amount = sh.recalcAmountFromKm(sh.distanceKm);
+      // ======================================================
+      // SIN CP VÁLIDO
+      // ======================================================
+
+      if (postalCode.length !== 5) {
+        if (!cancelled) {
+          setShipping(null);
+          setLoading(false);
+          onChange?.(null);
+        }
+
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        // ====================================================
+        // BUSCAR TARIFA OFICIAL POR CÓDIGO POSTAL
+        // ====================================================
+
+        const coverageRef = doc(
+          db,
+          "deliveryCoverage",
+          postalCode
+        );
+
+        const coverageSnap = await getDoc(
+          coverageRef
+        );
+
+        if (cancelled) return;
+
+        // ====================================================
+        // CP NO REGISTRADO
+        // ====================================================
+
+        if (!coverageSnap.exists()) {
+          setShipping(null);
+
+          setError(
+            "Este código postal no se encuentra dentro de nuestra cobertura de entrega."
+          );
+
+          onChange?.(null);
+
+          return;
+        }
+
+        const coverage = {
+          postalCode,
+          ...coverageSnap.data(),
+        };
+
+        // ====================================================
+        // CALCULAR ENVÍO DESDE LA TARIFA OFICIAL
+        // ====================================================
+
+        const result =
+          computeShippingFromCoverage(
+            coverage
+          );
+
+        if (!result?.available) {
+          setShipping(null);
+
+          setError(
+            result?.message ||
+              "Actualmente no contamos con cobertura para este código postal."
+          );
+
+          onChange?.(null);
+
+          return;
+        }
+
+        // ====================================================
+        // RESULTADO FINAL
+        // ====================================================
+
+        const normalizedShipping = {
+          available: true,
+          covered: true,
+
+          postalCode,
+
+          municipality:
+            result.municipality ||
+            coverage.municipality ||
+            "",
+
+          branchKey:
+            result.branchKey ||
+            coverage.branchKey ||
+            coverage.branchId ||
+            "",
+
+          branchId:
+            result.branchId ||
+            coverage.branchId ||
+            coverage.branchKey ||
+            "",
+
+          branchName:
+            result.branchName ||
+            coverage.branchName ||
+            "",
+
+          distanceKm: Number(
+            result.distanceKm ??
+              coverage.distanceKm ??
+              coverage.distance ??
+              0
+          ),
+
+          amount: Number(
+            result.amount ??
+              coverage.amount ??
+              0
+          ),
+
+          source: "deliveryCoverage",
+        };
+
+        setShipping(normalizedShipping);
+
+        onChange?.(normalizedShipping);
+      } catch (err) {
+        console.error(
+          "Error consultando cobertura:",
+          err
+        );
+
+        if (cancelled) return;
+
+        setShipping(null);
+
+        setError(
+          "No fue posible consultar la cobertura de entrega. Intenta nuevamente."
+        );
+
+        onChange?.(null);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
         }
       }
-      setShipping(sh);
-      onChange?.({ ...sh, express, expressFee: express ? sh.expressFee : 0 });
-    }
-    // eslint-disable-next-line
-  }, [customer, branches, rules]);
+    };
 
-  useEffect(() => {
-    if (shipping) onChange?.({ ...shipping, express, expressFee: express ? shipping.expressFee : 0 });
-    // eslint-disable-next-line
-  }, [express]);
+    loadShipping();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [address?.postalCode, onChange]);
 
   return (
-    <div className="p-3 rounded-lg border border-rose/40 bg-white space-y-2">
-      <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-wine">Entrega</h3>
-        <button onClick={geolocate} className="text-sm underline text-wine">Usar mi ubicación</button>
-      </div>
+    <div className="p-4 rounded-lg border border-rose/40 bg-white space-y-3">
+      <h3 className="font-semibold text-wine">
+        Entrega
+      </h3>
 
-      {!shipping ? (
-        <p className="text-sm text-wineDark/70">Selecciona ubicación para calcular envío.</p>
-      ) : (
-        <>
-          <div className="text-sm text-wineDark/80 space-y-1">
-            <div><span className="font-medium">Sucursal asignada:</span> {shipping.branchName}</div>
-            <div><span className="font-medium">Distancia aprox:</span> {shipping.distanceKm} km</div>
-            <div><span className="font-medium">Envío:</span> {mxn(shipping.amount)}</div>
+      {/* ================================================ */}
+      {/* SIN DIRECCIÓN */}
+      {/* ================================================ */}
 
-            {/* Mostrar origen coords + link (opcional) */}
-            {customer?.coords && (
-              <div className="text-xs text-wineDark/60">
-                Origen: {customer.coords.lat.toFixed(5)}, {customer.coords.lng.toFixed(5)} ·{" "}
-                <a
-                  href={`https://www.google.com/maps?q=${customer.coords.lat},${customer.coords.lng}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline"
-                >
-                  Ver en Maps
-                </a>
-              </div>
-            )}
+      {!address?.postalCode && (
+        <p className="text-sm text-wineDark/70">
+          Selecciona o captura una dirección para
+          consultar la cobertura y el costo de envío.
+        </p>
+      )}
 
-            {shipping.notes?.length ? <div className="text-xs text-wineDark/60">{shipping.notes.join(" · ")}</div> : null}
-            {shipping.earlyOnly && <div className="text-xs text-red">Zona lejana: solo horarios tempranos</div>}
+      {/* ================================================ */}
+      {/* CARGANDO */}
+      {/* ================================================ */}
+
+      {address?.postalCode && loading && (
+        <p className="text-sm text-wineDark/70">
+          Consultando cobertura para CP{" "}
+          {address.postalCode}...
+        </p>
+      )}
+
+      {/* ================================================ */}
+      {/* ERROR / SIN COBERTURA */}
+      {/* ================================================ */}
+
+      {!loading && error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+          <p className="text-sm text-red-700">
+            {error}
+          </p>
+        </div>
+      )}
+
+      {/* ================================================ */}
+      {/* COBERTURA ENCONTRADA */}
+      {/* ================================================ */}
+
+      {!loading && shipping && (
+        <div className="text-sm text-wineDark/80 space-y-2">
+          <div>
+            <span className="font-medium">
+              Código postal:
+            </span>{" "}
+            {shipping.postalCode}
           </div>
 
-          <label className="flex items-center gap-2 text-sm mt-2">
-            <input
-              type="checkbox"
-              checked={express}
-              onChange={(e) => setExpress(e.target.checked)}
-            />
-            <span>Entrega express (+{mxn(shipping.expressFee)})</span>
-          </label>
-        </>
+          {shipping.municipality && (
+            <div>
+              <span className="font-medium">
+                Municipio:
+              </span>{" "}
+              {shipping.municipality}
+            </div>
+          )}
+
+          <div>
+            <span className="font-medium">
+              Sucursal asignada:
+            </span>{" "}
+            {shipping.branchName}
+          </div>
+
+          {shipping.distanceKm > 0 && (
+            <div>
+              <span className="font-medium">
+                Distancia de referencia:
+              </span>{" "}
+              {shipping.distanceKm} km
+            </div>
+          )}
+
+          <div className="pt-1">
+            <span className="font-medium">
+              Costo de envío:
+            </span>{" "}
+            <span className="font-semibold text-wine">
+              {mxn(shipping.amount)}
+            </span>
+          </div>
+
+          <p className="text-xs text-wineDark/60 pt-1">
+            Tarifa de entrega correspondiente a tu
+            código postal.
+          </p>
+        </div>
       )}
     </div>
   );

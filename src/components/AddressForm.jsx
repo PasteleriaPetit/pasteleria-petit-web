@@ -10,6 +10,7 @@ export default function AddressForm({ onSelected }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [useNew, setUseNew] = useState(true);
+  const [selectedAddressId, setSelectedAddressId] = useState("");
 
   const [form, setForm] = useState({
     fullName: "",
@@ -35,7 +36,16 @@ export default function AddressForm({ onSelected }) {
       const snap = await getDocs(q);
       const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       setList(data);
-      setUseNew(data.length === 0); // si no hay, forzar nueva
+      if (data.length > 0) {
+        setUseNew(false);
+        setSelectedAddressId(data[0].id);
+        onSelected?.(data[0]);
+      } else {
+        setUseNew(true);
+        setSelectedAddressId("");
+        onSelected?.(null);
+      }
+
       setLoading(false);
     })();
   }, [user]);
@@ -67,8 +77,11 @@ export default function AddressForm({ onSelected }) {
         createdAt: new Date(),
       });
       const saved = { id: ref.id, ...form };
+
       setList(prev => [saved, ...prev]);
       setUseNew(false);
+      setSelectedAddressId(saved.id);
+
       onSelected?.(saved);
     } finally {
       setSaving(false);
@@ -89,15 +102,25 @@ export default function AddressForm({ onSelected }) {
           <label className="text-sm text-wineDark/80 mb-1 block">Seleccionar una dirección guardada</label>
           <select
             className="w-full border rounded-md px-3 py-2"
-            value={useNew ? "" : list[0]?.id}
+            value={useNew ? "" : selectedAddressId}
             onChange={(e) => {
               const id = e.target.value;
-              const found = list.find(a => a.id === id);
+
+              if (!id) {
+                setUseNew(true);
+                setSelectedAddressId("");
+                onSelected?.(null);
+                return;
+              }
+
+              const found = list.find(
+                (address) => address.id === id
+              );
+
               if (found) {
                 setUseNew(false);
+                setSelectedAddressId(id);
                 onSelected?.(found);
-              } else {
-                setUseNew(true);
               }
             }}
           >
@@ -184,7 +207,20 @@ export default function AddressForm({ onSelected }) {
               {saving ? "Guardando..." : "Guardar y usar"}
             </button>
             <button
-              onClick={() => { setUseNew(false); if (list[0]) onSelected?.(list[0]); }}
+              onClick={() => {
+                if (list.length > 0) {
+                  setUseNew(false);
+
+                  const fallback =
+                    list.find(
+                      (address) =>
+                        address.id === selectedAddressId
+                    ) || list[0];
+
+                  setSelectedAddressId(fallback.id);
+                  onSelected?.(fallback);
+                }
+              }}
               className="border border-wine text-wine px-4 py-2 rounded-lg hover:bg-rose/20"
             >
               Cancelar

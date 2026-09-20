@@ -542,8 +542,6 @@ export default function Checkout() {
         ">
           {t("checkout.title")}
         </h1>
-
-      
       </div>
 
       <div className="

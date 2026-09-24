@@ -11,6 +11,17 @@ export default function Sucursales() {
 
   const sucursales = [
     {
+      id: "tonala",
+      name: "Tonalá",
+      address: "Av. Tonaltecas #340, Local 7, Col. Hidalgo, 45400 Tonalá, Jal.",
+      horario: "8:00 AM – 7:00 PM",
+      img: "",
+      map: "https://maps.app.goo.gl/de5H9X2xBnV6yS73A",
+      rebanada: false,
+      rappi: false,
+      texto: "En servicio Proximamente",
+    },
+    {
       id: "san-juan-bosco",
       name: "San Juan Bosco",
       address: "C. Juan de Dios Robledo 403, Las Huertas, 44739 Guadalajara, Jal",
@@ -19,6 +30,7 @@ export default function Sucursales() {
       map: "https://maps.app.goo.gl/gVxk8zHbCwQdow1u7",
       rebanada: true,
       rappi: true,
+      texto: "",
     },
     {
       id: "circunvalacion",
@@ -28,6 +40,7 @@ export default function Sucursales() {
       map: "https://maps.app.goo.gl/WnZpenK116GT7Ctw9",
       rebanada: true,
       rappi: true,
+      texto: "",
     },
     {
       id: "el-salto",
@@ -37,6 +50,7 @@ export default function Sucursales() {
       map: "https://maps.app.goo.gl/ZtjgUwLGVxhxL8yN9",
       rebanada: true,
       cafeteria: true,
+      texto: "",
     },
     {
       id: "obsidiana",
@@ -47,6 +61,7 @@ export default function Sucursales() {
       rebanada: true,
       cafeteria: true,
       rappi: true,
+      texto: "",
     },
     {
       id: "minerva",
@@ -57,6 +72,7 @@ export default function Sucursales() {
       rebanada: true,
       cafeteria: true,
       rappi: true,
+      texto: "",
     },
     {
       id: "tlaquepaque",
@@ -66,6 +82,7 @@ export default function Sucursales() {
       map: "https://maps.app.goo.gl/kjWHyEWyhffCGq8V7",
       rebanada: true,
       rappi: true,
+      texto: "",
     },
     {
       id: "rio-nilo",
@@ -76,6 +93,7 @@ export default function Sucursales() {
       rebanada: true,
       cafeteria: true,
       rappi: true,
+      texto: "",
     },
     {
       id: "revolucion",
@@ -85,6 +103,7 @@ export default function Sucursales() {
       map: "https://maps.app.goo.gl/Rbp3Qgntn1LC2Mww6",
       rebanada: true,
       rappi: true,
+      texto: "",
     },
     {
       id: "plan-san-luis",
@@ -94,6 +113,7 @@ export default function Sucursales() {
       map: "https://maps.app.goo.gl/jdK9vjyMZvysAsob6",
       rebanada: true,
       rappi: true,
+      texto: "",
     },
     {
       id: "zapopan",
@@ -104,8 +124,9 @@ export default function Sucursales() {
       rebanada: true,
       cafeteria: true,
       rappi: true,
+      texto: "",
     },
-    {
+    /* {
       id: "patria",
       name: "Patria",
       address: "Av. Patria No. 4926, Jardines Universidad, Zapopan, Jal. 45110",
@@ -113,7 +134,7 @@ export default function Sucursales() {
       map: "https://maps.app.goo.gl/DmtFn8Kot4dVeHPr5",
       rebanada: true,
       rappi: true,
-    },
+    }, */
   ];
 
   return (
@@ -174,6 +195,12 @@ export default function Sucursales() {
                   alt="Rappi"
                   className="h-14 w-14 object-contain"
                 />
+              )}
+
+              {s.texto && (
+                <p className="text-sm text-wineDark/80 font-medium">
+                  {s.texto}
+                </p>
               )}
             </div>
           </motion.div>

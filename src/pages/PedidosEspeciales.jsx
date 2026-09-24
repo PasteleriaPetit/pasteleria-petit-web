@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { db } from "../lib/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
-import { useTranslation } from "react-i18next";
+import { useTranslation, Trans } from "react-i18next";
 import { pickLang } from "../utils/i18nContent";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
@@ -131,6 +131,15 @@ const categoryCards = categories
             "special.subtitle",
             "Celebra tus momentos más importantes con un pastel único, hecho especialmente para ti. Consulta nuestras categorías y contáctanos por WhatsApp para cotizar tu pedido."
           )}
+        </p>
+        <br />
+        <p className="text-sm text-wineDark/80">
+          <Trans
+            i18nKey="special.subtitle2"
+            components={{
+              strong: <strong className="font-bold" />,
+            }}
+          />
         </p>
       </motion.div>
 

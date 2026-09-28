@@ -22,7 +22,37 @@ import { db } from "../lib/firebase";
 
 import { useTranslation } from "react-i18next";
 
+import { initializeNetPay } from "../utils/netpay";
+
+
+
 export default function Checkout() {
+
+    const testNetPaySDK = async () => {
+    try {
+      const NetPay = await initializeNetPay();
+
+      console.log(
+        "✅ NetPay Checkout Plus cargado:",
+        NetPay
+      );
+
+      toast.success(
+        "NetPay Checkout Plus cargado correctamente."
+      );
+    } catch (error) {
+      console.error(
+        "❌ Error cargando NetPay:",
+        error
+      );
+
+      toast.error(
+        error?.message ||
+          "No se pudo cargar NetPay Checkout Plus."
+      );
+    }
+  };
+
   const navigate = useNavigate();
 
   const { t, i18n } = useTranslation();
@@ -1064,6 +1094,22 @@ export default function Checkout() {
                     {loadingPay
                       ? "Preparando pedido..."
                       : "Continuar al pago"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={testNetPaySDK}
+                    className="
+                      w-full
+                      rounded-xl
+                      bg-gray-800
+                      px-4
+                      py-3
+                      text-white
+                      font-semibold
+                    "
+                  >
+                    Probar conexión NetPay
                   </button>
                 </div>
 

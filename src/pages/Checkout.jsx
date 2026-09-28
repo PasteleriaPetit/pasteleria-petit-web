@@ -1313,11 +1313,7 @@ useEffect(() => {
                           ).trim()
                         }
 
-                        data-email={
-                          String(
-                            user?.email || ""
-                          ).trim()
-                        }
+                        data-email="test@netpay.mx"
 
                         data-merchant-reference-code={
                           netpayCheckout.orderNumber

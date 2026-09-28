@@ -1097,6 +1097,7 @@ export default function Checkout() {
                   </button>
 
                   <button
+                    id="netpay-checkout"
                     type="button"
                     onClick={testNetPaySDK}
                     className="

@@ -28,31 +28,6 @@ import { initializeNetPay } from "../utils/netpay";
 
 export default function Checkout() {
 
-    const testNetPaySDK = async () => {
-    try {
-      const NetPay = await initializeNetPay();
-
-      console.log(
-        "✅ NetPay Checkout Plus cargado:",
-        NetPay
-      );
-
-      toast.success(
-        "NetPay Checkout Plus cargado correctamente."
-      );
-    } catch (error) {
-      console.error(
-        "❌ Error cargando NetPay:",
-        error
-      );
-
-      toast.error(
-        error?.message ||
-          "No se pudo cargar NetPay Checkout Plus."
-      );
-    }
-  };
-
   const navigate = useNavigate();
 
   const { t, i18n } = useTranslation();
@@ -73,6 +48,8 @@ export default function Checkout() {
     useState(false);
 
   const [error, setError] = useState("");
+
+  const [netpayCheckout, setNetpayCheckout] = useState(null);
 
   // =========================================================
   // RECOGER / PAGAR EN SUCURSAL
@@ -474,52 +451,119 @@ export default function Checkout() {
   // por el inicio de NetPay Checkout Plus.
   // =========================================================
 
-  const continueToPayment = async () => {
-    try {
-      setLoadingPay(true);
-      setError("");
+  // =========================================================
+// CÓDIGO DE ESTADO PARA NETPAY
+// =========================================================
 
-      const order =
-        await createDeliveryOrder();
+const getNetPayStateCode = (state) => {
+  const normalized = String(state || "")
+    .trim()
+    .toLowerCase();
 
-      console.log(
-        "Pedido preparado para NetPay:",
-        order
-      );
-
-      toast.success(
-        `Pedido ${order.orderNumber} creado correctamente`
-      );
-
-      /*
-       * IMPORTANTE:
-       *
-       * Todavía NO limpiamos el carrito.
-       *
-       * Cuando NetPay esté integrado,
-       * el carrito deberá limpiarse únicamente
-       * cuando confirmemos el pago exitoso.
-       */
-
-    } catch (err) {
-      console.error(
-        "Error creando pedido:",
-        err
-      );
-
-      setError(
-        err?.message ||
-          "No se pudo crear el pedido."
-      );
-
-      toast.error(
-        err?.message ||
-          "No se pudo crear el pedido."
-      );
-    } finally {
-      setLoadingPay(false);
-    }
+  const states = {
+    jalisco: "JAL",
+    jal: "JAL",
   };
+
+  return states[normalized] || "";
+};
+
+  const continueToPayment = async () => {
+  try {
+    setLoadingPay(true);
+    setError("");
+    setNetpayCheckout(null);
+
+    // =========================================
+    // 1. CREAR PEDIDO EN FIRESTORE
+    // =========================================
+
+    const order =
+      await createDeliveryOrder();
+
+    console.log(
+      "Pedido preparado para NetPay:",
+      order
+    );
+
+    // =========================================
+    // 2. SOLICITAR TOKEN DE MONTO
+    // =========================================
+
+    const response = await fetch(
+      "/api/netpay/create-amount-token",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          orderId: order.id,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data?.ok) {
+      throw new Error(
+        data?.message ||
+          "No se pudo preparar el pago con NetPay."
+      );
+    }
+
+    const tokenAmount =
+      data?.netpay?.tokenAmount;
+
+    if (!tokenAmount) {
+      throw new Error(
+        "NetPay no devolvió el token de pago."
+      );
+    }
+
+    // =========================================
+    // 3. PREPARAR CHECKOUT PLUS
+    // =========================================
+
+    setNetpayCheckout({
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      tokenAmount,
+    });
+
+    console.log(
+      "Token NetPay generado:",
+      {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        tokenAmount,
+      }
+    );
+
+    toast.success(
+      "Pago preparado. Continúa con NetPay."
+    );
+  } catch (err) {
+    console.error(
+      "Error preparando NetPay:",
+      err
+    );
+
+    setError(
+      err?.message ||
+        "No se pudo preparar el pago."
+    );
+
+    toast.error(
+      err?.message ||
+        "No se pudo preparar el pago."
+    );
+  } finally {
+    setLoadingPay(false);
+  }
+};
 
   // =========================================================
   // PAGO / RECOGIDA EN SUCURSAL
@@ -559,6 +603,135 @@ export default function Checkout() {
   // =========================================================
   // COMPONENTE
   // =========================================================
+
+  // =========================================================
+// CALLBACKS DE NETPAY
+// =========================================================
+
+useEffect(() => {
+  window.onPaymentSuccess = (response) => {
+    console.log(
+      "✅ NetPay payment success:",
+      response
+    );
+
+    toast.success(
+      "NetPay reportó una transacción exitosa."
+    );
+
+    /*
+     * IMPORTANTE:
+     *
+     * Este callback ocurre en el navegador.
+     * NO lo utilizaremos como confirmación
+     * definitiva del pago.
+     *
+     * Todavía NO:
+     *
+     * - cambiamos payment.status
+     * - cambiamos status a paid
+     * - limpiamos el carrito
+     * - creamos Shipday
+     *
+     * La confirmación definitiva se hará
+     * desde backend.
+     */
+  };
+
+  window.onPaymentError = (response) => {
+    console.error(
+      "❌ NetPay payment error:",
+      response
+    );
+
+    toast.error(
+      "NetPay reportó un error en el pago."
+    );
+  };
+
+  return () => {
+    delete window.onPaymentSuccess;
+    delete window.onPaymentError;
+  };
+}, []);
+
+// =========================================================
+// INICIALIZAR CHECKOUT PLUS
+//
+// Solo se ejecuta cuando ya tenemos:
+// - pedido
+// - orderNumber
+// - tokenAmount
+//
+// En ese momento React ya renderiza
+// #netpay-checkout.
+// =========================================================
+
+useEffect(() => {
+  if (!netpayCheckout) {
+    return;
+  }
+
+  let cancelled = false;
+
+  const initialize = async () => {
+    try {
+      // Permitimos que React termine de colocar
+      // #netpay-checkout en el DOM.
+      await new Promise((resolve) =>
+        setTimeout(resolve, 0)
+      );
+
+      if (cancelled) {
+        return;
+      }
+
+      const button =
+        document.getElementById(
+          "netpay-checkout"
+        );
+
+      if (!button) {
+        throw new Error(
+          "No se encontró el botón de Checkout Plus."
+        );
+      }
+
+      await initializeNetPay();
+
+      if (cancelled) {
+        return;
+      }
+
+      console.log(
+        "✅ Checkout Plus inicializado."
+      );
+    } catch (err) {
+      if (cancelled) {
+        return;
+      }
+
+      console.error(
+        "❌ Error inicializando Checkout Plus:",
+        err
+      );
+
+      const message =
+        err?.message ||
+        "No se pudo inicializar Checkout Plus.";
+
+      setError(message);
+
+      toast.error(message);
+    }
+  };
+
+  initialize();
+
+  return () => {
+    cancelled = true;
+  };
+}, [netpayCheckout]);
 
   return (
     <main className="
@@ -1065,53 +1238,121 @@ export default function Checkout() {
                   )}
                   */}
 
-                  {/* =================================
-                      NETPAY
+                 {/* =================================
+                        NETPAY CHECKOUT PLUS
+                    ================================== */}
 
-                      Temporalmente crea el pedido.
-                      La siguiente etapa conectará
-                      Checkout Plus aquí.
-                  ================================== */}
+                    <button
+                      type="button"
+                      disabled={!canPayOnline}
+                      onClick={continueToPayment}
+                      className="
+                        w-full
+                        bg-blue-600
+                        text-white
+                        py-2
+                        rounded-lg
+                        hover:opacity-90
+                        transition
+                        disabled:opacity-50
+                        disabled:cursor-not-allowed
+                      "
+                    >
+                      {loadingPay
+                        ? "Preparando pedido..."
+                        : "Continuar al pago"}
+                    </button>
 
-                  <button
-                    type="button"
-                    disabled={!canPayOnline}
-                    onClick={
-                      continueToPayment
-                    }
-                    className="
-                      w-full
-                      bg-blue-600
-                      text-white
-                      py-2
-                      rounded-lg
-                      hover:opacity-90
-                      transition
-                      disabled:opacity-50
-                      disabled:cursor-not-allowed
-                    "
-                  >
-                    {loadingPay
-                      ? "Preparando pedido..."
-                      : "Continuar al pago"}
-                  </button>
+                    {/* =================================
+                        BOTÓN GENERADO PARA CHECKOUT PLUS
 
-                  <button
-                    id="netpay-checkout"
-                    type="button"
-                    onClick={testNetPaySDK}
-                    className="
-                      w-full
-                      rounded-xl
-                      bg-gray-800
-                      px-4
-                      py-3
-                      text-white
-                      font-semibold
-                    "
-                  >
-                    Probar conexión NetPay
-                  </button>
+                        Solo existe después de obtener
+                        tokenAmount desde nuestro backend.
+                    ================================== */}
+
+                    {netpayCheckout && (
+                      <button
+                        id="netpay-checkout"
+                        type="button"
+
+                        data-button-title="Continuar"
+
+                        data-street1={`${String(
+                          address?.street || ""
+                        ).trim()} ${String(
+                          address?.extNumber || ""
+                        ).trim()}`.trim()}
+
+                        data-country="MX"
+
+                        data-city={
+                          String(
+                            address?.city || ""
+                          ).trim()
+                        }
+
+                        data-postal-code={
+                          String(
+                            address?.postalCode || ""
+                          ).trim()
+                        }
+
+                        data-state={
+                          getNetPayStateCode(
+                            address?.state
+                          )
+                        }
+
+                        data-token={
+                          netpayCheckout.tokenAmount
+                        }
+
+                        data-phone-number={
+                          String(
+                            address?.phone || ""
+                          ).trim()
+                        }
+
+                        data-email={
+                          String(
+                            user?.email || ""
+                          ).trim()
+                        }
+
+                        data-merchant-reference-code={
+                          netpayCheckout.orderNumber
+                        }
+
+                        data-onsuccess="onPaymentSuccess"
+
+                        data-onerror="onPaymentError"
+
+                        data-product-count={String(
+                          cart.reduce(
+                            (total, item) =>
+                              total +
+                              Number(item.qty || 0),
+                            0
+                          )
+                        )}
+
+                        data-commerce-name="Petit Repostería con Alma"
+
+                        className="
+                          w-full
+                          bg-wine
+                          text-white
+                          py-3
+                          rounded-lg
+                          font-semibold
+                          hover:opacity-90
+                          transition
+                        "
+                      >
+                        Abrir pago con NetPay
+                      </button>
+                    )}
+
                 </div>
 
                 {!user && (

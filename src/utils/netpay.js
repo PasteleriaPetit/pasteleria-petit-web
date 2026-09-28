@@ -5,20 +5,25 @@ const NETPAY_SCRIPT_URL =
 
 let netpayInitialized = false;
 
+// =========================================================
+// CARGAR SDK DE NETPAY CHECKOUT PLUS
+// =========================================================
+
 export function loadNetPayCheckout() {
   return new Promise((resolve, reject) => {
-    // Si ya está cargado
+    // Si NetPay ya está disponible, no cargamos
+    // nuevamente el script.
     if (window.NetPay) {
       resolve(window.NetPay);
       return;
     }
 
-    // Si el script ya fue agregado pero todavía carga
+    // Comprobamos si el script ya fue agregado al DOM.
     const existingScript =
       document.getElementById(NETPAY_SCRIPT_ID);
 
     if (existingScript) {
-      existingScript.addEventListener("load", () => {
+      const handleLoad = () => {
         if (window.NetPay) {
           resolve(window.NetPay);
         } else {
@@ -28,21 +33,32 @@ export function loadNetPayCheckout() {
             )
           );
         }
-      });
+      };
 
-      existingScript.addEventListener("error", () => {
-        reject(
-          new Error(
-            "No se pudo cargar el SDK de NetPay."
-          )
-        );
-      });
+      existingScript.addEventListener(
+        "load",
+        handleLoad,
+        { once: true }
+      );
+
+      existingScript.addEventListener(
+        "error",
+        () => {
+          reject(
+            new Error(
+              "No se pudo cargar el SDK de NetPay."
+            )
+          );
+        },
+        { once: true }
+      );
 
       return;
     }
 
-    // Cargar SDK
-    const script = document.createElement("script");
+    // Creamos el script del SDK.
+    const script =
+      document.createElement("script");
 
     script.id = NETPAY_SCRIPT_ID;
     script.src = NETPAY_SCRIPT_URL;
@@ -73,6 +89,10 @@ export function loadNetPayCheckout() {
   });
 }
 
+// =========================================================
+// INICIALIZAR CHECKOUT PLUS
+// =========================================================
+
 export async function initializeNetPay() {
   const publicKey =
     import.meta.env.VITE_NETPAY_PUBLIC_KEY;
@@ -83,13 +103,22 @@ export async function initializeNetPay() {
     );
   }
 
-  const NetPay = await loadNetPayCheckout();
+  const NetPay =
+    await loadNetPayCheckout();
 
+  // Evitamos inicializar NetPay varias veces
+  // durante la misma carga de la aplicación.
   if (!netpayInitialized) {
     NetPay.init(publicKey);
 
+    // =============================================
+    // SANDBOX
+    //
     // IMPORTANTE:
-    // Estamos trabajando en Sandbox.
+    // Cambiar a false únicamente cuando pasemos
+    // oficialmente a producción.
+    // =============================================
+
     NetPay.setSandboxMode(true);
 
     netpayInitialized = true;

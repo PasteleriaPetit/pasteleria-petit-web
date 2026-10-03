@@ -24,18 +24,87 @@ L.Marker.prototype.options.icon = defaultIcon;
 
 export default function RadioSucursales() {
   const sucursales = [
-    { nombre:"San Juan Bosco", direccion:"C. Juan de Dios Robledo 403, Las Huertas, 44739 Guadalajara, Jal", lat:20.674618838193982, lng:-103.31321887139599, color:"#ef4444" },
-    { nombre:"Circunvalación", direccion:"Av. Cvln. División del Nte. 67, Independencia, 44379 Guadalajara, Jal.", lat:20.697724681055437, lng:-103.3316775042961, color:"#3b82f6" },
-    { nombre:"El Salto", direccion:"Libramiento Juanacatlán #40-C, El Salto, Jalisco 45680", lat:20.517697417379612, lng:-103.18275665687331, color:"#22c55e" },
-    { nombre:"Obsidiana", direccion:"Obsidiana #3805 A Esq. Av Conchita, Loma Bonita, Zapopan, Jal. 45086", lat:20.637502868919736, lng:-103.404122888952, color:"#eab308" },
-    { nombre:"Minerva", direccion:"Av. Ignacio L. Vallarta #2420-B, Guadalajara, Jal. 44690", lat:20.674786734675628, lng:-103.38907580464102, color:"#f97316" },
-    { nombre:"Tlaquepaque", direccion:"Calle Francisco I. Madero #163, Tlaquepaque, Jal. 45500", lat:20.64227236417303, lng:-103.31161051904314, color:"#8b5cf6" },
-    { nombre:"Río Nilo", direccion:"Av. Río Nilo #2916, Jardines de la Paz, Jal.", lat:20.64529477936951, lng:-103.29962050429745, color:"#ec4899" },
-    { nombre:"Revolución", direccion:"Calz. Revolución #1856, Universitaria, Guadalajara 44840", lat:20.655484046878023, lng:-103.31773690429716, color:"#14b8a6" },
-    { nombre:"Plan de San Luis", direccion:"Av. Plan de San Luis No. 1591-A, Mezquitán Country 44260", lat:20.697026400153632, lng:-103.36031091778688, color:"#84cc16" },
-    { nombre:"Zapopan", direccion:"Francisco Javier Mina No. 204, Zapopan Centro, Jal. 45100", lat:20.719914120274673, lng:-103.3896270425512, color:"#6366f1" },
-    { nombre:"Patria", direccion:"Av. Patria No. 4926, Jardines Universidad, Zapopan, Jal. 45110", lat:20.687932395574467, lng:-103.41972811964199, color:"#f43f5e" },
-  ];
+  {
+    nombre: "San Juan Bosco",
+    direccion: "C. Juan de Dios Robledo 403, Las Huertas, 44739 Guadalajara, Jal",
+    lat: 20.674618838193982,
+    lng: -103.31321887139599,
+    color: "#ef4444",
+    radio: 9000,
+  },
+  {
+    nombre: "Circunvalación",
+    direccion: "Av. Cvln. División del Nte. 67, Independencia, 44379 Guadalajara, Jal.",
+    lat: 20.697724681055437,
+    lng: -103.3316775042961,
+    color: "#3b82f6",
+    radio: 9000,
+  },
+  {
+    nombre: "El Salto",
+    direccion: "Libramiento Juanacatlán #40-C, El Salto, Jalisco 45680",
+    lat: 20.517697417379612,
+    lng: -103.18275665687331,
+    color: "#22c55e",
+    radio: 3000, // 👈 El Salto solamente tiene 3 km
+  },
+  {
+    nombre: "Obsidiana",
+    direccion: "Obsidiana #3805 A Esq. Av Conchita, Loma Bonita, Zapopan, Jal. 45086",
+    lat: 20.637502868919736,
+    lng: -103.404122888952,
+    color: "#eab308",
+    radio: 9000,
+  },
+  {
+    nombre: "Minerva",
+    direccion: "Av. Ignacio L. Vallarta #2420-B, Guadalajara, Jal. 44690",
+    lat: 20.674786734675628,
+    lng: -103.38907580464102,
+    color: "#f97316",
+    radio: 9000,
+  },
+  {
+    nombre: "Tlaquepaque",
+    direccion: "Calle Francisco I. Madero #163, Tlaquepaque, Jal. 45500",
+    lat: 20.64227236417303,
+    lng: -103.31161051904314,
+    color: "#8b5cf6",
+    radio: 9000,
+  },
+  {
+    nombre: "Río Nilo",
+    direccion: "Av. Río Nilo #2916, Jardines de la Paz, Jal.",
+    lat: 20.64529477936951,
+    lng: -103.29962050429745,
+    color: "#ec4899",
+    radio: 9000,
+  },
+  {
+    nombre: "Revolución",
+    direccion: "Calz. Revolución #1856, Universitaria, Guadalajara 44840",
+    lat: 20.655484046878023,
+    lng: -103.31773690429716,
+    color: "#14b8a6",
+    radio: 9000,
+  },
+  {
+    nombre: "Plan de San Luis",
+    direccion: "Av. Plan de San Luis No. 1591-A, Mezquitán Country 44260",
+    lat: 20.697026400153632,
+    lng: -103.36031091778688,
+    color: "#84cc16",
+    radio: 9000,
+  },
+  {
+    nombre: "Zapopan",
+    direccion: "Francisco Javier Mina No. 204, Zapopan Centro, Jal. 45100",
+    lat: 20.719914120274673,
+    lng: -103.3896270425512,
+    color: "#6366f1",
+    radio: 9000,
+  },
+];
 
   const validas = sucursales.filter(s=>s.lat!=null && s.lng!=null);
 
@@ -83,20 +152,22 @@ export default function RadioSucursales() {
                       <strong>{s.nombre}</strong><br/>
                       {s.direccion}<br/><br/>
                       
-                      {t("cobertura.radioSucursales.radio")}
+                      <strong>
+                        {t("cobertura.radioSucursales.radio")}: {s.radio / 1000} km
+                      </strong>
                     </Popup>
                   </Marker>
                   <Circle
-                    center={[s.lat,s.lng]}
-                    radius={9000}
+                    center={[s.lat, s.lng]}
+                    radius={s.radio}
                     pathOptions={{
-                      color:s.color,
-                      fillColor:s.color,
-                      fillOpacity:0.25,
-                      weight:2
+                      color: s.color,
+                      fillColor: s.color,
+                      fillOpacity: 0.25,
+                      weight: 2,
                     }}
                   />
-               </Fragment> 
+              </Fragment> 
               ))}
               
             </MapContainer>

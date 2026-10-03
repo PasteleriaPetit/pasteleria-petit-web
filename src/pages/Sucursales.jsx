@@ -19,7 +19,7 @@ export default function Sucursales() {
       map: "https://maps.app.goo.gl/de5H9X2xBnV6yS73A",
       rebanada: false,
       rappi: false,
-      texto: "Proximamente",
+      texto: "Próximamente",
     },
     {
       id: "san-juan-bosco",

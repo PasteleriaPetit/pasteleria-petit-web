@@ -9,6 +9,10 @@ export default async function handler(req, res) {
   }
 
   try {
+    // =====================================================
+    // 1. SECRET KEY
+    // =====================================================
+
     const privateKey =
       process.env.NETPAY_PRIVATE_KEY;
 
@@ -19,38 +23,60 @@ export default async function handler(req, res) {
       });
     }
 
-    const merchantRefCode =
+    // =====================================================
+    // 2. NETPAY ORDER ID
+    // IMPORTANTE: mantenerlo como STRING
+    // =====================================================
+
+    const netpayOrderId =
       String(
-        req.body?.merchantRefCode || ""
+        req.body?.netpayOrderId || ""
       ).trim();
 
-    if (!merchantRefCode) {
+    if (!netpayOrderId) {
       return res.status(400).json({
         ok: false,
-        error: "missing_merchant_ref_code",
+        error: "missing_netpay_order_id",
       });
     }
 
-    // Consulta mínima documentada por NetPay.
+    // Evitamos insertar caracteres inesperados en GraphQL.
+    if (!/^\d+$/.test(netpayOrderId)) {
+      return res.status(400).json({
+        ok: false,
+        error: "invalid_netpay_order_id",
+      });
+    }
+
+    // =====================================================
+    // 3. CONSULTA PUNTUAL
+    // =====================================================
+
     const query = `
       {
-        allTransactions(
-          merchantRefCode: "${merchantRefCode}"
+        transaction(
+          orderId: "${netpayOrderId}"
         ) {
           transaction_id
           order_id
-          transaction_token_id
-          merchant_ref_code
+          transaction_date
           status
           auth_amount
+          capt_amount
+          auth_code
+          response_msg
         }
       }
     `;
 
     console.log(
-      "Consultando NetPay por merchantRefCode:",
-      merchantRefCode
+      "Consultando transacción NetPay por orderId:",
+      netpayOrderId
     );
+
+    // =====================================================
+    // 4. NETPAY REPORTS SANDBOX
+    // =====================================================
 
     const response = await fetch(
       "https://gateway.netpay-api.com/reports-sandbox/v1/graphql",
@@ -69,6 +95,10 @@ export default async function handler(req, res) {
       }
     );
 
+    // =====================================================
+    // 5. LEER RESPUESTA
+    // =====================================================
+
     const text =
       await response.text();
 
@@ -84,6 +114,10 @@ export default async function handler(req, res) {
       };
     }
 
+    // =====================================================
+    // 6. DEVOLVER RESULTADO DE DIAGNÓSTICO
+    // =====================================================
+
     return res.status(200).json({
       ok: response.ok,
 
@@ -93,7 +127,7 @@ export default async function handler(req, res) {
       httpStatusText:
         response.statusText,
 
-      merchantRefCode,
+      netpayOrderId,
 
       netpayResponse:
         data,
@@ -106,8 +140,7 @@ export default async function handler(req, res) {
 
     return res.status(500).json({
       ok: false,
-      error:
-        "internal_server_error",
+      error: "internal_server_error",
 
       message:
         error?.message ||

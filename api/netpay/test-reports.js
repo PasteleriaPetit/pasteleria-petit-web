@@ -19,15 +19,15 @@ export default async function handler(req, res) {
       });
     }
 
-    const transactionTokenId =
+    const merchantRefCode =
       String(
-        req.body?.transactionTokenId || ""
+        req.body?.merchantRefCode || ""
       ).trim();
 
-    if (!transactionTokenId) {
+    if (!merchantRefCode) {
       return res.status(400).json({
         ok: false,
-        error: "missing_transaction_token_id",
+        error: "missing_merchant_ref_code",
       });
     }
 
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     const query = `
       {
         allTransactions(
-          transactionTokenId: "${transactionTokenId}"
+          merchantRefCode: "${merchantRefCode}"
         ) {
           transaction_id
           order_id
@@ -48,8 +48,8 @@ export default async function handler(req, res) {
     `;
 
     console.log(
-      "Consultando NetPay Reports Sandbox:",
-      transactionTokenId
+      "Consultando NetPay por merchantRefCode:",
+      merchantRefCode
     );
 
     const response = await fetch(
@@ -93,7 +93,7 @@ export default async function handler(req, res) {
       httpStatusText:
         response.statusText,
 
-      transactionTokenId,
+      merchantRefCode,
 
       netpayResponse:
         data,

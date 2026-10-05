@@ -79,7 +79,7 @@ export default async function handler(req, res) {
     // =====================================================
 
     const response = await fetch(
-      "https://gateway.netpay-api.com/reports-sandbox/v1/graphql",
+      "https://gateway.netpay-api.com/reports/v1/graphql",
       {
         method: "POST",
 

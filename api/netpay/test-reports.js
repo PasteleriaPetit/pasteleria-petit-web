@@ -54,12 +54,20 @@ export default async function handler(req, res) {
 
     const query = `
       {
-        transaction(
-          orderId: "${netpayOrderId}"
+        allTransactions(
+          storeId: [630524]
+          rangeDateFilter: {
+            min: "2026/09/30"
+            max: "2026/09/30"
+          }
         ) {
           transaction_id
+          transaction_token_id
           order_id
+          merchant_ref_code
           transaction_date
+          store_id
+          store_name
           status
           auth_amount
           capt_amount
@@ -79,7 +87,7 @@ export default async function handler(req, res) {
     // =====================================================
 
     const response = await fetch(
-      "https://gateway.netpay-api.com/reports/v1/graphql",
+      "https://gateway.netpay-api.com/reports-sandbox/v1/graphql",
       {
         method: "POST",
 

@@ -707,6 +707,11 @@ const getNetPayStateCode = (state) => {
 
         // Limpieza de estado local y carrito
         clearCart();
+
+        // Redirección inmediata a la pantalla de éxito
+        const cleanOrderId = String(firestoreOrderId).replace(/^\/+/, "");
+        navigate(`/order-success/${cleanOrderId}`);
+
       } catch (err) {
         console.error("❌ Error en la confirmación del pago:", err);
         toast.error(err.message || "Ocurrió un error al confirmar tu pedido.");

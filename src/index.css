@@ -108,6 +108,34 @@
   z-index: 2;
 }
 
+/* Animación de expulsión del ticket */
+@keyframes printTicket {
+  0% {
+    transform: translateY(-90%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-ticket-print {
+  animation: printTicket 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Efecto de borde dentado / corte de papel térmico */
+.ticket-zigzag-bottom {
+  background: radial-gradient(circle, transparent, transparent 4px, #ffffff 4.5px);
+  background-size: 14px 10px;
+  background-position: bottom left;
+  background-repeat: repeat-x;
+  height: 10px;
+}
+
 
 
 

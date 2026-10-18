@@ -645,15 +645,47 @@ const getNetPayStateCode = (state) => {
           idToken = await user.getIdToken();
         }
 
+        // Extracción robusta de identificadores desde cualquier nivel del objeto NetPay
+        const netpayOrderId =
+          response?.orderId ||
+          response?.transactionDto?.orderId ||
+          response?.data?.orderId ||
+          null;
+
+        const transactionTokenId =
+          response?.transactionTokenId ||
+          response?.transactionDto?.transactionTokenId ||
+          response?.data?.transactionTokenId ||
+          null;
+
+        const responseCode =
+          response?.transactionDto?.responseCode ||
+          response?.responseCode ||
+          response?.data?.responseCode ||
+          "00";
+
+        const authCode =
+          response?.transactionDto?.authCode ||
+          response?.authCode ||
+          response?.data?.authCode ||
+          "";
+
+        const transactionStatus =
+          response?.transactionDto?.status ||
+          response?.status ||
+          null;
+
         const payload = {
           orderId: firestoreOrderId,
-          netpayOrderId: response?.orderId ? String(response.orderId) : null,
-          transactionTokenId: response?.transactionTokenId || null,
-          responseCode: response?.transactionDto?.responseCode || response?.responseCode || "00",
-          authCode: response?.transactionDto?.authCode || response?.authCode || "",
+          netpayOrderId: netpayOrderId ? String(netpayOrderId) : null,
+          transactionTokenId: transactionTokenId ? String(transactionTokenId) : null,
+          responseCode: String(responseCode),
+          authCode: String(authCode),
           rawStatus: response?.status || "success",
-          transactionStatus: response?.transactionDto?.status || null,
+          transactionStatus: transactionStatus ? String(transactionStatus) : null,
         };
+
+        console.log("Enviando payload a confirm-payment:", payload);
 
         const res = await fetch("/api/netpay/confirm-payment", {
           method: "POST",
@@ -675,9 +707,6 @@ const getNetPayStateCode = (state) => {
 
         // Limpieza de estado local y carrito
         clearCart();
-
-        // Redirección o confirmación visual
-        // navigate(`/order-confirmation/${firestoreOrderId}`);
       } catch (err) {
         console.error("❌ Error en la confirmación del pago:", err);
         toast.error(err.message || "Ocurrió un error al confirmar tu pedido.");
@@ -695,7 +724,7 @@ const getNetPayStateCode = (state) => {
       delete window.onPaymentSuccess;
       delete window.onPaymentError;
     };
-  }, [user, clearCart, navigate]);
+  }, [user, clearCart]);
 
 // =========================================================
 // INICIALIZAR CHECKOUT PLUS

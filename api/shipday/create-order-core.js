@@ -2,18 +2,18 @@ import admin from "firebase-admin";
 
 // Normalización de teléfonos mexicanos
 function normalizeMexicanPhone(phone = "") {
-  const digits = String(phone).replace(/\D/g, "");
-  if (!digits) return "";
-  if (digits.length === 12 && digits.startsWith("52")) return `+${digits}`;
-  if (digits.length === 10) return `+52${digits}`;
-  return `+${digits}`;
+    const digits = String(phone).replace(/\D/g, "");
+    if (!digits) return "";
+    if (digits.length === 12 && digits.startsWith("52")) return `+${digits}`;
+    if (digits.length === 10) return `+52${digits}`;
+    return `+${digits}`;
 }
 
 // Dirección del cliente
 function buildCustomerAddress(address = {}) {
-  const street = [address.street, address.extNumber].filter(Boolean).join(" ");
-  const interior = address.intNumber ? `Int. ${address.intNumber}` : "";
-  return [
+    const street = [address.street, address.extNumber].filter(Boolean).join(" ");
+    const interior = address.intNumber ? `Int. ${address.intNumber}` : "";
+    return [
     street,
     interior,
     address.neighborhood,
@@ -21,58 +21,58 @@ function buildCustomerAddress(address = {}) {
     address.state,
     address.postalCode ? `CP ${address.postalCode}` : "",
     address.country || "México",
-  ]
+    ]
     .filter(Boolean)
     .join(", ");
 }
 
 // Dirección de la sucursal asignada
 function buildBranchAddress(branch = {}) {
-  if (branch.address?.formatted) return branch.address.formatted;
-  const address = branch.address || {};
-  const street = [address.street, address.extNumber].filter(Boolean).join(" ");
-  return [
+    if (branch.address?.formatted) return branch.address.formatted;
+    const address = branch.address || {};
+    const street = [address.street, address.extNumber].filter(Boolean).join(" ");
+    return [
     street,
     address.neighborhood,
     address.city,
     address.state,
     address.postalCode ? `CP ${address.postalCode}` : "",
     address.country || "México",
-  ]
+    ]
     .filter(Boolean)
     .join(", ");
 }
 
 // Conversión de ventana horaria
 function parseWindow(window = "") {
-  const [start, end] = String(window).split("-");
-  if (!start || !end) {
+    const [start, end] = String(window).split("-");
+    if (!start || !end) {
     throw new Error(`Ventana de entrega inválida: ${window}`);
-  }
-  return { start, end };
+    }
+    return { start, end };
 }
 
 // Conversión Guadalajara (UTC-6) a UTC
 function localMexicoTimeToUtc(dateString, timeString) {
-  const dateMatch = String(dateString).match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  const timeMatch = String(timeString).match(/^(\d{2}):(\d{2})$/);
+    const dateMatch = String(dateString).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    const timeMatch = String(timeString).match(/^(\d{2}):(\d{2})$/);
 
-  if (!dateMatch || !timeMatch) {
+    if (!dateMatch || !timeMatch) {
     throw new Error(`Fecha u hora inválida: ${dateString} ${timeString}`);
-  }
+    }
 
-  const year = Number(dateMatch[1]);
-  const month = Number(dateMatch[2]);
-  const day = Number(dateMatch[3]);
-  const hour = Number(timeMatch[1]);
-  const minute = Number(timeMatch[2]);
+    const year = Number(dateMatch[1]);
+    const month = Number(dateMatch[2]);
+    const day = Number(dateMatch[3]);
+    const hour = Number(timeMatch[1]);
+    const minute = Number(timeMatch[2]);
 
-  const utcDate = new Date(Date.UTC(year, month - 1, day, hour + 6, minute, 0));
+    const utcDate = new Date(Date.UTC(year, month - 1, day, hour + 6, minute, 0));
 
-  return {
+    return {
     date: utcDate.toISOString().slice(0, 10),
     time: utcDate.toISOString().slice(11, 19),
-  };
+    };
 }
 
 /**

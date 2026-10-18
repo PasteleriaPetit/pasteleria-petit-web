@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 
 import AddressForm from "../components/AddressForm";
 import ShippingPicker from "../components/ShippingPicker";
@@ -49,7 +49,22 @@ export default function Checkout() {
 
   const [error, setError] = useState("");
 
+  
+  
   const [netpayCheckout, setNetpayCheckout] = useState(null);
+
+  // Estado para la carga al vincular el pago
+  const [isAttachingPayment, setIsAttachingPayment] = useState(false);
+
+  // Referencia para que el callback global de NetPay siempre acceda al valor actualizado
+  const currentCheckoutRef = useRef(null);
+
+
+  // Mantener sincronizada la referencia con el estado
+  useEffect(() => {
+    currentCheckoutRef.current = netpayCheckout;
+  }, [netpayCheckout]);
+
 
   // =========================================================
   // RECOGER / PAGAR EN SUCURSAL
@@ -604,56 +619,83 @@ const getNetPayStateCode = (state) => {
   // COMPONENTE
   // =========================================================
 
-  // =========================================================
-// CALLBACKS DE NETPAY
 // =========================================================
+  // CALLBACKS DE NETPAY Y CONFIRMACIÓN AUTOMÁTICA
+  // =========================================================
 
-useEffect(() => {
-  window.onPaymentSuccess = (response) => {
-    console.log(
-      "✅ NetPay payment success:",
-      response
-    );
+  useEffect(() => {
+    window.onPaymentSuccess = async (response) => {
+      console.log("✅ NetPay payment success recibido:", response);
 
-    toast.success(
-      "NetPay reportó una transacción exitosa."
-    );
+      const checkoutData = currentCheckoutRef.current;
+      const firestoreOrderId = checkoutData?.orderId;
 
-    /*
-     * IMPORTANTE:
-     *
-     * Este callback ocurre en el navegador.
-     * NO lo utilizaremos como confirmación
-     * definitiva del pago.
-     *
-     * Todavía NO:
-     *
-     * - cambiamos payment.status
-     * - cambiamos status a paid
-     * - limpiamos el carrito
-     * - creamos Shipday
-     *
-     * La confirmación definitiva se hará
-     * desde backend.
-     */
-  };
+      if (!firestoreOrderId) {
+        console.error("No se encontró el ID de Firestore para confirmar el pedido.");
+        toast.error("Error al vincular el pedido.");
+        return;
+      }
 
-  window.onPaymentError = (response) => {
-    console.error(
-      "❌ NetPay payment error:",
-      response
-    );
+      try {
+        setIsAttachingPayment(true);
+        toast.info("Confirmando pago y programando entrega...");
 
-    toast.error(
-      "NetPay reportó un error en el pago."
-    );
-  };
+        let idToken = "";
+        if (user) {
+          idToken = await user.getIdToken();
+        }
 
-  return () => {
-    delete window.onPaymentSuccess;
-    delete window.onPaymentError;
-  };
-}, []);
+        const payload = {
+          orderId: firestoreOrderId,
+          netpayOrderId: response?.orderId ? String(response.orderId) : null,
+          transactionTokenId: response?.transactionTokenId || null,
+          responseCode: response?.transactionDto?.responseCode || response?.responseCode || "00",
+          authCode: response?.transactionDto?.authCode || response?.authCode || "",
+          rawStatus: response?.status || "success",
+          transactionStatus: response?.transactionDto?.status || null,
+        };
+
+        const res = await fetch("/api/netpay/confirm-payment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: idToken ? `Bearer ${idToken}` : "",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await res.json();
+
+        if (!res.ok || !result.ok) {
+          throw new Error(result.error || result.message || "No se pudo confirmar el pedido.");
+        }
+
+        console.log("✅ Pedido pagado y enviado a Shipday:", result);
+        toast.success("¡Pago exitoso! Tu pedido ha sido confirmado.");
+
+        // Limpieza de estado local y carrito
+        clearCart();
+
+        // Redirección o confirmación visual
+        // navigate(`/order-confirmation/${firestoreOrderId}`);
+      } catch (err) {
+        console.error("❌ Error en la confirmación del pago:", err);
+        toast.error(err.message || "Ocurrió un error al confirmar tu pedido.");
+      } finally {
+        setIsAttachingPayment(false);
+      }
+    };
+
+    window.onPaymentError = (response) => {
+      console.error("❌ NetPay payment error:", response);
+      toast.error("NetPay reportó un error en el pago.");
+    };
+
+    return () => {
+      delete window.onPaymentSuccess;
+      delete window.onPaymentError;
+    };
+  }, [user, clearCart, navigate]);
 
 // =========================================================
 // INICIALIZAR CHECKOUT PLUS
@@ -1238,7 +1280,7 @@ useEffect(() => {
                   )}
                   */}
 
-                 {/* =================================
+                  {/* =================================
                         NETPAY CHECKOUT PLUS
                     ================================== */}
 

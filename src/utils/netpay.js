@@ -94,8 +94,7 @@ export function loadNetPayCheckout() {
 // =========================================================
 
 export async function initializeNetPay() {
-  const publicKey =
-    import.meta.env.VITE_NETPAY_PUBLIC_KEY;
+  const publicKey = import.meta.env.VITE_NETPAY_PUBLIC_KEY;
 
   if (!publicKey) {
     throw new Error(
@@ -103,25 +102,22 @@ export async function initializeNetPay() {
     );
   }
 
-  const NetPay =
-    await loadNetPayCheckout();
+  const environment = import.meta.env.VITE_NETPAY_ENV || "sandbox";
 
-  // Evitamos inicializar NetPay varias veces
-  // durante la misma carga de la aplicación.
+  if (environment !== "sandbox") {
+    throw new Error(
+      "Este despliegue está preparado para pruebas Sandbox."
+    );
+  }
+
+  const NetPay = await loadNetPayCheckout();
+
   if (!netpayInitialized) {
     NetPay.init(publicKey);
-
-    // =============================================
-    // SANDBOX
-    //
-    // IMPORTANTE:
-    // Cambiar a false únicamente cuando pasemos
-    // oficialmente a producción.
-    // =============================================
-
     NetPay.setSandboxMode(true);
-
     netpayInitialized = true;
+
+    console.log("NetPay inicializado en modo Sandbox.");
   }
 
   return NetPay;

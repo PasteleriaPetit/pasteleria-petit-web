@@ -1,10 +1,14 @@
+
 import admin from "firebase-admin";
 
 function getFirebaseAdmin() {
   if (!admin.apps.length) {
     const projectId = process.env.FIREBASE_PROJECT_ID;
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(
+      /\\n/g,
+      "\n"
+    );
 
     if (!projectId || !clientEmail || !privateKey) {
       throw new Error(
@@ -24,14 +28,9 @@ function getFirebaseAdmin() {
   return admin;
 }
 
-// ========================================
-// HANDLER
-// ========================================
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", ["POST"]);
-
     return res.status(405).json({
       ok: false,
       error: "method_not_allowed",
@@ -39,24 +38,38 @@ export default async function handler(req, res) {
   }
 
   try {
-    // ========================================
-    // VARIABLES DE ENTORNO
-    // ========================================
-
     const privateKey = process.env.NETPAY_PRIVATE_KEY;
+    const baseUrl = process.env.NETPAY_API_BASE_URL;
 
     if (!privateKey) {
       return res.status(500).json({
         ok: false,
         error: "missing_netpay_private_key",
-        message:
-          "NETPAY_PRIVATE_KEY no está configurada en el servidor.",
+        message: "NETPAY_PRIVATE_KEY no está configurada.",
       });
     }
 
-    // ========================================
-    // ORDER ID
-    // ========================================
+    if (!baseUrl) {
+      return res.status(500).json({
+        ok: false,
+        error: "missing_netpay_api_base_url",
+        message: "NETPAY_API_BASE_URL no está configurada.",
+      });
+    }
+
+    // Solo se admite la base de Sandbox para estas pruebas.
+    const normalizedBaseUrl = baseUrl.replace(/\/+$/, "");
+
+    if (
+      normalizedBaseUrl !==
+      "https://gateway-154.netpaydev.com/gateway-ecommerce"
+    ) {
+      return res.status(500).json({
+        ok: false,
+        error: "unexpected_netpay_environment",
+        message: "La URL configurada no corresponde a Sandbox.",
+      });
+    }
 
     const orderId = String(req.body?.orderId || "").trim();
 
@@ -68,13 +81,8 @@ export default async function handler(req, res) {
       });
     }
 
-    // ========================================
-    // LEER ORDER DESDE FIRESTORE
-    // ========================================
-
     const firebaseAdmin = getFirebaseAdmin();
     const db = firebaseAdmin.firestore();
-
     const orderRef = db.collection("orders").doc(orderId);
     const orderSnap = await orderRef.get();
 
@@ -88,23 +96,13 @@ export default async function handler(req, res) {
 
     const order = orderSnap.data();
 
-    // ========================================
-    // VALIDAR ESTADO DEL PEDIDO
-    // ========================================
-
     if (order.status !== "pending_payment") {
       return res.status(409).json({
         ok: false,
         error: "invalid_order_status",
-        message:
-          "La orden no se encuentra pendiente de pago.",
-        currentStatus: order.status || null,
+        message: "La orden no se encuentra pendiente de pago.",
       });
     }
-
-    // ========================================
-    // OBTENER TOTAL DESDE FIRESTORE
-    // ========================================
 
     const amount = Number(order.totals?.total);
 
@@ -112,26 +110,19 @@ export default async function handler(req, res) {
       return res.status(400).json({
         ok: false,
         error: "invalid_order_amount",
-        message:
-          "El total de la orden no es válido para NetPay.",
+        message: "El total de la orden no es válido para NetPay.",
       });
     }
 
-    // Dos decimales como máximo
     const normalizedAmount = Number(amount.toFixed(2));
 
-    // ========================================
-    // TOKENIZACIÓN NETPAY SANDBOX
-    // ========================================
-
     const netpayResponse = await fetch(
-      "https://gateway-154.netpaydev.com/gateway-ecommerce/v3/token/amount",
+      `${normalizedBaseUrl}/v3/token/amount`,
       {
         method: "POST",
         headers: {
           Authorization: privateKey,
           "Content-Type": "application/json",
-          Accept: "application/json",
         },
         body: JSON.stringify({
           amount: normalizedAmount,
@@ -139,12 +130,7 @@ export default async function handler(req, res) {
       }
     );
 
-    // ========================================
-    // LEER RESPUESTA
-    // ========================================
-
     const responseText = await netpayResponse.text();
-
     let netpayData = null;
 
     try {
@@ -152,82 +138,56 @@ export default async function handler(req, res) {
         ? JSON.parse(responseText)
         : null;
     } catch {
-      netpayData = {
-        rawResponse: responseText,
-      };
+      netpayData = null;
     }
 
-    // ========================================
-    // ERROR DE NETPAY
-    // ========================================
-
     if (!netpayResponse.ok) {
-      console.error(
-        "Error tokenizando monto en NetPay:",
-        netpayResponse.status,
-        netpayData
-      );
+      console.error("NetPay rechazó la tokenización:", {
+        status: netpayResponse.status,
+      });
 
       return res.status(502).json({
         ok: false,
         error: "netpay_amount_token_failed",
-        message:
-          "NetPay rechazó la solicitud de tokenización.",
+        message: "NetPay rechazó la solicitud de tokenización.",
         netpayStatus: netpayResponse.status,
-        netpayResponse: netpayData,
       });
     }
 
-    // ========================================
-    // VALIDAR TOKEN
-    // ========================================
+    if (!netpayData?.tokenAmount) {
+      console.error(
+        "NetPay no devolvió tokenAmount. Revisa la respuesta en los logs del servidor."
+      );
 
-    const tokenAmount = netpayData?.tokenAmount;
-
-    if (!tokenAmount) {
       return res.status(502).json({
         ok: false,
         error: "missing_token_amount",
-        message:
-          "NetPay respondió correctamente, pero no devolvió tokenAmount.",
-        netpayResponse: netpayData,
+        message: "NetPay no devolvió tokenAmount.",
       });
     }
 
-    // ========================================
-    // RESPUESTA AL FRONTEND
-    // ========================================
-
     return res.status(200).json({
       ok: true,
-      message:
-        "Token de monto generado correctamente.",
-
+      message: "Token de monto generado correctamente.",
       order: {
         id: orderId,
         orderNumber: order.orderNumber || null,
         amount: normalizedAmount,
       },
-
       netpay: {
-        tokenAmount,
-        clientId: netpayData?.clientId ?? null,
-        storeId: netpayData?.storeId ?? null,
-        amount: netpayData?.amount ?? normalizedAmount,
+        tokenAmount: netpayData.tokenAmount,
+        clientId: netpayData.clientId ?? null,
+        storeId: netpayData.storeId ?? null,
+        amount: netpayData.amount ?? normalizedAmount,
       },
     });
   } catch (error) {
-    console.error(
-      "Error en create-amount-token:",
-      error
-    );
+    console.error("Error en create-amount-token:", error);
 
     return res.status(500).json({
       ok: false,
       error: "internal_server_error",
-      message:
-        error?.message ||
-        "Ocurrió un error interno al generar el token de monto.",
+      message: "Ocurrió un error interno al generar el token.",
     });
   }
 }

@@ -89,7 +89,7 @@ export default function OrderSuccess() {
           ¡Gracias por tu compra!
         </h1>
         <p className="text-sm text-wineDark/70 mt-1">
-          Tu pedido está listo y registrado en cocina.
+          Tu pedido está listo y registrado.
         </p>
       </div>
 
@@ -113,7 +113,9 @@ export default function OrderSuccess() {
               <h2 className="font-bold text-base tracking-wider uppercase text-stone-900 font-sans">
                 Petit Repostería
               </h2>
-              <p className="text-[10px] text-stone-500 uppercase tracking-widest">Con Alma</p>
+              <h2 className="font-bold text-base tracking-wider uppercase text-stone-900 font-sans">
+                Con Alma
+              </h2>
               <p className="text-[11px] pt-1 text-stone-600">Guadalajara, Jalisco</p>
               <div className="pt-2 text-stone-700">
                 <span className="block font-bold">Folio:</span>
@@ -179,6 +181,42 @@ export default function OrderSuccess() {
               </div>
             </div>
 
+            {/* SECCIÓN BANCARIA NETPAY EN EL TICKET */}
+            <div className="py-3 border-b border-dashed border-stone-300 space-y-1 text-[10px] text-stone-600 bg-stone-50/70 p-2.5 rounded-lg my-2">
+              <div className="flex justify-between font-bold text-stone-800 pb-1 border-b border-stone-200">
+                <span>DATOS DE LA TRANSACCIÓN</span>
+                <span className="text-emerald-700">PAGADO</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Fecha:</span>
+                <span className="font-mono">{order.payment?.paymentDate || order.delivery?.date}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>No. de orden NetPay:</span>
+                <span className="font-mono">{order.payment?.netpayOrderId || "---"}</span>
+              </div>
+              {order.payment?.cardLast4 && (
+                <div className="flex justify-between">
+                  <span>Tarjeta:</span>
+                  <span className="font-mono">**** {order.payment?.cardLast4}</span>
+                </div>
+              )}
+              {order.payment?.cardBrand && (
+                <div className="flex justify-between">
+                  <span>Tipo / Marca:</span>
+                  <span>{order.payment?.cardBrand} ({order.payment?.cardType || "Crédito"})</span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span>Cód. Autorización:</span>
+                <span className="font-mono font-bold text-stone-800">{order.payment?.authCode || "222222"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Plazo:</span>
+                <span>Pago en una sola exhibición</span>
+              </div>
+            </div>
+            
             {/* TOTALES */}
             <div className="py-3 space-y-1.5 text-[11px]">
               <div className="flex justify-between text-stone-600">

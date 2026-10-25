@@ -75,47 +75,27 @@
     --toastify-color-light: #fff9f6;   /* Fondo crema */
   }
 
-  @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.15s ease-out forwards;
-}
-
-/* Transición más suave para el submenú */
-.submenu-transition {
-  transition: opacity 0.15s ease, transform 0.15s ease;
-}
-
-/* Evita que Leaflet se coloque sobre el menú */
-.leaflet-container {
-  z-index: 1;
-}
-
-.leaflet-pane {
-  z-index: 1;
-}
-
-.leaflet-control {
-  z-index: 2;
-}
-
-/* Animación de expulsión del ticket */
+  /* Animación realista de expulsión de ticket térmico */
 @keyframes printTicket {
   0% {
-    transform: translateY(-90%);
+    transform: translateY(-92%);
     opacity: 0;
   }
-  15% {
+  10% {
     opacity: 1;
+    transform: translateY(-80%);
+  }
+  30% {
+    transform: translateY(-55%);
+  }
+  50% {
+    transform: translateY(-35%);
+  }
+  75% {
+    transform: translateY(-15%);
+  }
+  90% {
+    transform: translateY(-4%);
   }
   100% {
     transform: translateY(0);
@@ -124,21 +104,7 @@
 }
 
 .animate-ticket-print {
-  animation: printTicket 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  /* 3.2 segundos de duración, ritmo mecánico progresivo */
+  animation: printTicket 3.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  will-change: transform;
 }
-
-/* Efecto de borde dentado / corte de papel térmico */
-.ticket-zigzag-bottom {
-  background: radial-gradient(circle, transparent, transparent 4px, #ffffff 4.5px);
-  background-size: 14px 10px;
-  background-position: bottom left;
-  background-repeat: repeat-x;
-  height: 10px;
-}
-
-
-
-
-
-
-  

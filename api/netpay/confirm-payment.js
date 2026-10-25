@@ -62,6 +62,13 @@ export default async function handler(req, res) {
     const responseCode = String(req.body?.responseCode || "").trim();
     const authCode = String(req.body?.authCode || "").trim();
     const rawStatus = String(req.body?.rawStatus || "").trim();
+    // Extraer datos bancarios adicionales de NetPay
+    const cardLast4 = String(req.body?.cardLast4 || "").trim();
+    const cardBrand = String(req.body?.cardBrand || "").trim();
+    const cardType = String(req.body?.cardType || "").trim();
+    const bank = String(req.body?.bank || "").trim();
+    const eci = String(req.body?.eci || "").trim();
+    const paymentDate = String(req.body?.paymentDate || "").trim();
 
     if (!orderId) {
       return res.status(400).json({
@@ -129,7 +136,9 @@ export default async function handler(req, res) {
       shipdayError = shipErr.message || "Error al conectar con Shipday.";
     }
 
-    // 8. Actualizar Firestore de forma atómica
+    
+
+    // Actualizar Firestore de forma atómica con la ficha bancaria
     const updateData = {
       status: "paid",
       "payment.status": "paid",
@@ -140,6 +149,12 @@ export default async function handler(req, res) {
       "payment.authCode": authCode,
       "payment.responseCode": responseCode,
       "payment.rawStatus": rawStatus,
+      "payment.cardLast4": cardLast4,
+      "payment.cardBrand": cardBrand,
+      "payment.cardType": cardType,
+      "payment.bank": bank,
+      "payment.eci": eci,
+      "payment.paymentDate": paymentDate,
       "payment.paidAt": admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };

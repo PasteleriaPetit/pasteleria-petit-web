@@ -48,6 +48,7 @@ const CheckoutCancel = lazy(() => import("./pages/CheckoutCancel"));
 const GoogleAnalytics = lazy(() => import("./pages/google2c9b13ae1cb961e7.html"));
 const RadioSucursales = lazy(() => import("./pages/RadioSucursales"));
 const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
+const MisPedidos = lazy(() => import("./pages/MisPedidos"));
 
 export default function App() {
   const [cartOpen, setCartOpen] = useState(false);
@@ -159,6 +160,10 @@ export default function App() {
                 <Route 
                   path="/checkout-cancel"
                   element={<CheckoutCancel />} 
+                />
+                <Route 
+                  path="/mis-pedidos" 
+                  element={<MisPedidos />} 
                 />
                 
                 {/* Admin */}

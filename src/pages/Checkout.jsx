@@ -25,8 +25,9 @@ import { useTranslation } from "react-i18next";
 import { initializeNetPay } from "../utils/netpay";
 
 
-
 export default function Checkout() {
+
+  
 
   const navigate = useNavigate();
 
@@ -35,6 +36,18 @@ export default function Checkout() {
   const { cart, subtotal, clearCart } = useCart();
 
   const { user } = useAuth();
+
+  // Guardia: Redirigir a la tienda si no cumple el monto mínimo o el carrito está vacío
+  useEffect(() => {
+    if (cart.length === 0) {
+      navigate("/productos");
+      return;
+    }
+    if (subtotal < 350) {
+      toast.warning("El monto mínimo de compra es de $350 MXN.");
+      navigate("/productos");
+    }
+  }, [cart, subtotal, navigate]);
 
   // =========================================================
   // ENTREGA A DOMICILIO
@@ -484,101 +497,69 @@ const getNetPayStateCode = (state) => {
 };
 
   const continueToPayment = async () => {
-  try {
-    setLoadingPay(true);
-    setError("");
-    setNetpayCheckout(null);
+    try {
+      setLoadingPay(true);
+      setError("");
+      setNetpayCheckout(null);
 
-    // =========================================
-    // 1. CREAR PEDIDO EN FIRESTORE
-    // =========================================
+      // =========================================
+      // 1. CREAR PEDIDO EN FIRESTORE
+      // =========================================
+      const order = await createDeliveryOrder();
 
-    const order =
-      await createDeliveryOrder();
+      console.log("Pedido preparado para NetPay:", order);
 
-    console.log(
-      "Pedido preparado para NetPay:",
-      order
-    );
-
-    // =========================================
-    // 2. SOLICITAR TOKEN DE MONTO
-    // =========================================
-
-    const response = await fetch(
-      "/api/netpay/create-amount-token",
-      {
+      // =========================================
+      // 2. SOLICITAR TOKEN DE MONTO
+      // =========================================
+      const response = await fetch("/api/netpay/create-amount-token", {
         method: "POST",
-
         headers: {
           "Content-Type": "application/json",
         },
-
         body: JSON.stringify({
           orderId: order.id,
         }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data?.ok) {
+        throw new Error(
+          data?.message || "No se pudo preparar el pago con NetPay."
+        );
       }
-    );
 
-    const data = await response.json();
+      const tokenAmount = data?.netpay?.tokenAmount;
 
-    if (!response.ok || !data?.ok) {
-      throw new Error(
-        data?.message ||
-          "No se pudo preparar el pago con NetPay."
-      );
-    }
+      if (!tokenAmount) {
+        throw new Error("NetPay no devolvió el token de pago.");
+      }
 
-    const tokenAmount =
-      data?.netpay?.tokenAmount;
-
-    if (!tokenAmount) {
-      throw new Error(
-        "NetPay no devolvió el token de pago."
-      );
-    }
-
-    // =========================================
-    // 3. PREPARAR CHECKOUT PLUS
-    // =========================================
-
-    setNetpayCheckout({
-      orderId: order.id,
-      orderNumber: order.orderNumber,
-      tokenAmount,
-    });
-
-    console.log(
-      "Token NetPay generado:",
-      {
+      // =========================================
+      // 3. PREPARAR ESTADO DE CHECKOUT PLUS
+      // =========================================
+      setNetpayCheckout({
         orderId: order.id,
         orderNumber: order.orderNumber,
         tokenAmount,
-      }
-    );
+      });
 
-    toast.success(
-      "Pago preparado. Continúa con NetPay."
-    );
-  } catch (err) {
-    console.error(
-      "Error preparando NetPay:",
-      err
-    );
+      console.log("Token NetPay generado:", {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        tokenAmount,
+      });
 
-    setError(
-      err?.message ||
-        "No se pudo preparar el pago."
-    );
-
-    toast.error(
-      err?.message ||
-        "No se pudo preparar el pago."
-    );
-  } finally {
-    setLoadingPay(false);
-  }
-};
+      toast.info("Abriendo pasarela de pago segura...");
+    } catch (err) {
+      console.error("Error preparando NetPay:", err);
+      setError(err?.message || "No se pudo preparar el pago.");
+      toast.error(err?.message || "No se pudo preparar el pago.");
+      setLoadingPay(false);
+    }
+    // Nota: loadingPay se apaga una vez que se dispara el modal o en el catch
+  };
 
   // =========================================================
   // PAGO / RECOGIDA EN SUCURSAL
@@ -683,6 +664,13 @@ const getNetPayStateCode = (state) => {
           authCode: String(authCode),
           rawStatus: response?.status || "success",
           transactionStatus: transactionStatus ? String(transactionStatus) : null,
+          // Datos para el comprobante bancario en el ticket:
+          cardLast4: response?.transactionDto?.last4 || response?.last4 || response?.transactionDto?.card?.last4 || "",
+          cardBrand: response?.transactionDto?.brand || response?.brand || response?.transactionDto?.card?.brand || "",
+          cardType: response?.transactionDto?.cardType || response?.cardType || "Crédito",
+          bank: response?.transactionDto?.bank || response?.bank || "Banco Emisor",
+          eci: response?.transactionDto?.eci || response?.eci || "06",
+          paymentDate: response?.transactionDto?.transactionDate || response?.transactionDate || new Date().toLocaleString("es-MX"),
         };
 
         console.log("Enviando payload a confirm-payment:", payload);
@@ -708,7 +696,29 @@ const getNetPayStateCode = (state) => {
         // Limpieza de estado local y carrito
         clearCart();
 
-        // Redirección inmediata a la pantalla de éxito
+        // Limpieza de modales residuales inyectados por NetPay
+        const selectors = [
+          "#netpay-modal",
+          ".netpay-modal",
+          "#netpay-checkout-modal",
+          "iframe[src*='netpay']",
+          ".modal-backdrop",
+          "[id^='netpay-']",
+        ];
+
+        selectors.forEach((selector) => {
+          document.querySelectorAll(selector).forEach((el) => {
+            try {
+              el.remove();
+            } catch (e) {
+              console.warn("No se pudo remover elemento NetPay:", e);
+            }
+          });
+        });
+
+        document.body.style.overflow = "auto";
+
+        // Redirección inmediata a la pantalla de éxito con ticket
         const cleanOrderId = String(firestoreOrderId).replace(/^\/+/, "");
         navigate(`/order-success/${cleanOrderId}`);
 
@@ -729,7 +739,7 @@ const getNetPayStateCode = (state) => {
       delete window.onPaymentSuccess;
       delete window.onPaymentError;
     };
-  }, [user, clearCart]);
+  }, [user, clearCart, navigate]);
 
 // =========================================================
 // INICIALIZAR CHECKOUT PLUS
@@ -1318,112 +1328,63 @@ useEffect(() => {
                         NETPAY CHECKOUT PLUS
                     ================================== */}
 
-                    <button
-                      type="button"
-                      disabled={!canPayOnline}
-                      onClick={continueToPayment}
-                      className="
-                        w-full
-                        bg-blue-600
-                        text-white
-                        py-2
-                        rounded-lg
-                        hover:opacity-90
-                        transition
-                        disabled:opacity-50
-                        disabled:cursor-not-allowed
-                      "
-                    >
-                      {loadingPay
-                        ? "Preparando pedido..."
-                        : "Continuar al pago"}
-                    </button>
+                    {/* ========================================================
+                            BOTÓN ÚNICO DE PAGO (PAGAR CON NETPAY + LOGO)
+                        ======================================================== */}
+                        <button
+                          type="button"
+                          disabled={!canPayOnline || loadingPay || isAttachingPayment}
+                          onClick={continueToPayment}
+                          className="w-full bg-[#0056B3] hover:bg-[#003B6B] text-white py-3.5 rounded-xl font-bold text-base transition flex items-center justify-center gap-3 shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          {loadingPay ? (
+                            <>
+                              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              <span>Conectando con pasarela segura...</span>
+                            </>
+                          ) : isAttachingPayment ? (
+                            <>
+                              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              <span>Confirmando pedido...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Pagar con NetPay</span>
+                              
+                            </>
+                          )}
+                        </button>
 
-                    {/* =================================
-                        BOTÓN GENERADO PARA CHECKOUT PLUS
-
-                        Solo existe después de obtener
-                        tokenAmount desde nuestro backend.
-                    ================================== */}
-
-                    {netpayCheckout && (
-                      <button
-                        id="netpay-checkout"
-                        type="button"
-
-                        data-button-title="Continuar"
-
-                        data-street1={`${String(
-                          address?.street || ""
-                        ).trim()} ${String(
-                          address?.extNumber || ""
-                        ).trim()}`.trim()}
-
-                        data-country="MX"
-
-                        data-city={
-                          String(
-                            address?.city || ""
-                          ).trim()
-                        }
-
-                        data-postal-code={
-                          String(
-                            address?.postalCode || ""
-                          ).trim()
-                        }
-
-                        data-state={
-                          getNetPayStateCode(
-                            address?.state
-                          )
-                        }
-
-                        data-token={
-                          netpayCheckout.tokenAmount
-                        }
-
-                        data-phone-number={
-                          String(
-                            address?.phone || ""
-                          ).trim()
-                        }
-
-                        data-email="test@netpay.mx"
-
-                        data-merchant-reference-code={
-                          netpayCheckout.orderNumber
-                        }
-
-                        data-onsuccess="onPaymentSuccess"
-
-                        data-onerror="onPaymentError"
-
-                        data-product-count={String(
-                          cart.reduce(
-                            (total, item) =>
-                              total +
-                              Number(item.qty || 0),
-                            0
-                          )
-                        )}
-
-                        data-commerce-name="Petit Repostería con Alma"
-
-                        className="
-                          w-full
-                          bg-wine
-                          text-white
-                          py-3
-                          rounded-lg
-                          font-semibold
-                          hover:opacity-90
-                          transition
-                        "
-                      >
-                        Abrir pago con NetPay
-                      </button>
-                    )}
+                      {/* ========================================================
+                          BOTÓN TÉCNICO NETPAY (OCULTO)
+                          Mantiene todos los data-attributes que el script checkout.plus.js
+                          necesita para inicializar el formulario de cobro.
+                      ======================================================== */}
+                      {netpayCheckout && (
+                        <button
+                          id="netpay-checkout"
+                          type="button"
+                          style={{ display: "none" }}
+                          data-button-title="Continuar"
+                          data-street1={`${String(address?.street || "").trim()} ${String(
+                            address?.extNumber || ""
+                          ).trim()}`.trim()}
+                          data-country="MX"
+                          data-city={String(address?.city || "").trim()}
+                          data-postal-code={String(address?.postalCode || "").trim()}
+                          data-state={getNetPayStateCode(address?.state)}
+                          data-token={netpayCheckout.tokenAmount}
+                          data-phone-number={String(address?.phone || "").trim()}
+                          data-email="test@netpay.mx"
+                          data-merchant-reference-code={netpayCheckout.orderNumber}
+                          data-onsuccess="onPaymentSuccess"
+                          data-onerror="onPaymentError"
+                          data-product-count={String(
+                            cart.reduce((total, item) => total + Number(item.qty || 0), 0)
+                          )}
+                          data-commerce-name="Petit Repostería con Alma"
+                        />
+                      )}
 
                 </div>
 

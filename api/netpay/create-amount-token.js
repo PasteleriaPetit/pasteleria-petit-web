@@ -57,17 +57,18 @@ export default async function handler(req, res) {
       });
     }
 
-    // Solo se admite la base de Sandbox para estas pruebas.
     const normalizedBaseUrl = baseUrl.replace(/\/+$/, "");
 
-    if (
-      normalizedBaseUrl !==
-      "https://gateway-154.netpaydev.com/gateway-ecommerce"
-    ) {
+    const ALLOWED_URLS = [
+      "https://suite.netpay.com.mx/gateway-ecommerce",       // Producción
+      "https://suite.netpay.com.mx/gateway-ecommerce-stage", // Sandbox / Stage
+    ];
+
+    if (!ALLOWED_URLS.includes(normalizedBaseUrl)) {
       return res.status(500).json({
         ok: false,
         error: "unexpected_netpay_environment",
-        message: "La URL configurada no corresponde a Sandbox.",
+        message: `La URL configurada (${normalizedBaseUrl}) no es un ambiente válido de NetPay.`,
       });
     }
 

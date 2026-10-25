@@ -40,7 +40,7 @@ export default function Checkout() {
   const { user } = useAuth();
 
   // Guardia: Redirigir a la tienda si no cumple el monto mínimo o el carrito está vacío
-  useEffect(() => {
+  /* useEffect(() => {
     if (cart.length === 0) {
       navigate("/productos");
       return;
@@ -49,7 +49,7 @@ export default function Checkout() {
       toast.warning("El monto mínimo de compra es de $350 MXN.");
       navigate("/productos");
     }
-  }, [cart, subtotal, navigate]);
+  }, [cart, subtotal, navigate]); */
 
   // =========================================================
   // ENTREGA A DOMICILIO

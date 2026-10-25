@@ -6,7 +6,9 @@ import { mxn } from "../utils/money";
 import { useNavigate } from "react-router-dom";
 import { cld } from "../utils/cloudinary";
 
-const MIN_ORDER_AMOUNT = 350;
+// 🧪 MODO PRUEBAS PILOTO NETPAY ($1.00 MXN)
+// Nota: Cuando terminen las pruebas con directivos, regrésalo a su valor normal (ej. 350)
+const MIN_ORDER_AMOUNT = 1; 
 
 export default function CartDrawer({ open, onClose }) {
   const {
@@ -107,8 +109,8 @@ export default function CartDrawer({ open, onClose }) {
               </button>
             </header>
 
-            {/* Barra de progreso de pedido mínimo ($350) */}
-            {hasItems && (
+            {/* Barra de progreso de pedido mínimo (Visible solo si el mínimo es significativo) */}
+            {hasItems && MIN_ORDER_AMOUNT > 1 && (
               <div className="bg-white px-4 py-2.5 border-b border-rose/30 shadow-inner">
                 {meetsMinOrder ? (
                   <p className="text-xs font-semibold text-emerald-700 flex items-center gap-1.5">
@@ -178,7 +180,7 @@ export default function CartDrawer({ open, onClose }) {
                           {mxn(item.price)}
                         </p>
 
-                        {/* Controles de cantidad con límite de 5 */}
+                        {/* Controles de cantidad */}
                         <div className="mt-1 flex flex-col items-start gap-1">
                           <div className="inline-flex items-center gap-2">
                             <button
@@ -271,7 +273,7 @@ export default function CartDrawer({ open, onClose }) {
                 </div>
               </div>
 
-              {/* Botón de Proceder al Checkout con bloqueo por monto mínimo */}
+              {/* Botón de Proceder al Checkout */}
               <button
                 disabled={!hasItems || !meetsMinOrder}
                 onClick={() => {
@@ -281,7 +283,7 @@ export default function CartDrawer({ open, onClose }) {
                 className={`w-full py-2.5 rounded-xl font-semibold transition text-sm ${
                   !hasItems || !meetsMinOrder
                     ? "bg-wine/40 text-cream/70 cursor-not-allowed"
-                    : "bg-wine text-cream hover:opacity-90 shadow-sm"
+                    : "bg-wine text-cream hover:opacity-90 shadow-sm cursor-pointer"
                 }`}
               >
                 {!meetsMinOrder && hasItems

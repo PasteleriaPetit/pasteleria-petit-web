@@ -114,10 +114,10 @@ export async function initializeNetPay() {
 
   if (!netpayInitialized) {
     NetPay.init(publicKey);
-    NetPay.setSandboxMode(true);
+    NetPay.setSandboxMode(false);
     netpayInitialized = true;
 
-    console.log("NetPay inicializado en modo Sandbox.");
+    console.log("NetPay inicializado en modo Produccion.");
   }
 
   return NetPay;

@@ -97,27 +97,20 @@ export async function initializeNetPay() {
   const publicKey = import.meta.env.VITE_NETPAY_PUBLIC_KEY;
 
   if (!publicKey) {
-    throw new Error(
-      "VITE_NETPAY_PUBLIC_KEY no está configurada."
-    );
+    throw new Error("VITE_NETPAY_PUBLIC_KEY no está configurada.");
   }
 
-  const environment = import.meta.env.VITE_NETPAY_ENV || "sandbox";
-
-  if (environment !== "sandbox") {
-    throw new Error(
-      "Este despliegue está preparado para pruebas Sandbox."
-    );
-  }
+  const environment = (import.meta.env.VITE_NETPAY_ENV || "sandbox").toLowerCase();
+  const isSandbox = environment === "sandbox";
 
   const NetPay = await loadNetPayCheckout();
 
   if (!netpayInitialized) {
     NetPay.init(publicKey);
-    NetPay.setSandboxMode(false);
+    NetPay.setSandboxMode(isSandbox);
     netpayInitialized = true;
 
-    console.log("NetPay inicializado en modo Produccion.");
+    console.log(`NetPay inicializado en modo ${isSandbox ? "Sandbox" : "Producción"}.`);
   }
 
   return NetPay;

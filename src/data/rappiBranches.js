@@ -15,12 +15,19 @@ export const RAPPI_BRANCHES = [
     url: "https://www.rappi.com.mx/restaurantes/1930418869-pastelerias-petit-turbo",
   },
   {
+    id: "Tonalá",
+    name: "Pastelería Petit - Tonalá",
+    address:
+      "And. Tonaltecas 340, Local 7, Hidalgo, 45400 Tonalá, Jal., México",
+    url: "https://www.rappi.com.mx/restaurantes/1930491363-pastelerias-petit",
+  },
+  /* {
     id: "patria",
     name: "Pastelería Petit - Patria",
     address:
       "Av. Patria #4926, Col. Jardines Universidad, C.P. 45110, Zapopan, Jalisco",
     url: "https://www.rappi.com.mx/restaurantes/1923265035-pastelerias-petit",
-  },
+  }, */
   {
     id: "country",
     name: "Pastelería Petit - Country",

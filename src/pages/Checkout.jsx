@@ -25,6 +25,8 @@ import { useTranslation } from "react-i18next";
 import { initializeNetPay } from "../utils/netpay";
 
 
+
+
 export default function Checkout() {
 
   
@@ -1372,8 +1374,6 @@ useEffect(() => {
 
                       {/* ========================================================
                               BOTÓN TÉCNICO NETPAY (INVISIBLE EN PANTALLA)
-                              Usa clases absolutas/invisibles para que NetPay no sobrescriba
-                              el display:none y permita recibir el clic programático.
                           ======================================================== */}
                           {netpayCheckout && (
                             <button
@@ -1390,7 +1390,7 @@ useEffect(() => {
                               data-state={getNetPayStateCode(address?.state)}
                               data-token={netpayCheckout.tokenAmount}
                               data-phone-number={String(address?.phone || "").trim()}
-                              data-email="test@netpay.mx"
+                              data-email={user?.email || address?.email || ""}
                               data-merchant-reference-code={netpayCheckout.orderNumber}
                               data-onsuccess="onPaymentSuccess"
                               data-onerror="onPaymentError"
@@ -1398,6 +1398,8 @@ useEffect(() => {
                                 cart.reduce((total, item) => total + Number(item.qty || 0), 0)
                               )}
                               data-commerce-name="Petit Repostería con Alma"
+                              data-logo-url="https://pasteleriaspetit.com/og-image.png"
+                              data-image="https://pasteleriaspetit.com/og-image.png"
                             />
                           )}
 

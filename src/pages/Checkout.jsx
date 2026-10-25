@@ -57,8 +57,7 @@ export default function Checkout() {
 
   const [shipping, setShipping] = useState(null);
 
-  const [loadingPay, setLoadingPay] =
-    useState(false);
+  const [loadingPay, setLoadingPay] = useState(false);
 
   const [error, setError] = useState("");
 
@@ -71,6 +70,22 @@ export default function Checkout() {
 
   // Referencia para que el callback global de NetPay siempre acceda al valor actualizado
   const currentCheckoutRef = useRef(null);
+
+  useEffect(() => {
+    if (netpayCheckout?.tokenAmount) {
+      const timer = setTimeout(() => {
+        const netpayBtn = document.getElementById("netpay-checkout");
+        if (netpayBtn) {
+          // Dispara el clic sobre el botón de NetPay
+          netpayBtn.click();
+        }
+        // Restablece el loading para que no se quede congelado
+        setLoadingPay(false);
+      }, 250);
+
+      return () => clearTimeout(timer);
+    }
+  }, [netpayCheckout]);
 
 
   // Mantener sincronizada la referencia con el estado
@@ -1356,35 +1371,35 @@ useEffect(() => {
                         </button>
 
                       {/* ========================================================
-                          BOTÓN TÉCNICO NETPAY (OCULTO)
-                          Mantiene todos los data-attributes que el script checkout.plus.js
-                          necesita para inicializar el formulario de cobro.
-                      ======================================================== */}
-                      {netpayCheckout && (
-                        <button
-                          id="netpay-checkout"
-                          type="button"
-                          style={{ display: "none" }}
-                          data-button-title="Continuar"
-                          data-street1={`${String(address?.street || "").trim()} ${String(
-                            address?.extNumber || ""
-                          ).trim()}`.trim()}
-                          data-country="MX"
-                          data-city={String(address?.city || "").trim()}
-                          data-postal-code={String(address?.postalCode || "").trim()}
-                          data-state={getNetPayStateCode(address?.state)}
-                          data-token={netpayCheckout.tokenAmount}
-                          data-phone-number={String(address?.phone || "").trim()}
-                          data-email="test@netpay.mx"
-                          data-merchant-reference-code={netpayCheckout.orderNumber}
-                          data-onsuccess="onPaymentSuccess"
-                          data-onerror="onPaymentError"
-                          data-product-count={String(
-                            cart.reduce((total, item) => total + Number(item.qty || 0), 0)
+                              BOTÓN TÉCNICO NETPAY (INVISIBLE EN PANTALLA)
+                              Usa clases absolutas/invisibles para que NetPay no sobrescriba
+                              el display:none y permita recibir el clic programático.
+                          ======================================================== */}
+                          {netpayCheckout && (
+                            <button
+                              id="netpay-checkout"
+                              type="button"
+                              className="fixed -top-[9999px] left-0 w-1 h-1 opacity-0 pointer-events-none overflow-hidden"
+                              data-button-title="Continuar"
+                              data-street1={`${String(address?.street || "").trim()} ${String(
+                                address?.extNumber || ""
+                              ).trim()}`.trim()}
+                              data-country="MX"
+                              data-city={String(address?.city || "").trim()}
+                              data-postal-code={String(address?.postalCode || "").trim()}
+                              data-state={getNetPayStateCode(address?.state)}
+                              data-token={netpayCheckout.tokenAmount}
+                              data-phone-number={String(address?.phone || "").trim()}
+                              data-email="test@netpay.mx"
+                              data-merchant-reference-code={netpayCheckout.orderNumber}
+                              data-onsuccess="onPaymentSuccess"
+                              data-onerror="onPaymentError"
+                              data-product-count={String(
+                                cart.reduce((total, item) => total + Number(item.qty || 0), 0)
+                              )}
+                              data-commerce-name="Petit Repostería con Alma"
+                            />
                           )}
-                          data-commerce-name="Petit Repostería con Alma"
-                        />
-                      )}
 
                 </div>
 

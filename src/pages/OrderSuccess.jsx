@@ -1,45 +1,91 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
+import { useParams, useSearchParams, Link } from "react-router-dom";
+import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { mxn } from "../utils/money";
 
 export default function OrderSuccess() {
-  const { orderId } = useParams();
+  const params = useParams();
+  const [searchParams] = useSearchParams();
+
+  // Detección universal del identificador de orden
+  const rawId =
+    params.orderId ||
+    params.id ||
+    searchParams.get("orderId") ||
+    searchParams.get("order") ||
+    searchParams.get("id");
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let isMounted = true;
+    let timerId = null;
+    let attempts = 0;
+    const maxAttempts = 6;
+
+    if (!rawId) {
+      setError("No se proporcionó un ID de pedido válido.");
+      setLoading(false);
+      return;
+    }
+
+    const cleanId = String(rawId).replace(/^\/+/, "");
+
     const fetchOrder = async () => {
-      if (!orderId) {
-        setError("No se proporcionó un ID de pedido válido.");
-        setLoading(false);
-        return;
-      }
-
-      const cleanId = String(orderId).replace(/^\/+/, "");
-
       try {
+        // 1. Intento por ID directo de documento en Firestore
         const orderRef = doc(db, "orders", cleanId);
         const orderSnap = await getDoc(orderRef);
 
-        if (!orderSnap.exists()) {
-          setError("No pudimos encontrar los detalles de este pedido.");
+        if (orderSnap.exists()) {
+          if (isMounted) {
+            setOrder(orderSnap.data());
+            setLoading(false);
+          }
+          return;
+        }
+
+        // 2. Intento por folio comercial (orderNumber)
+        const q = query(collection(db, "orders"), where("orderNumber", "==", cleanId));
+        const querySnap = await getDocs(q);
+
+        if (!querySnap.empty) {
+          if (isMounted) {
+            setOrder(querySnap.docs[0].data());
+            setLoading(false);
+          }
+          return;
+        }
+
+        // 3. Reintento si aún está escribiéndose en la base de datos
+        if (attempts < maxAttempts) {
+          attempts++;
+          timerId = setTimeout(fetchOrder, 1200);
         } else {
-          setOrder(orderSnap.data());
+          if (isMounted) {
+            setError("No pudimos encontrar los detalles de este pedido.");
+            setLoading(false);
+          }
         }
       } catch (err) {
         console.error("Error al cargar orden:", err);
-        setError("Ocurrió un error al cargar la información del pedido.");
-      } finally {
-        setLoading(false);
+        if (isMounted) {
+          setError("Ocurrió un error al cargar la información del pedido.");
+          setLoading(false);
+        }
       }
     };
 
     fetchOrder();
-  }, [orderId]);
+
+    return () => {
+      isMounted = false;
+      if (timerId) clearTimeout(timerId);
+    };
+  }, [rawId]);
 
   const handlePrint = () => {
     window.print();
@@ -119,7 +165,7 @@ export default function OrderSuccess() {
               <p className="text-[11px] pt-1 text-stone-600">Guadalajara, Jalisco</p>
               <div className="pt-2 text-stone-700">
                 <span className="block font-bold">Folio:</span>
-                <span className="text-sm font-bold tracking-wider">{order.orderNumber || orderId}</span>
+                <span className="text-sm font-bold tracking-wider">{order.orderNumber || rawId}</span>
               </div>
             </div>
 

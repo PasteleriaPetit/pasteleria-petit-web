@@ -19,7 +19,8 @@ export default function RadioSucursales() {
     { nombre:"Revolución", direccion:"Calz. Revolución #1856, Universitaria, Guadalajara 44840", lat:20.655484046878023, lng:-103.31773690429716, color:"#14b8a6" },
     { nombre:"Plan de San Luis", direccion:"Av. Plan de San Luis No. 1591-A, Mezquitán Country 44260", lat:20.697026400153632, lng:-103.36031091778688, color:"#84cc16" },
     { nombre:"Zapopan", direccion:"Francisco Javier Mina No. 204, Zapopan Centro, Jal. 45100", lat:20.719914120274673, lng:-103.3896270425512, color:"#6366f1" },
-    { nombre:"Patria", direccion:"Av. Patria No. 4926, Jardines Universidad, Zapopan, Jal. 45110", lat:20.687932395574467, lng:-103.41972811964199, color:"#f43f5e" },
+    /* { nombre:"Patria", direccion:"Av. Patria No. 4926, Jardines Universidad, Zapopan, Jal. 45110", lat:20.687932395574467, lng:-103.41972811964199, color:"#f43f5e" }, */
+    { nombre: "Tonalá", direccion:"And. Tonaltecas 340-Local 7, Hidalgo, Tonalá, Jal, 45400", lat:20.6174239977796, lng:-103.24855920429806, color: "#f43f5e"},
   ];
 
   const validas = sucursales.filter(s=>s.lat!=null && s.lng!=null);

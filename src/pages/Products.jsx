@@ -8,6 +8,7 @@ import { useCart } from "../context/CartContext";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { pickLang } from "../utils/locales";
+import { FEATURES } from "../config/features";
 
 import CHOCOLATE from "../assets/categorias-productos/chocolate.png";
 import VANILLA from "../assets/categorias-productos/vainilla.png";
@@ -355,14 +356,17 @@ export default function Products() {
                           <span className="text-xs text-wineDark/70">{catLabel}</span>
 
                           {/* ✅ ESTE ES TU "VER MÁS" (NO SE TOCA) */}
+                          {FEATURES.onlineCheckout && (
                           <button
                             onClick={() => setSelected(p)}
                             className="bg-red text-white px-3 py-1 rounded-lg hover:opacity-90 transition text-sm"
                           >
                             {t("products.productsButton")}
                           </button>
+                          )}
 
                           {/* ✅ Botón rápido 🛒 (NO SE TOCA) */}
+                          {FEATURES.onlineCheckout && (
                           <button
                             onClick={() => {
                               addToCart({
@@ -379,6 +383,7 @@ export default function Products() {
                           >
                             🛒
                           </button>
+                          )}
                         </div>
                       </div>
                     </motion.div>

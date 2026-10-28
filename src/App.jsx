@@ -17,6 +17,9 @@ import WhatsappButton from "./components/WhatsappButton";
 
 import AnalyticsTracker from "./utils/AnalyticsTracker";
 
+import { FEATURES } from "./config/features";
+import { Navigate } from "react-router-dom";
+
 
 // Lazy imports
 const Home = lazy(() => import("./pages/Home"));
@@ -141,9 +144,15 @@ export default function App() {
                   element={<Novedades />}
                 />
 
-                <Route 
+                {/* <Route 
                   path="/checkout"
                   element={<Checkout />} 
+                /> */}
+                <Route
+                  path="/checkout"
+                  element={
+                    FEATURES.onlineCheckout ? <Checkout /> : <Navigate to="/productos" replace />
+                  }
                 />
                 <Route
                   path="/order-success/:orderId"
@@ -254,7 +263,9 @@ export default function App() {
         </div>
 
         {/* Botones flotantes */}
-        <CartButton onClick={() => setCartOpen(true)} />
+        {FEATURES.onlineCheckout && (
+          <CartButton onClick={() => setCartOpen(true)} />
+        )}
         <RappiButton onClick={() => setRappiOpen(true)} />
         <WhatsappButton
           visible={!cartOpen && !rappiOpen}

@@ -6,9 +6,8 @@ import { mxn } from "../utils/money";
 import { useNavigate } from "react-router-dom";
 import { cld } from "../utils/cloudinary";
 
-// 🧪 MODO PRUEBAS PILOTO NETPAY ($1.00 MXN)
-// Nota: Cuando terminen las pruebas con directivos, regrésalo a su valor normal (ej. 350)
-const MIN_ORDER_AMOUNT = 1; 
+
+const MIN_ORDER_AMOUNT = 350; 
 
 export default function CartDrawer({ open, onClose }) {
   const {

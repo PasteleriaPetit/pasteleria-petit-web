@@ -1,159 +1,142 @@
-// src/utils/shipping.js
-
-export function computeShippingFromCoverage(
-  coverage,
-  postalCode = ""
-) {
-  const normalizedPostalCode = String(
-    postalCode || coverage?.postalCode || ""
-  ).trim();
-
+/**
+ * Convierte un documento de Firestore:
+ *
+ * deliveryCoverage/{postalCode}
+ *
+ * en el objeto de envío utilizado por Checkout.
+ *
+ * IMPORTANTE:
+ * El costo de envío NO se calcula por distancia.
+ * La tarifa oficial es `amount`, almacenada en
+ * deliveryCoverage.
+ */
+export function computeShippingFromCoverage(coverage) {
   if (!coverage) {
     return {
       available: false,
       covered: false,
-      reason: "postal_code_not_found",
-
-      postalCode: normalizedPostalCode,
-
-      branchKey: null,
-      branchId: null,
-      branchName: null,
-
-      municipality: null,
-      distanceKm: null,
-
-      amount: 0,
-
-      source: "deliveryCoverage",
+      message:
+        "No se encontró información de cobertura para este código postal.",
     };
   }
+
+  // ==========================================================
+  // VALIDAR SI EL CP ESTÁ ACTIVO
+  // ==========================================================
 
   if (coverage.active === false) {
     return {
       available: false,
       covered: false,
-      reason: "inactive",
-
-      postalCode: normalizedPostalCode,
-
-      branchKey: coverage.branchKey || null,
-
-      branchId:
-        coverage.branchId ||
-        coverage.branchKey ||
-        null,
-
-      branchName: coverage.branchName || null,
-
-      municipality: coverage.municipality || null,
-
-      distanceKm:
-        coverage.distanceKm !== undefined &&
-        coverage.distanceKm !== null
-          ? Number(coverage.distanceKm)
-          : null,
-
-      amount: 0,
-
-      source: "deliveryCoverage",
+      postalCode: coverage.postalCode || "",
+      message:
+        "El servicio de entrega no está disponible actualmente para este código postal.",
     };
   }
+
+  // ==========================================================
+  // VALIDAR COBERTURA
+  // ==========================================================
 
   if (coverage.covered !== true) {
     return {
       available: false,
       covered: false,
-      reason: "out_of_coverage",
-
-      postalCode: normalizedPostalCode,
-
-      branchKey: coverage.branchKey || null,
-
-      branchId:
-        coverage.branchId ||
-        coverage.branchKey ||
-        null,
-
-      branchName: coverage.branchName || null,
-
-      municipality: coverage.municipality || null,
-
-      distanceKm:
-        coverage.distanceKm !== undefined &&
-        coverage.distanceKm !== null
-          ? Number(coverage.distanceKm)
-          : null,
-
-      amount: 0,
-
-      source: "deliveryCoverage",
+      postalCode: coverage.postalCode || "",
+      municipality: coverage.municipality || "",
+      message:
+        "Actualmente no contamos con cobertura de entrega para este código postal.",
     };
   }
 
-  const amount = Number(coverage.amount);
+  // ==========================================================
+  // VALIDAR SUCURSAL
+  // ==========================================================
 
-  if (!Number.isFinite(amount) || amount < 0) {
+  const branchId =
+    coverage.branchId ||
+    coverage.branchKey ||
+    "";
+
+  if (!branchId) {
     return {
       available: false,
       covered: false,
-      reason: "invalid_rate",
-
-      postalCode: normalizedPostalCode,
-
-      branchKey: coverage.branchKey || null,
-
-      branchId:
-        coverage.branchId ||
-        coverage.branchKey ||
-        null,
-
-      branchName: coverage.branchName || null,
-
-      municipality: coverage.municipality || null,
-
-      distanceKm:
-        coverage.distanceKm !== undefined &&
-        coverage.distanceKm !== null
-          ? Number(coverage.distanceKm)
-          : null,
-
-      amount: 0,
-
-      source: "deliveryCoverage",
+      postalCode: coverage.postalCode || "",
+      municipality: coverage.municipality || "",
+      message:
+        "No hay una sucursal asignada para este código postal.",
     };
   }
+
+  // ==========================================================
+  // VALIDAR TARIFA
+  // ==========================================================
+
+  const amount = Number(coverage.amount);
+
+  if (
+    !Number.isFinite(amount) ||
+    amount < 0
+  ) {
+    return {
+      available: false,
+      covered: false,
+      postalCode: coverage.postalCode || "",
+      municipality: coverage.municipality || "",
+      message:
+        "La tarifa de envío para este código postal no es válida.",
+    };
+  }
+
+  // ==========================================================
+  // DISTANCIA
+  //
+  // Es únicamente informativa.
+  // NO se utiliza para calcular el costo.
+  // ==========================================================
+
+  const rawDistance =
+    coverage.distanceKm ??
+    coverage.distance ??
+    0;
+
+  const parsedDistance =
+    Number(rawDistance);
+
+  const distanceKm =
+    Number.isFinite(parsedDistance)
+      ? parsedDistance
+      : 0;
+
+  // ==========================================================
+  // RESULTADO
+  // ==========================================================
 
   return {
     available: true,
     covered: true,
-    reason: null,
 
-    postalCode: normalizedPostalCode,
+    postalCode:
+      String(
+        coverage.postalCode || ""
+      ).trim(),
 
-    municipality: coverage.municipality || "",
+    municipality:
+      coverage.municipality || "",
 
-    branchKey: coverage.branchKey || null,
-
-    branchId:
-      coverage.branchId ||
+    branchKey:
       coverage.branchKey ||
-      null,
+      branchId,
 
-    branchName: coverage.branchName || "",
+    branchId,
 
-    distanceKm:
-      coverage.distanceKm !== undefined &&
-      coverage.distanceKm !== null
-        ? Number(coverage.distanceKm)
-        : null,
+    branchName:
+      coverage.branchName || "",
+
+    distanceKm,
 
     amount,
-
-    coloniesCount:
-      coverage.coloniesCount !== undefined
-        ? Number(coverage.coloniesCount)
-        : null,
 
     source: "deliveryCoverage",
   };

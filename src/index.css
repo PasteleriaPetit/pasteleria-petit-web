@@ -75,42 +75,36 @@
     --toastify-color-light: #fff9f6;   /* Fondo crema */
   }
 
-  @keyframes fadeIn {
-  from {
+  /* Animación realista de expulsión de ticket térmico */
+@keyframes printTicket {
+  0% {
+    transform: translateY(-92%);
     opacity: 0;
-    transform: translateY(-4px);
   }
-  to {
+  10% {
     opacity: 1;
+    transform: translateY(-80%);
+  }
+  30% {
+    transform: translateY(-55%);
+  }
+  50% {
+    transform: translateY(-35%);
+  }
+  75% {
+    transform: translateY(-15%);
+  }
+  90% {
+    transform: translateY(-4%);
+  }
+  100% {
     transform: translateY(0);
+    opacity: 1;
   }
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.15s ease-out forwards;
+.animate-ticket-print {
+  /* 3.2 segundos de duración, ritmo mecánico progresivo */
+  animation: printTicket 3.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  will-change: transform;
 }
-
-/* Transición más suave para el submenú */
-.submenu-transition {
-  transition: opacity 0.15s ease, transform 0.15s ease;
-}
-
-/* Evita que Leaflet se coloque sobre el menú */
-.leaflet-container {
-  z-index: 1;
-}
-
-.leaflet-pane {
-  z-index: 1;
-}
-
-.leaflet-control {
-  z-index: 2;
-}
-
-
-
-
-
-
-  

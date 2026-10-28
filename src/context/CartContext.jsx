@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from "
 
 const CartContext = createContext();
 const LS_KEY = "cart_v3";
+export const MAX_ITEM_QTY = 5; // Límite máximo de unidades por producto
 
 const sameOptions = (a, b) => JSON.stringify(a || {}) === JSON.stringify(b || {});
 
@@ -25,10 +26,11 @@ export function CartProvider({ children }) {
       const idx = prev.findIndex((it) => it.id === product.id && sameOptions(it.options, product.options));
       if (idx >= 0) {
         const clone = [...prev];
-        clone[idx] = { ...clone[idx], qty: clone[idx].qty + (product.qty || 1) };
+        const newQty = Math.min(MAX_ITEM_QTY, clone[idx].qty + (product.qty || 1));
+        clone[idx] = { ...clone[idx], qty: newQty };
         return clone;
       }
-      return [...prev, { ...product, qty: product.qty || 1 }];
+      return [...prev, { ...product, qty: Math.min(MAX_ITEM_QTY, product.qty || 1) }];
     });
   };
 
@@ -39,14 +41,16 @@ export function CartProvider({ children }) {
     setCart((prev) =>
       prev.map((it) =>
         it.id === id && sameOptions(it.options, options)
-          ? { ...it, qty: Math.max(1, Math.min(99, Number(qty) || 1)) }
+          ? { ...it, qty: Math.max(1, Math.min(MAX_ITEM_QTY, Number(qty) || 1)) }
           : it
       )
     );
 
   const increase = (id, options) => {
     const current = cart.find((i) => i.id === id && sameOptions(i.options, options))?.qty || 1;
-    setQuantity(id, options, current + 1);
+    if (current < MAX_ITEM_QTY) {
+      setQuantity(id, options, current + 1);
+    }
   };
 
   const decrease = (id, options) => {
@@ -83,6 +87,7 @@ export function CartProvider({ children }) {
         taxes,
         total,
         itemCount,
+        maxItemQty: MAX_ITEM_QTY,
       }}
     >
       {children}

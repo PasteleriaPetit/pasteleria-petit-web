@@ -3,9 +3,11 @@ import { useCart } from "../context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { mxn } from "../utils/money";
-import ShippingPicker from "./ShippingPicker";
 import { useNavigate } from "react-router-dom";
 import { cld } from "../utils/cloudinary";
+
+
+const MIN_ORDER_AMOUNT = 350; 
 
 export default function CartDrawer({ open, onClose }) {
   const {
@@ -18,11 +20,11 @@ export default function CartDrawer({ open, onClose }) {
     discount = 0,
     taxes = 0,
     clearCart,
+    maxItemQty = 5,
   } = useCart();
   const { t } = useTranslation();
 
-  // Estado de envío (Picker emite amount, express, expressFee, earlyOnly, branchId, distanceKm)
-  const [shipping, setShipping] = useState({
+  const [shipping] = useState({
     amount: 0,
     express: false,
     expressFee: 0,
@@ -36,6 +38,12 @@ export default function CartDrawer({ open, onClose }) {
     (shipping?.express ? shipping?.expressFee || 0 : 0) -
     (discount || 0) +
     (taxes || 0);
+
+  // Validación de monto mínimo
+  const hasItems = cart.length > 0;
+  const meetsMinOrder = subtotal >= MIN_ORDER_AMOUNT;
+  const amountShortage = Math.max(0, MIN_ORDER_AMOUNT - subtotal);
+  const minOrderProgress = Math.min(100, Math.round((subtotal / MIN_ORDER_AMOUNT) * 100));
 
   // Accesibilidad: ESC y focus
   const drawerRef = useRef(null);
@@ -64,32 +72,6 @@ export default function CartDrawer({ open, onClose }) {
     };
   }, [open, onClose]);
 
-  // Mensaje para WhatsApp (por si luego lo quieres usar desde aquí)
-  const whatsappText = useMemo(() => {
-    const lines = [
-      "Hola! Quiero hacer este pedido:\n",
-      ...cart.map(
-        (i) =>
-          `• ${i.title}${
-            i.options?.size ? ` (${i.options.size})` : ""
-          } x${i.qty} — ${mxn(i.price * i.qty)}`
-      ),
-      "",
-      `Subtotal: ${mxn(subtotal)}`,
-      shipping?.amount ? `Envío: ${mxn(shipping.amount)}` : null,
-      shipping?.express
-        ? `Express: ${mxn(shipping.expressFee || 0)}`
-        : null,
-      discount ? `Descuento: -${mxn(discount)}` : null,
-      taxes ? `Impuestos: ${mxn(taxes)}` : null,
-      `Total: ${mxn(grandTotal)}`,
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    return encodeURIComponent(lines);
-  }, [cart, subtotal, discount, taxes, shipping, grandTotal]);
-
   return (
     <AnimatePresence>
       {open && (
@@ -114,7 +96,7 @@ export default function CartDrawer({ open, onClose }) {
             className="bg-cream w-full max-w-sm h-full shadow-xl flex flex-col outline-none"
           >
             {/* Header */}
-            <header className="p-4 border-b border-rose flex justify-between items-center sticky top-0 bg-cream">
+            <header className="p-4 border-b border-rose flex justify-between items-center sticky top-0 bg-cream z-10">
               <h2 className="text-lg font-semibold text-wine">
                 {t("cart.title")}
               </h2>
@@ -126,25 +108,48 @@ export default function CartDrawer({ open, onClose }) {
               </button>
             </header>
 
+            {/* Barra de progreso de pedido mínimo (Visible solo si el mínimo es significativo) */}
+            {hasItems && MIN_ORDER_AMOUNT > 1 && (
+              <div className="bg-white px-4 py-2.5 border-b border-rose/30 shadow-inner">
+                {meetsMinOrder ? (
+                  <p className="text-xs font-semibold text-emerald-700 flex items-center gap-1.5">
+                    <span>✓</span> ¡Alcanzaste el monto mínimo de envío ({mxn(MIN_ORDER_AMOUNT)})!
+                  </p>
+                ) : (
+                  <div className="space-y-1.5">
+                    <p className="text-xs text-wineDark/80">
+                      Te faltan <strong className="text-wine">{mxn(amountShortage)}</strong> para el pedido mínimo ({mxn(MIN_ORDER_AMOUNT)}).
+                    </p>
+                    <div className="w-full bg-rose/20 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-wine h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${minOrderProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Items */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {cart.length === 0 ? (
-                <p className="text-center text-wineDark/70">
+                <p className="text-center text-wineDark/70 mt-8">
                   {t("cart.empty")}
                 </p>
               ) : (
                 cart.map((item) => {
                   const lineKey = `${item.id}::${
-                    item.options
-                      ? JSON.stringify(item.options)
-                      : ""
+                    item.options ? JSON.stringify(item.options) : ""
                   }`;
+                  const isMaxReached = (item.qty || 1) >= maxItemQty;
+
                   return (
                     <motion.div
                       key={lineKey}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex items-center gap-3 border-b border-rose/30 pb-2"
+                      className="flex items-center gap-3 border-b border-rose/30 pb-3"
                     >
                       <img
                         src={cld(item.img, { w: 160, h: 160, ar: "1:1", fit: "fill", g: "auto" })}
@@ -153,59 +158,71 @@ export default function CartDrawer({ open, onClose }) {
                         loading="lazy"
                       />
 
-                      {item.options?.variantLabel && (
-                        <p className="text-xs text-wineDark/70">
-                          {item.options.variantLabel}
-                        </p>
-                      )}
-
                       <div className="flex-1 min-w-0">
                         <h3 className="font-medium text-wine truncate">
                           {item.title}
                         </h3>
+
+                        {item.options?.variantLabel && (
+                          <p className="text-xs text-wineDark/70">
+                            {item.options.variantLabel}
+                          </p>
+                        )}
+
                         {item.options?.size && (
                           <p className="text-xs text-wineDark/70">
                             {item.options.size}
                           </p>
                         )}
+
                         <p className="text-sm text-wineDark/70">
                           {mxn(item.price)}
                         </p>
 
                         {/* Controles de cantidad */}
-                        <div className="mt-1 inline-flex items-center gap-2">
-                          <button
-                            onClick={() =>
-                              decrease(item.id, item.options)
-                            }
-                            className="w-7 h-7 rounded-md border border-wine/30 text-wine hover:bg-rose/20"
-                            aria-label="Disminuir"
-                          >
-                            –
-                          </button>
-                          <input
-                            type="number"
-                            min={1}
-                            max={99}
-                            value={item.qty}
-                            onChange={(e) =>
-                              setQuantity(
-                                item.id,
-                                item.options,
-                                Number(e.target.value)
-                              )
-                            }
-                            className="w-14 border border-wine/30 rounded-md px-2 py-0.5 text-center text-wineDark"
-                          />
-                          <button
-                            onClick={() =>
-                              increase(item.id, item.options)
-                            }
-                            className="w-7 h-7 rounded-md border border-wine/30 text-wine hover:bg-rose/20"
-                            aria-label="Aumentar"
-                          >
-                            +
-                          </button>
+                        <div className="mt-1 flex flex-col items-start gap-1">
+                          <div className="inline-flex items-center gap-2">
+                            <button
+                              onClick={() => decrease(item.id, item.options)}
+                              className="w-7 h-7 rounded-md border border-wine/30 text-wine hover:bg-rose/20 transition flex items-center justify-center font-bold"
+                              aria-label="Disminuir"
+                            >
+                              –
+                            </button>
+                            <input
+                              type="number"
+                              min={1}
+                              max={maxItemQty}
+                              value={item.qty}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                if (val > maxItemQty) {
+                                  setQuantity(item.id, item.options, maxItemQty);
+                                } else {
+                                  setQuantity(item.id, item.options, val);
+                                }
+                              }}
+                              className="w-12 border border-wine/30 rounded-md px-1 py-0.5 text-center text-wineDark text-sm font-semibold"
+                            />
+                            <button
+                              disabled={isMaxReached}
+                              onClick={() => increase(item.id, item.options)}
+                              className={`w-7 h-7 rounded-md border border-wine/30 text-wine transition flex items-center justify-center font-bold ${
+                                isMaxReached
+                                  ? "opacity-40 cursor-not-allowed bg-rose/10"
+                                  : "hover:bg-rose/20"
+                              }`}
+                              aria-label="Aumentar"
+                              title={isMaxReached ? `Límite máximo: ${maxItemQty} piezas` : "Aumentar"}
+                            >
+                              +
+                            </button>
+                          </div>
+                          {isMaxReached && (
+                            <span className="text-[10px] text-amber-800 font-medium">
+                              Máx. {maxItemQty} pzas. ¿Requieres más? Contáctanos.
+                            </span>
+                          )}
                         </div>
                       </div>
 
@@ -214,10 +231,8 @@ export default function CartDrawer({ open, onClose }) {
                           {mxn(item.price * item.qty)}
                         </div>
                         <button
-                          onClick={() =>
-                            removeFromCart(item.id, item.options)
-                          }
-                          className="text-red hover:scale-110 transition-transform mt-1"
+                          onClick={() => removeFromCart(item.id, item.options)}
+                          className="text-red hover:scale-110 transition-transform mt-2"
                           aria-label="Eliminar"
                           title="Eliminar"
                         >
@@ -231,40 +246,24 @@ export default function CartDrawer({ open, onClose }) {
             </div>
 
             {/* Footer */}
-            <footer className="p-4 border-t border-rose space-y-3 bg-cream sticky bottom-0">
+            <footer className="p-4 border-t border-rose space-y-3 bg-cream sticky bottom-0 z-10">
               {/* Totales */}
               <div className="space-y-1 text-wineDark/80 text-sm">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>{mxn(subtotal)}</span>
+                  <span className="font-medium text-wine">{mxn(subtotal)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Envío</span>
-                  <span>{mxn(shipping?.amount || 0)}</span>
-                </div>
-                {shipping?.express ? (
+                {shipping?.amount ? (
                   <div className="flex justify-between">
-                    <span>Express</span>
-                    <span>{mxn(shipping?.expressFee || 0)}</span>
+                    <span>Envío estimado</span>
+                    <span>{mxn(shipping.amount)}</span>
                   </div>
                 ) : null}
-                {discount ? (
-                  <div className="flex justify-between">
-                    <span>Descuento</span>
-                    <span>-{mxn(discount)}</span>
-                  </div>
-                ) : null}
-                {taxes ? (
-                  <div className="flex justify-between">
-                    <span>Impuestos</span>
-                    <span>{mxn(taxes)}</span>
-                  </div>
-                ) : null}
-                <div className="flex justify-between font-semibold text-wine mt-2">
+                <div className="flex justify-between font-bold text-wine mt-2 pt-2 border-t border-rose/30 text-base">
                   <span>{t("cart.total")}:</span>
                   <motion.span
                     key={grandTotal}
-                    initial={{ scale: 0.9 }}
+                    initial={{ scale: 0.95 }}
                     animate={{ scale: 1 }}
                     transition={{ duration: 0.2 }}
                   >
@@ -272,19 +271,28 @@ export default function CartDrawer({ open, onClose }) {
                   </motion.span>
                 </div>
               </div>
+
+              {/* Botón de Proceder al Checkout */}
               <button
+                disabled={!hasItems || !meetsMinOrder}
                 onClick={() => {
                   onClose?.();
                   navigate("/checkout");
                 }}
-                className="w-full bg-wine text-cream py-2 rounded-lg hover:opacity-90 transition"
+                className={`w-full py-2.5 rounded-xl font-semibold transition text-sm ${
+                  !hasItems || !meetsMinOrder
+                    ? "bg-wine/40 text-cream/70 cursor-not-allowed"
+                    : "bg-wine text-cream hover:opacity-90 shadow-sm cursor-pointer"
+                }`}
               >
-                {t("cart.checkout")}
+                {!meetsMinOrder && hasItems
+                  ? `Monto mínimo: ${mxn(MIN_ORDER_AMOUNT)}`
+                  : t("cart.checkout")}
               </button>
 
               <button
                 onClick={clearCart}
-                className="bg-red w-full text-cream py-2 rounded-lg hover:bg-wine transition"
+                className="bg-red/10 border border-red/30 w-full text-red py-2 rounded-xl text-xs font-semibold hover:bg-red hover:text-white transition"
               >
                 {t("cart.clear")}
               </button>

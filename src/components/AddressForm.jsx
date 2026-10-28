@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { db } from "../lib/firebase";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   collection,
   addDoc,
   getDocs,
 } from "firebase/firestore";
+
+import { db } from "../lib/firebase";
 import { useAuth } from "../auth/AuthProvider";
+
 import {
   required,
   isValidPostalCodeMX,
@@ -15,18 +17,41 @@ import {
 export default function AddressForm({ onSelected }) {
   const { user } = useAuth();
 
+  // ============================================================
+  // DIRECCIONES GUARDADAS
+  // ============================================================
+
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
   const [useNew, setUseNew] = useState(true);
 
-  // Dirección seleccionada actualmente
-  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [
+    selectedAddressId,
+    setSelectedAddressId,
+  ] = useState("");
 
-  // Datos específicos de ESTA entrega
-  const [deliveryDate, setDeliveryDate] = useState("");
-  const [deliveryWindow, setDeliveryWindow] = useState("");
-  const [deliveryNotes, setDeliveryNotes] = useState("");
+  // ============================================================
+  // FECHA / HORARIO / NOTAS DE ENTREGA
+  // ============================================================
+
+  const [deliveryDate, setDeliveryDate] =
+    useState("");
+
+  const [
+    deliveryWindow,
+    setDeliveryWindow,
+  ] = useState("");
+
+  const [
+    deliveryNotes,
+    setDeliveryNotes,
+  ] = useState("");
+
+  // ============================================================
+  // FORMULARIO NUEVA DIRECCIÓN
+  // ============================================================
 
   const [form, setForm] = useState({
     fullName: "",
@@ -44,160 +69,232 @@ export default function AddressForm({ onSelected }) {
 
   const [errors, setErrors] = useState({});
 
-  // =========================================================
-  // UTILIDADES DE FECHA
-  // =========================================================
+  // ============================================================
+  // HORARIOS
+  // ============================================================
 
-  const formatDateLocal = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
+  const normalWindows = [
+    {
+      value: "10:00-14:00",
+      label: "10:00 a.m. - 2:00 p.m.",
+    },
+    {
+      value: "14:00-16:00",
+      label: "2:00 p.m. - 4:00 p.m.",
+    },
+  ];
+
+  const extendedWindows = [
+    {
+      value: "08:00-10:00",
+      label: "8:00 a.m. - 10:00 a.m.",
+    },
+    {
+      value: "10:00-12:00",
+      label: "10:00 a.m. - 12:00 p.m.",
+    },
+    {
+      value: "12:00-14:00",
+      label: "12:00 p.m. - 2:00 p.m.",
+    },
+    {
+      value: "14:00-16:00",
+      label: "2:00 p.m. - 4:00 p.m.",
+    },
+  ];
+
+  // ============================================================
+  // FECHA LOCAL
+  // ============================================================
+
+  const getToday = () => {
+    const now = new Date();
+
+    const year = now.getFullYear();
+
+    const month = String(
+      now.getMonth() + 1
+    ).padStart(2, "0");
+
+    const day = String(
+      now.getDate()
+    ).padStart(2, "0");
 
     return `${year}-${month}-${day}`;
   };
 
-  const today = formatDateLocal(new Date());
+  // ============================================================
+  // DÍAS DE ANTICIPACIÓN
+  // ============================================================
 
   const getDaysAhead = (dateString) => {
-    if (!dateString) return null;
+    if (!dateString) return 0;
 
-    const selected = new Date(`${dateString}T00:00:00`);
+    const [year, month, day] = dateString
+      .split("-")
+      .map(Number);
 
-    const now = new Date();
-    const current = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate()
+    const selected = new Date(
+      year,
+      month - 1,
+      day
     );
 
-    const difference = selected.getTime() - current.getTime();
+    selected.setHours(0, 0, 0, 0);
 
-    return Math.round(difference / (1000 * 60 * 60 * 24));
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+
+    return Math.round(
+      (selected.getTime() - today.getTime()) /
+        (1000 * 60 * 60 * 24)
+    );
   };
 
-  const daysAhead = getDaysAhead(deliveryDate);
+  const daysAhead = deliveryDate
+    ? getDaysAhead(deliveryDate)
+    : 0;
 
-  // Lunes → miércoles = 2 días de diferencia
-  // pero contando lunes como día 1, miércoles es el tercer día.
-  const hasExtendedSchedule =
-    daysAhead !== null && daysAhead >= 2;
+  // ============================================================
+  // HORARIOS DISPONIBLES
+  //
+  // Menos de 2 días:
+  // 10-14 / 14-16
+  //
+  // 2 días o más:
+  // ventanas de 2 horas
+  // ============================================================
 
-  const normalSchedules = [
-    {
-      value: "10:00-14:00",
-      label: "10:00 AM - 2:00 PM",
-    },
-    {
-      value: "14:00-16:00",
-      label: "2:00 PM - 4:00 PM",
-    },
-  ];
+  const availableWindows = useMemo(() => {
+    return daysAhead >= 2
+      ? extendedWindows
+      : normalWindows;
+  }, [daysAhead]);
 
-  const extendedSchedules = [
-    {
-      value: "08:00-10:00",
-      label: "8:00 AM - 10:00 AM",
-    },
-    {
-      value: "10:00-12:00",
-      label: "10:00 AM - 12:00 PM",
-    },
-    {
-      value: "12:00-14:00",
-      label: "12:00 PM - 2:00 PM",
-    },
-    {
-      value: "14:00-16:00",
-      label: "2:00 PM - 4:00 PM",
-    },
-  ];
-
-  const availableSchedules = hasExtendedSchedule
-    ? extendedSchedules
-    : normalSchedules;
-
-  // =========================================================
+  // ============================================================
   // CARGAR DIRECCIONES
-  // =========================================================
+  // ============================================================
 
   useEffect(() => {
     if (!user) {
+      setList([]);
+      setSelectedAddressId("");
+      setUseNew(true);
       setLoading(false);
       return;
     }
 
-    const loadAddresses = async () => {
-      try {
-        setLoading(true);
+    let cancelled = false;
 
+    const loadAddresses = async () => {
+      setLoading(true);
+
+      try {
         const snap = await getDocs(
-          collection(db, `users/${user.uid}/addresses`)
+          collection(
+            db,
+            `users/${user.uid}/addresses`
+          )
         );
 
-        const data = snap.docs.map((d) => ({
-          id: d.id,
-          ...d.data(),
-        }));
+        if (cancelled) return;
+
+        const data = snap.docs.map(
+          (document) => ({
+            id: document.id,
+            ...document.data(),
+          })
+        );
 
         setList(data);
 
         if (data.length > 0) {
           setUseNew(false);
-          setSelectedAddress(data[0]);
+          setSelectedAddressId(
+            data[0].id
+          );
         } else {
           setUseNew(true);
-          setSelectedAddress(null);
+          setSelectedAddressId("");
         }
       } catch (error) {
-        console.error("Error cargando direcciones:", error);
+        console.error(
+          "Error cargando direcciones:",
+          error
+        );
+
+        if (!cancelled) {
+          setList([]);
+          setUseNew(true);
+          setSelectedAddressId("");
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     loadAddresses();
+
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
-  // =========================================================
-  // SI CAMBIA FECHA, VERIFICAR QUE EL HORARIO SIGA EXISTIENDO
-  // =========================================================
+  // ============================================================
+  // DIRECCIÓN ACTUAL
+  // ============================================================
 
-  useEffect(() => {
-    if (!deliveryWindow) return;
-
-    const stillExists = availableSchedules.some(
-      (schedule) => schedule.value === deliveryWindow
-    );
-
-    if (!stillExists) {
-      setDeliveryWindow("");
-    }
-  }, [deliveryDate]);
-
-  // =========================================================
-  // ENVIAR DIRECCIÓN + ENTREGA AL CHECKOUT
-  // =========================================================
-
-  useEffect(() => {
-    // No consideramos la dirección completa hasta que también
-    // exista fecha y horario.
+  const selectedAddress = useMemo(() => {
     if (
-      selectedAddress &&
-      deliveryDate &&
-      deliveryWindow
+      useNew ||
+      !selectedAddressId
     ) {
-      onSelected?.({
-        ...selectedAddress,
-
-        deliveryDate,
-        deliveryWindow,
-
-        // Las notas pertenecen al pedido, no a la dirección guardada
-        notas: deliveryNotes.trim(),
-      });
-    } else {
-      onSelected?.(null);
+      return null;
     }
+
+    return (
+      list.find(
+        (address) =>
+          address.id === selectedAddressId
+      ) || null
+    );
+  }, [
+    list,
+    selectedAddressId,
+    useNew,
+  ]);
+
+  // ============================================================
+  // EMITIR DIRECCIÓN + PROGRAMACIÓN DE ENTREGA
+  //
+  // IMPORTANTE:
+  // Mandamos la dirección incluso si todavía no hay fecha/horario.
+  //
+  // Así ShippingPicker puede consultar inmediatamente:
+  // deliveryCoverage/{postalCode}
+  // ============================================================
+
+  useEffect(() => {
+    if (!selectedAddress) {
+      onSelected?.(null);
+      return;
+    }
+
+    onSelected?.({
+      ...selectedAddress,
+
+      deliveryDate:
+        deliveryDate || "",
+
+      deliveryWindow:
+        deliveryWindow || "",
+
+      notas:
+        deliveryNotes.trim(),
+    });
   }, [
     selectedAddress,
     deliveryDate,
@@ -206,72 +303,108 @@ export default function AddressForm({ onSelected }) {
     onSelected,
   ]);
 
-  // =========================================================
-  // FORMULARIO
-  // =========================================================
+  // ============================================================
+  // SI CAMBIA FECHA Y EL HORARIO YA NO ES VÁLIDO,
+  // LIMPIAR HORARIO
+  // ============================================================
+
+  useEffect(() => {
+    if (!deliveryWindow) return;
+
+    const stillValid =
+      availableWindows.some(
+        (window) =>
+          window.value ===
+          deliveryWindow
+      );
+
+    if (!stillValid) {
+      setDeliveryWindow("");
+    }
+  }, [
+    deliveryDate,
+    deliveryWindow,
+    availableWindows,
+  ]);
+
+  // ============================================================
+  // ACTUALIZAR FORMULARIO
+  // ============================================================
 
   const set = (key, value) => {
-    setForm((prev) => ({
-      ...prev,
+    setForm((previous) => ({
+      ...previous,
       [key]: value,
     }));
   };
 
+  // ============================================================
+  // VALIDACIÓN NUEVA DIRECCIÓN
+  // ============================================================
+
   const validate = () => {
-    const e = {};
+    const newErrors = {};
 
     if (!required(form.fullName)) {
-      e.fullName = "Requerido";
+      newErrors.fullName =
+        "Requerido";
     }
 
     if (!isValidPhoneMX(form.phone)) {
-      e.phone = "Teléfono inválido";
+      newErrors.phone =
+        "Teléfono inválido";
     }
 
     if (!required(form.street)) {
-      e.street = "Requerido";
+      newErrors.street =
+        "Requerido";
     }
 
     if (!required(form.extNumber)) {
-      e.extNumber = "Requerido";
+      newErrors.extNumber =
+        "Requerido";
     }
 
     if (!required(form.neighborhood)) {
-      e.neighborhood = "Requerido";
+      newErrors.neighborhood =
+        "Requerido";
     }
 
-    if (!isValidPostalCodeMX(form.postalCode)) {
-      e.postalCode = "CP inválido (5 dígitos)";
+    if (
+      !isValidPostalCodeMX(
+        form.postalCode
+      )
+    ) {
+      newErrors.postalCode =
+        "CP inválido (5 dígitos)";
     }
 
     if (!required(form.city)) {
-      e.city = "Requerido";
+      newErrors.city =
+        "Requerido";
     }
 
     if (!required(form.state)) {
-      e.state = "Requerido";
+      newErrors.state =
+        "Requerido";
     }
 
     if (!required(form.country)) {
-      e.country = "Requerido";
+      newErrors.country =
+        "Requerido";
     }
 
-    if (!deliveryDate) {
-      e.deliveryDate = "Selecciona una fecha de entrega";
-    }
+    setErrors(newErrors);
 
-    if (!deliveryWindow) {
-      e.deliveryWindow = "Selecciona un horario de entrega";
-    }
-
-    setErrors(e);
-
-    return Object.keys(e).length === 0;
+    return (
+      Object.keys(newErrors).length ===
+      0
+    );
   };
 
-  // =========================================================
+  // ============================================================
   // GUARDAR NUEVA DIRECCIÓN
-  // =========================================================
+  // ============================================================
 
   const save = async () => {
     if (!user) return;
@@ -281,10 +414,17 @@ export default function AddressForm({ onSelected }) {
     setSaving(true);
 
     try {
-      // Guardamos SOLAMENTE la dirección.
-      // Fecha, horario y notas pertenecen al pedido.
+      // IMPORTANTE:
+      // Solo guardamos la dirección.
+      //
+      // Fecha, horario y notas pertenecen al pedido,
+      // no a la dirección guardada.
+
       const ref = await addDoc(
-        collection(db, `users/${user.uid}/addresses`),
+        collection(
+          db,
+          `users/${user.uid}/addresses`
+        ),
         {
           ...form,
           createdAt: new Date(),
@@ -296,52 +436,132 @@ export default function AddressForm({ onSelected }) {
         ...form,
       };
 
-      setList((prev) => [saved, ...prev]);
+      setList((previous) => [
+        saved,
+        ...previous,
+      ]);
 
-      setSelectedAddress(saved);
+      setSelectedAddressId(
+        saved.id
+      );
+
       setUseNew(false);
+
+      setErrors({});
     } catch (error) {
-      console.error("Error guardando dirección:", error);
+      console.error(
+        "Error guardando dirección:",
+        error
+      );
+
+      alert(
+        "No fue posible guardar la dirección."
+      );
     } finally {
       setSaving(false);
     }
   };
 
-  // =========================================================
-  // SIN USUARIO
-  // =========================================================
+  // ============================================================
+  // CAMBIAR DIRECCIÓN
+  // ============================================================
+
+  const handleAddressChange = (
+    event
+  ) => {
+    const id = event.target.value;
+
+    // NUEVA DIRECCIÓN
+    if (!id) {
+      setUseNew(true);
+      setSelectedAddressId("");
+      return;
+    }
+
+    // DIRECCIÓN EXISTENTE
+    const found = list.find(
+      (address) =>
+        address.id === id
+    );
+
+    if (!found) return;
+
+    setSelectedAddressId(id);
+    setUseNew(false);
+  };
+
+  // ============================================================
+  // CANCELAR NUEVA DIRECCIÓN
+  // ============================================================
+
+  const cancelNewAddress = () => {
+    if (list.length === 0) {
+      return;
+    }
+
+    const fallback =
+      list.find(
+        (address) =>
+          address.id ===
+          selectedAddressId
+      ) || list[0];
+
+    setSelectedAddressId(
+      fallback.id
+    );
+
+    setUseNew(false);
+  };
+
+  // ============================================================
+  // SIN SESIÓN
+  // ============================================================
 
   if (!user) {
     return (
       <div className="p-4 border rounded-md text-wineDark/80">
-        Inicia sesión para capturar tu dirección.
+        Inicia sesión para capturar tu
+        dirección.
       </div>
     );
   }
 
-  // =========================================================
-  // COMPONENTE
-  // =========================================================
+  // ============================================================
+  // UI
+  // ============================================================
 
   return (
     <div className="bg-white rounded-xl border border-rose/30 p-4 shadow-sm">
-      <h3 className="text-wine text-lg font-semibold mb-4">
+
+      {/* ==================================================== */}
+      {/* DIRECCIÓN */}
+      {/* ==================================================== */}
+
+      <h3 className="text-wine text-lg font-semibold mb-3">
         Dirección de envío
       </h3>
 
-      {/* =====================================================
-          DIRECCIONES GUARDADAS
-      ===================================================== */}
+      {/* ==================================================== */}
+      {/* CARGANDO */}
+      {/* ==================================================== */}
 
-      {loading ? (
-        <p className="text-sm text-wineDark/60 mb-4">
+      {loading && (
+        <p className="text-sm text-wineDark/70">
           Cargando direcciones...
         </p>
-      ) : (
+      )}
+
+      {/* ==================================================== */}
+      {/* SELECTOR DIRECCIONES */}
+      {/* ==================================================== */}
+
+      {!loading &&
         list.length > 0 && (
-          <div className="mb-5">
+          <div className="mb-4">
+
             <label className="text-sm text-wineDark/80 mb-1 block">
-              Seleccionar una dirección guardada
+              Seleccionar una dirección
+              guardada
             </label>
 
             <select
@@ -349,98 +569,92 @@ export default function AddressForm({ onSelected }) {
               value={
                 useNew
                   ? ""
-                  : selectedAddress?.id || ""
+                  : selectedAddressId
               }
-              onChange={(e) => {
-                const id = e.target.value;
-
-                if (!id) {
-                  setUseNew(true);
-                  setSelectedAddress(null);
-                  return;
-                }
-
-                const found = list.find(
-                  (address) => address.id === id
-                );
-
-                if (found) {
-                  setUseNew(false);
-                  setSelectedAddress(found);
-                }
-              }}
+              onChange={
+                handleAddressChange
+              }
             >
               <option value="">
                 — Nueva dirección —
               </option>
 
-              {list.map((address) => (
-                <option
-                  key={address.id}
-                  value={address.id}
-                >
-                  {address.fullName} ·{" "}
-                  {address.street}{" "}
-                  {address.extNumber},{" "}
-                  {address.neighborhood}, CP{" "}
-                  {address.postalCode}
-                </option>
-              ))}
+              {list.map(
+                (address) => (
+                  <option
+                    key={address.id}
+                    value={address.id}
+                  >
+                    {address.fullName} ·{" "}
+                    {address.street}{" "}
+                    {address.extNumber},{" "}
+                    {
+                      address.neighborhood
+                    }
+                    , CP{" "}
+                    {
+                      address.postalCode
+                    }
+                  </option>
+                )
+              )}
             </select>
           </div>
-        )
-      )}
+        )}
 
-      {/* =====================================================
-          NUEVA DIRECCIÓN
-      ===================================================== */}
+      {/* ==================================================== */}
+      {/* FORMULARIO NUEVA DIRECCIÓN */}
+      {/* ==================================================== */}
 
       {useNew && (
-        <div className="mb-6">
+        <>
           <div className="grid sm:grid-cols-2 gap-3">
-            {/* Nombre */}
+
+            {/* NOMBRE */}
             <div>
-              <label className="block text-sm mb-1">
+              <label className="block text-sm">
                 Nombre completo
               </label>
 
               <input
-                type="text"
                 className="w-full border rounded-md px-3 py-2"
-                value={form.fullName}
-                onChange={(e) =>
-                  set("fullName", e.target.value)
+                value={
+                  form.fullName
+                }
+                onChange={(event) =>
+                  set(
+                    "fullName",
+                    event.target.value
+                  )
                 }
               />
 
               {errors.fullName && (
                 <p className="text-red text-xs mt-1">
-                  {errors.fullName}
+                  {
+                    errors.fullName
+                  }
                 </p>
               )}
             </div>
 
-            {/* Teléfono */}
+            {/* TELÉFONO */}
             <div>
-              <label className="block text-sm mb-1">
+              <label className="block text-sm">
                 Teléfono
               </label>
 
               <input
-                type="tel"
-                inputMode="numeric"
-                maxLength={10}
                 className="w-full border rounded-md px-3 py-2"
-                value={form.phone}
-                onChange={(e) => {
-                  const value =
-                    e.target.value.replace(/\D/g, "");
-
+                value={
+                  form.phone
+                }
+                onChange={(event) =>
                   set(
                     "phone",
-                    value.slice(0, 10)
-                  );
-                }}
+                    event.target.value
+                  )
+                }
               />
 
               {errors.phone && (
@@ -450,215 +664,266 @@ export default function AddressForm({ onSelected }) {
               )}
             </div>
 
-            {/* Calle */}
+            {/* CALLE */}
             <div className="sm:col-span-2">
-              <label className="block text-sm mb-1">
+              <label className="block text-sm">
                 Calle
               </label>
 
               <input
-                type="text"
                 className="w-full border rounded-md px-3 py-2"
-                value={form.street}
-                onChange={(e) =>
-                  set("street", e.target.value)
+                value={
+                  form.street
+                }
+                onChange={(event) =>
+                  set(
+                    "street",
+                    event.target.value
+                  )
                 }
               />
 
               {errors.street && (
                 <p className="text-red text-xs mt-1">
-                  {errors.street}
+                  {
+                    errors.street
+                  }
                 </p>
               )}
             </div>
 
-            {/* Exterior */}
+            {/* EXTERIOR */}
             <div>
-              <label className="block text-sm mb-1">
+              <label className="block text-sm">
                 Núm. exterior
               </label>
 
               <input
-                type="text"
                 className="w-full border rounded-md px-3 py-2"
-                value={form.extNumber}
-                onChange={(e) =>
-                  set("extNumber", e.target.value)
+                value={
+                  form.extNumber
+                }
+                onChange={(event) =>
+                  set(
+                    "extNumber",
+                    event.target.value
+                  )
                 }
               />
 
               {errors.extNumber && (
                 <p className="text-red text-xs mt-1">
-                  {errors.extNumber}
+                  {
+                    errors.extNumber
+                  }
                 </p>
               )}
             </div>
 
-            {/* Interior */}
+            {/* INTERIOR */}
             <div>
-              <label className="block text-sm mb-1">
+              <label className="block text-sm">
                 Núm. interior (opcional)
               </label>
 
               <input
-                type="text"
                 className="w-full border rounded-md px-3 py-2"
-                value={form.intNumber}
-                onChange={(e) =>
-                  set("intNumber", e.target.value)
+                value={
+                  form.intNumber
+                }
+                onChange={(event) =>
+                  set(
+                    "intNumber",
+                    event.target.value
+                  )
                 }
               />
             </div>
 
-            {/* Colonia */}
+            {/* COLONIA */}
             <div>
-              <label className="block text-sm mb-1">
+              <label className="block text-sm">
                 Colonia
               </label>
 
               <input
-                type="text"
                 className="w-full border rounded-md px-3 py-2"
-                value={form.neighborhood}
-                onChange={(e) =>
+                value={
+                  form.neighborhood
+                }
+                onChange={(event) =>
                   set(
                     "neighborhood",
-                    e.target.value
+                    event.target.value
                   )
                 }
               />
 
               {errors.neighborhood && (
                 <p className="text-red text-xs mt-1">
-                  {errors.neighborhood}
+                  {
+                    errors.neighborhood
+                  }
                 </p>
               )}
             </div>
 
             {/* CP */}
             <div>
-              <label className="block text-sm mb-1">
+              <label className="block text-sm">
                 Código Postal
               </label>
 
               <input
-                type="text"
-                inputMode="numeric"
-                maxLength={5}
                 className="w-full border rounded-md px-3 py-2"
-                value={form.postalCode}
-                onChange={(e) => {
+                value={
+                  form.postalCode
+                }
+                maxLength={5}
+                inputMode="numeric"
+                onChange={(event) => {
                   const value =
-                    e.target.value.replace(/\D/g, "");
+                    event.target.value
+                      .replace(
+                        /\D/g,
+                        ""
+                      )
+                      .slice(0, 5);
 
                   set(
                     "postalCode",
-                    value.slice(0, 5)
+                    value
                   );
                 }}
               />
 
               {errors.postalCode && (
                 <p className="text-red text-xs mt-1">
-                  {errors.postalCode}
+                  {
+                    errors.postalCode
+                  }
                 </p>
               )}
             </div>
 
-            {/* Ciudad */}
+            {/* CIUDAD */}
             <div>
-              <label className="block text-sm mb-1">
+              <label className="block text-sm">
                 Ciudad
               </label>
 
               <input
-                type="text"
                 className="w-full border rounded-md px-3 py-2"
-                value={form.city}
-                onChange={(e) =>
-                  set("city", e.target.value)
+                value={
+                  form.city
+                }
+                onChange={(event) =>
+                  set(
+                    "city",
+                    event.target.value
+                  )
                 }
               />
 
               {errors.city && (
                 <p className="text-red text-xs mt-1">
-                  {errors.city}
+                  {
+                    errors.city
+                  }
                 </p>
               )}
             </div>
 
-            {/* Estado */}
+            {/* ESTADO */}
             <div>
-              <label className="block text-sm mb-1">
+              <label className="block text-sm">
                 Estado
               </label>
 
               <input
-                type="text"
                 className="w-full border rounded-md px-3 py-2"
-                value={form.state}
-                onChange={(e) =>
-                  set("state", e.target.value)
+                value={
+                  form.state
+                }
+                onChange={(event) =>
+                  set(
+                    "state",
+                    event.target.value
+                  )
                 }
               />
 
               {errors.state && (
                 <p className="text-red text-xs mt-1">
-                  {errors.state}
+                  {
+                    errors.state
+                  }
                 </p>
               )}
             </div>
 
-            {/* País */}
+            {/* PAÍS */}
             <div>
-              <label className="block text-sm mb-1">
+              <label className="block text-sm">
                 País
               </label>
 
               <input
-                type="text"
-                className="w-full border rounded-md px-3 py-2 bg-gray-50"
-                value={form.country}
-                readOnly
+                className="w-full border rounded-md px-3 py-2"
+                value={
+                  form.country
+                }
+                onChange={(event) =>
+                  set(
+                    "country",
+                    event.target.value
+                  )
+                }
               />
 
               {errors.country && (
                 <p className="text-red text-xs mt-1">
-                  {errors.country}
+                  {
+                    errors.country
+                  }
                 </p>
               )}
             </div>
 
-            {/* Referencias */}
+            {/* REFERENCIAS */}
             <div>
-              <label className="block text-sm mb-1">
-                Referencias del domicilio
-                (opcional)
+              <label className="block text-sm">
+                Referencias (opcional)
               </label>
 
               <input
-                type="text"
-                placeholder="Ej. Casa blanca, portón negro..."
                 className="w-full border rounded-md px-3 py-2"
-                value={form.references}
-                onChange={(e) =>
+                value={
+                  form.references
+                }
+                onChange={(event) =>
                   set(
                     "references",
-                    e.target.value
+                    event.target.value
                   )
                 }
               />
             </div>
           </div>
 
+          {/* BOTONES */}
+
           <div className="mt-4 flex flex-wrap gap-3">
+
             <button
               type="button"
               onClick={save}
               disabled={saving}
               className="
-                bg-wine text-cream
-                px-4 py-2
+                bg-wine
+                text-cream
+                px-4
+                py-2
                 rounded-lg
                 hover:opacity-90
                 disabled:opacity-60
@@ -672,19 +937,15 @@ export default function AddressForm({ onSelected }) {
             {list.length > 0 && (
               <button
                 type="button"
-                onClick={() => {
-                  setUseNew(false);
-
-                  if (list[0]) {
-                    setSelectedAddress(
-                      list[0]
-                    );
-                  }
-                }}
+                onClick={
+                  cancelNewAddress
+                }
                 className="
-                  border border-wine
+                  border
+                  border-wine
                   text-wine
-                  px-4 py-2
+                  px-4
+                  py-2
                   rounded-lg
                   hover:bg-rose/20
                 "
@@ -693,191 +954,183 @@ export default function AddressForm({ onSelected }) {
               </button>
             )}
           </div>
-        </div>
+        </>
       )}
 
-      {/* =====================================================
-          INFORMACIÓN DE ENTREGA
-      ===================================================== */}
+      {/* ==================================================== */}
+      {/* FECHA + HORARIO */}
+      {/* ==================================================== */}
 
-      <div className="border-t border-rose/30 pt-5 mt-5">
-        <h4 className="text-wine font-semibold text-lg mb-1">
-          Fecha y horario de entrega
-        </h4>
+      {!useNew &&
+        selectedAddress && (
+          <div className="mt-6 border-t border-rose/30 pt-5">
 
-        <p className="text-sm text-wineDark/70 mb-4">
-          Selecciona el día y el horario en el
-          que deseas recibir tu pedido.
-        </p>
+            <h3 className="text-wine text-lg font-semibold mb-4">
+              Fecha y horario de entrega
+            </h3>
 
-        <div className="grid md:grid-cols-2 gap-4">
-          {/* FECHA */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Fecha de entrega
-            </label>
+            <div className="grid md:grid-cols-2 gap-4">
 
-            <input
-              type="date"
-              min={today}
-              value={deliveryDate}
-              onChange={(e) => {
-                setDeliveryDate(
-                  e.target.value
-                );
+              {/* FECHA */}
 
-                setErrors((prev) => ({
-                  ...prev,
-                  deliveryDate: "",
-                }));
-              }}
-              className="
-                w-full
-                border
-                rounded-md
-                px-3
-                py-2
-                bg-white
-              "
-            />
+              <div>
+                <label className="block text-sm text-wineDark/80 mb-1">
+                  Fecha de entrega
+                </label>
 
-            {errors.deliveryDate && (
-              <p className="text-red text-xs mt-1">
-                {errors.deliveryDate}
-              </p>
-            )}
-          </div>
+                <input
+                  type="date"
+                  min={getToday()}
+                  value={
+                    deliveryDate
+                  }
+                  onChange={(
+                    event
+                  ) => {
+                    setDeliveryDate(
+                      event.target
+                        .value
+                    );
 
-          {/* HORARIO */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Horario de entrega
-            </label>
+                    // Forzamos nueva
+                    // selección de horario
+                    // cuando cambia fecha.
+                    setDeliveryWindow(
+                      ""
+                    );
+                  }}
+                  className="
+                    w-full
+                    border
+                    rounded-md
+                    px-3
+                    py-2
+                  "
+                />
+              </div>
 
-            <select
-              value={deliveryWindow}
-              disabled={!deliveryDate}
-              onChange={(e) => {
-                setDeliveryWindow(
-                  e.target.value
-                );
+              {/* HORARIO */}
 
-                setErrors((prev) => ({
-                  ...prev,
-                  deliveryWindow: "",
-                }));
-              }}
-              className="
-                w-full
-                border
-                rounded-md
-                px-3
-                py-2
-                bg-white
-                disabled:bg-gray-100
-                disabled:cursor-not-allowed
-              "
-            >
-              <option value="">
-                Selecciona un horario
-              </option>
+              <div>
+                <label className="block text-sm text-wineDark/80 mb-1">
+                  Horario de entrega
+                </label>
 
-              {availableSchedules.map(
-                (schedule) => (
-                  <option
-                    key={schedule.value}
-                    value={schedule.value}
-                  >
-                    {schedule.label}
+                <select
+                  value={
+                    deliveryWindow
+                  }
+                  disabled={
+                    !deliveryDate
+                  }
+                  onChange={(
+                    event
+                  ) =>
+                    setDeliveryWindow(
+                      event.target
+                        .value
+                    )
+                  }
+                  className="
+                    w-full
+                    border
+                    rounded-md
+                    px-3
+                    py-2
+                    disabled:opacity-50
+                    disabled:cursor-not-allowed
+                  "
+                >
+                  <option value="">
+                    Selecciona un
+                    horario
                   </option>
-                )
-              )}
-            </select>
 
-            {errors.deliveryWindow && (
-              <p className="text-red text-xs mt-1">
-                {errors.deliveryWindow}
+                  {availableWindows.map(
+                    (window) => (
+                      <option
+                        key={
+                          window.value
+                        }
+                        value={
+                          window.value
+                        }
+                      >
+                        {
+                          window.label
+                        }
+                      </option>
+                    )
+                  )}
+                </select>
+              </div>
+            </div>
+
+            {/* MENSAJE HORARIOS */}
+
+            {deliveryDate && (
+              <p className="text-xs text-wineDark/60 mt-2">
+                {daysAhead >= 2
+                  ? "Por solicitar con al menos 2 días de anticipación, puedes elegir horarios de entrega de 2 horas."
+                  : "Para esta fecha están disponibles los horarios regulares de entrega."}
               </p>
             )}
-          </div>
-        </div>
 
-        {/* INFORMACIÓN DE HORARIOS */}
-        {deliveryDate && (
-          <div className="mt-4 bg-rose/10 border border-rose/30 rounded-xl p-4">
-            {hasExtendedSchedule ? (
-              <>
-                <p className="text-wine font-semibold text-sm">
-                  Horarios disponibles
-                </p>
+            {/* NOTAS */}
 
-                <p className="text-wineDark/70 text-sm mt-1">
-                  Debido a que tu pedido se
-                  realizará con anticipación,
-                  puedes seleccionar intervalos
-                  de entrega de 2 horas.
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="text-wine font-semibold text-sm">
-                  Horarios disponibles
-                </p>
+            <div className="mt-4">
+              <label className="block text-sm text-wineDark/80 mb-1">
+                Notas para la entrega
+              </label>
 
-                <p className="text-wineDark/70 text-sm mt-1">
-                  Para esta fecha contamos con
-                  dos ventanas de entrega:
-                  de 10:00 AM a 2:00 PM y de
-                  2:00 PM a 4:00 PM.
-                </p>
-              </>
-            )}
+              <textarea
+                value={
+                  deliveryNotes
+                }
+                onChange={(
+                  event
+                ) =>
+                  setDeliveryNotes(
+                    event.target
+                      .value
+                  )
+                }
+                rows={3}
+                placeholder="Indicaciones adicionales para la entrega..."
+                className="
+                  w-full
+                  border
+                  rounded-md
+                  px-3
+                  py-2
+                  resize-none
+                "
+              />
+            </div>
+
+            {/* RESUMEN */}
+
+            {deliveryDate &&
+              deliveryWindow && (
+                <div className="mt-4 rounded-lg border border-rose/30 bg-cream/30 p-3">
+                  <p className="text-sm text-wineDark/80">
+                    <span className="font-semibold">
+                      Entrega programada:
+                    </span>{" "}
+                    {deliveryDate}
+                    {" · "}
+                    {
+                      availableWindows.find(
+                        (window) =>
+                          window.value ===
+                          deliveryWindow
+                      )?.label
+                    }
+                  </p>
+                </div>
+              )}
           </div>
         )}
-
-        {/* =====================================================
-            NOTAS
-        ===================================================== */}
-
-        <div className="mt-5">
-          <label className="block text-sm font-medium mb-1">
-            Notas adicionales para la entrega
-            (opcional)
-          </label>
-
-          <textarea
-            rows={5}
-            maxLength={1000}
-            value={deliveryNotes}
-            onChange={(e) =>
-              setDeliveryNotes(
-                e.target.value
-              )
-            }
-            placeholder="Escribe cualquier indicación adicional para la entrega. Por ejemplo: tocar el timbre, entregar en recepción, comunicarse al llegar, referencias adicionales, etc."
-            className="
-              w-full
-              border
-              rounded-md
-              px-3
-              py-2
-              resize-y
-              min-h-[130px]
-            "
-          />
-
-          <div className="flex justify-between gap-3 mt-1">
-            <p className="text-xs text-wineDark/60">
-              Puedes agregar instrucciones
-              adicionales para el repartidor.
-            </p>
-
-            <p className="text-xs text-wineDark/50 whitespace-nowrap">
-              {deliveryNotes.length}/1000
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

@@ -17,6 +17,9 @@ import WhatsappButton from "./components/WhatsappButton";
 
 import AnalyticsTracker from "./utils/AnalyticsTracker";
 
+import { FEATURES } from "./config/features";
+import { Navigate } from "react-router-dom";
+
 
 // Lazy imports
 const Home = lazy(() => import("./pages/Home"));
@@ -47,6 +50,8 @@ const CheckoutPending = lazy(() => import("./pages/CheckoutPending"));
 const CheckoutCancel = lazy(() => import("./pages/CheckoutCancel"));
 const GoogleAnalytics = lazy(() => import("./pages/google2c9b13ae1cb961e7.html"));
 const RadioSucursales = lazy(() => import("./pages/RadioSucursales"));
+const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
+const MisPedidos = lazy(() => import("./pages/MisPedidos"));
 
 export default function App() {
   const [cartOpen, setCartOpen] = useState(false);
@@ -139,9 +144,19 @@ export default function App() {
                   element={<Novedades />}
                 />
 
-                <Route 
+                {/* <Route 
                   path="/checkout"
                   element={<Checkout />} 
+                /> */}
+                <Route
+                  path="/checkout"
+                  element={
+                    FEATURES.onlineCheckout ? <Checkout /> : <Navigate to="/productos" replace />
+                  }
+                />
+                <Route
+                  path="/order-success/:orderId"
+                  element={<OrderSuccess />}
                 />
                 <Route 
                   path="/checkout-success"
@@ -155,7 +170,11 @@ export default function App() {
                   path="/checkout-cancel"
                   element={<CheckoutCancel />} 
                 />
-
+                <Route 
+                  path="/mis-pedidos" 
+                  element={<MisPedidos />} 
+                />
+                
                 {/* Admin */}
                 <Route
                   path="/1fPaYyxWaapylzV/Gipj4gVqPJKP4I3QS54tSatEwL9qiUdzePZJBJAdxC8ZFupN"
@@ -244,7 +263,9 @@ export default function App() {
         </div>
 
         {/* Botones flotantes */}
-        <CartButton onClick={() => setCartOpen(true)} />
+        {FEATURES.onlineCheckout && (
+          <CartButton onClick={() => setCartOpen(true)} />
+        )}
         <RappiButton onClick={() => setRappiOpen(true)} />
         <WhatsappButton
           visible={!cartOpen && !rappiOpen}

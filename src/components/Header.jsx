@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react";
 import i18n from "../i18n";
 import { db } from "../lib/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
+import { FEATURES } from "../config/features";
 
 export default function Header() {
   const { user, role, logout } = useAuth();
@@ -158,6 +159,15 @@ export default function Header() {
               window._menuTimeout = setTimeout(() => setMoreOpen(false), 200);
             }}
           >
+            {FEATURES.onlineCheckout && (
+            <NavLink
+              to="/mis-pedidos"
+              className="block px-4 py-2 hover:bg-rose/20 text-left whitespace-nowrap"
+              onClick={() => setMoreOpen(false)}
+            >
+              {lang === "es" ? "Mis Pedidos" : "My Orders"}
+            </NavLink>
+            )}
             <NavLink
               to="/cobertura-entrega"
               className="block px-4 py-2 hover:bg-rose/20 text-left whitespace-nowrap"
@@ -266,6 +276,9 @@ export default function Header() {
           </NavLink>
           <NavLink to="/sucursales" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Sucursales" : "Branches"}
+          </NavLink>
+          <NavLink to="/mis-pedidos" className={linkClass} onClick={toggleMenu}>
+            {lang === "es" ? "Mis Pedidos" : "My Orders"}
           </NavLink>
           <NavLink to="/cobertura-entrega" className={linkClass} onClick={toggleMenu}>
             {lang === "es" ? "Servicio a Domicilio" : "Home Delivery Service"}

@@ -79,7 +79,7 @@
   "special": {
   "title": "Special Orders",
   "subtitle": "Celebrate your most important moments with a unique cake made especially for you. Browse our categories and contact us on WhatsApp to request a quote.",
-  "subtitle2": "Special orders must be requested with at least <strong>5 days of advance notice</strong> to the event date.",
+  "order" : "Special orders must be placed at least 5 days before the date of your event.",
   "loading": "Loading special cakes...",
   "cta": "For more information, contact us",
   "catego0": "All",
@@ -107,7 +107,7 @@
     "productsAzucar": "Without Blame",
     "productsPanaderia": "Bakery",
     "productsReposteria": "Pastry",
-    "productsVelas": "Candles and Accessories",
+    "productsVelas": "Candles",
     "productsPedidos": "Made to Order",
     "productsFav": "My Favorites",
     "productsDescription": "Discover our selection of fresh cakes, handcrafted every day, available in a variety of flavors and presentations for every occasion.",
@@ -322,8 +322,8 @@
       "subtitle": "Welcome to the delivery coverage page of Petit Repostería con Alma!",
       "horarioentrega": "Delivery time: 8:00 AM to 8:00 PM",
       "explicacion1": "Here you can check the delivery areas and verify if we can bring our delicious sauce to your home.",
-      "cobertura": "Approximate coverage: 9 km around the branches and 3 km around the El Salto location.",
-      "radio": "Delivery radius",
+      "cobertura": "Approximate coverage: 9 km around the branches.",
+      "radio": "coverage: 9 km around this store.",
       "explicacion2": "The shown radius is approximate and corresponds to 5 km around each store. The final availability may vary.",
       "informacion": "Information",
       "sucursales": "Branches"

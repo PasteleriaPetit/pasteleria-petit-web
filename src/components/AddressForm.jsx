@@ -191,7 +191,7 @@ export default function AddressForm({ onSelected }) {
 
       // 14:00 (2:00 p.m.) = 840 minutos
       // A las 13:59 (839 min) pasa. A las 14:00 (840 min) ya no se incluye.
-      if (window.value === "14:00-16:00" && currentMinutes >= 840) {
+      if (window.value === "14:00-18:00" && currentMinutes >= 840) {
         return false;
       }
 

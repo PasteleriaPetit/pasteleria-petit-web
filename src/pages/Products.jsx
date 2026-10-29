@@ -27,6 +27,8 @@ import VELAS from "../assets/categorias-productos/velas.png";
 import LOGO_SIN_AZUCAR from "../assets/categorias-productos/sello-sinazucar.png";
 import SELLO_SIN_AZUCAR from "../assets/categorias-productos/sello-sinazucar.png";
 import SELLO_KETO from "../assets/categorias-productos/sello-keto.png";
+import MenuQR from "../components/MenuQR";
+import { QRCodeSVG } from "qrcode.react";
 
 export default function Products() {
   const { t, i18n } = useTranslation();
@@ -186,32 +188,50 @@ export default function Products() {
 
   return (
     <main className="bg-cream min-h-[calc(100vh-80px)] pt-[88px] px-4 sm:px-6 lg:px-12 pb-6">
-      {/* Header con QR (NO SE TOCA) */}
-      <div className="max-w-6xl mx-auto mb-10">
-        <div className="grid items-center gap-6 md:grid-cols-[1fr_220px]">
-          <div className="flex flex-col items-center">
-            <h1 className="font-agend font-bold text-3xl text-wine text-center mb-4">
-              {t("products.productsTitle")}
-            </h1>
-            <p className="font-maison neue text-center text-wineDark/70 max-w-xl">
-              {t("products.productsDescription")}
-            </p>
-          </div>
-
-          <div className="flex justify-center md:justify-end">
-            <a href={MENU_PDF} target="_blank" rel="noopener noreferrer" className="group" title="Abrir menú">
-              <img
-                src={QR_MENU}
-                alt="QR menú"
-                className="w-40 h-40 md:w-48 md:h-48 rounded-xl border border-wine/20 shadow-sm group-hover:shadow-md transition"
-                loading="lazy"
-                decoding="async"
-              />
-              <p className="text-xs text-wineDark/70 text-center mt-2">Escanea para ver el menú</p>
-            </a>
-          </div>
-        </div>
+  {/* Header con QR */}
+  <div className="max-w-6xl mx-auto mb-10">
+    <div className="grid items-center gap-6 md:grid-cols-[1fr_220px]">
+      <div className="flex flex-col items-center">
+        <h1 className="font-agend font-bold text-3xl text-wine text-center mb-4">
+          {t("products.productsTitle")}
+        </h1>
+        <p className="font-maison neue text-center text-wineDark/70 max-w-xl">
+          {t("products.productsDescription")}
+        </p>
       </div>
+
+      <div className="flex justify-center md:justify-end">
+        <a 
+          href="https://res.cloudinary.com/drdabinip/image/upload/v1793219396/jrey7w2fjozx4ioufpb4.pdf"
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="group flex flex-col items-center" 
+          title="Abrir menú"
+        >
+          {/* Contenedor con las mismas medidas, borde y sombra que tenía tu imagen */}
+          <div className="w-40 h-40 md:w-48 md:h-48 p-2.5 bg-cream rounded-xl border border-wine/20 shadow-sm group-hover:shadow-md transition flex items-center justify-center">
+            <QRCodeSVG
+              value="https://res.cloudinary.com/drdabinip/image/upload/v1793219396/jrey7w2fjozx4ioufpb4.pdf"
+              size={170}
+              level="H"
+              bgColor="#F4E6D4"
+              fgColor="#4A1E2D"
+              className="w-full h-full"
+              imageSettings={{
+                src: "/logo.png", // Asegúrate de que coincida con el nombre de tu logo en /public
+                height: 40,
+                width: 40,
+                excavate: true,
+              }}
+            />
+          </div>
+          <p className="text-xs text-wineDark/70 text-center mt-2 group-hover:text-wine transition">
+            Escanea para ver el menú
+          </p>
+        </a>
+      </div>
+    </div>
+  </div>
 
       {/* ✅ NUEVO: GRID DE CATEGORÍAS (solo cuando showCategoryGrid=true) */}
       {showCategoryGrid && (

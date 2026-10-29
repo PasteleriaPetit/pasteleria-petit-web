@@ -156,21 +156,48 @@ export default function AddressForm({ onSelected }) {
     ? getDaysAhead(deliveryDate)
     : 0;
 
-  // ============================================================
+ // ============================================================
   // HORARIOS DISPONIBLES
   //
-  // Menos de 2 días:
-  // 10-14 / 14-16
-  //
-  // 2 días o más:
-  // ventanas de 2 horas
+  // - 2 días o más: ventanas de 2 horas (extendedWindows).
+  // - Menos de 2 días:
+  //   * Si es para un día futuro (mañana): se muestran 10-14 y 14-16.
+  //   * Si es para HOY (daysAhead === 0):
+  //     - A partir de las 10:00 a.m. se elimina "10:00-14:00".
+  //     - A partir de las 14:00 p.m. se elimina "14:00-16:00".
   // ============================================================
 
   const availableWindows = useMemo(() => {
-    return daysAhead >= 2
-      ? extendedWindows
-      : normalWindows;
-  }, [daysAhead]);
+    // Si la fecha seleccionada tiene 2 o más días de anticipación
+    if (daysAhead >= 2) {
+      return extendedWindows;
+    }
+
+    // Si la fecha elegida es para un día posterior a hoy (ej. mañana)
+    if (daysAhead > 0) {
+      return normalWindows;
+    }
+
+    // Si la fecha elegida es para HOY (daysAhead === 0)
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    return normalWindows.filter((window) => {
+      // 10:00 a.m. = 600 minutos
+      // A las 9:59 (599 min) pasa. A las 10:00 (600 min) ya no se incluye.
+      if (window.value === "10:00-14:00" && currentMinutes >= 600) {
+        return false;
+      }
+
+      // 14:00 (2:00 p.m.) = 840 minutos
+      // A las 13:59 (839 min) pasa. A las 14:00 (840 min) ya no se incluye.
+      if (window.value === "14:00-16:00" && currentMinutes >= 840) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [daysAhead, deliveryDate]);
 
   // ============================================================
   // CARGAR DIRECCIONES
@@ -1017,52 +1044,30 @@ export default function AddressForm({ onSelected }) {
                 </label>
 
                 <select
-                  value={
-                    deliveryWindow
-                  }
-                  disabled={
-                    !deliveryDate
-                  }
-                  onChange={(
-                    event
-                  ) =>
-                    setDeliveryWindow(
-                      event.target
-                        .value
-                    )
-                  }
-                  className="
-                    w-full
-                    border
-                    rounded-md
-                    px-3
-                    py-2
-                    disabled:opacity-50
-                    disabled:cursor-not-allowed
-                  "
-                >
-                  <option value="">
-                    Selecciona un
-                    horario
-                  </option>
+  value={deliveryWindow}
+  disabled={!deliveryDate || availableWindows.length === 0}
+  onChange={(event) => setDeliveryWindow(event.target.value)}
+  className="w-full border rounded-md px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  <option value="">
+    {availableWindows.length === 0
+      ? "No hay horarios disponibles para hoy"
+      : "Selecciona un horario"}
+  </option>
 
-                  {availableWindows.map(
-                    (window) => (
-                      <option
-                        key={
-                          window.value
-                        }
-                        value={
-                          window.value
-                        }
-                      >
-                        {
-                          window.label
-                        }
-                      </option>
-                    )
-                  )}
-                </select>
+  {availableWindows.map((window) => (
+    <option key={window.value} value={window.value}>
+      {window.label}
+    </option>
+  ))}
+</select>
+
+{/* Mensaje de aviso cuando no quedan horarios para hoy */}
+{deliveryDate && daysAhead === 0 && availableWindows.length === 0 && (
+  <p className="text-xs text-red mt-1">
+    Para entregas el día de hoy el horario límite ha concluido. Por favor selecciona otra fecha.
+  </p>
+)}
               </div>
             </div>
 

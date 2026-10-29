@@ -19,24 +19,13 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../lib/firebase";
-
 import { useTranslation } from "react-i18next";
-
 import { initializeNetPay } from "../utils/netpay";
 
-
-
-
 export default function Checkout() {
-
-  
-
   const navigate = useNavigate();
-
   const { t, i18n } = useTranslation();
-
   const { cart, subtotal, clearCart } = useCart();
-
   const { user } = useAuth();
 
   // Guardia: Redirigir a la tienda si no cumple el monto mínimo o el carrito está vacío
@@ -54,101 +43,27 @@ export default function Checkout() {
   // =========================================================
   // ENTREGA A DOMICILIO
   // =========================================================
-
   const [address, setAddress] = useState(null);
-
   const [shipping, setShipping] = useState(null);
-
   const [loadingPay, setLoadingPay] = useState(false);
-
   const [error, setError] = useState("");
 
-  
-  
   const [netpayCheckout, setNetpayCheckout] = useState(null);
-
-  // Estado para la carga al vincular el pago
   const [isAttachingPayment, setIsAttachingPayment] = useState(false);
 
   // Referencia para que el callback global de NetPay siempre acceda al valor actualizado
   const currentCheckoutRef = useRef(null);
 
   useEffect(() => {
-    if (netpayCheckout?.tokenAmount) {
-      const timer = setTimeout(() => {
-        const netpayBtn = document.getElementById("netpay-checkout");
-        if (netpayBtn) {
-          // Dispara el clic sobre el botón de NetPay
-          netpayBtn.click();
-        }
-        // Restablece el loading para que no se quede congelado
-        setLoadingPay(false);
-      }, 250);
-
-      return () => clearTimeout(timer);
-    }
-  }, [netpayCheckout]);
-
-
-  // Mantener sincronizada la referencia con el estado
-  useEffect(() => {
     currentCheckoutRef.current = netpayCheckout;
   }, [netpayCheckout]);
-
-
-  // =========================================================
-  // RECOGER / PAGAR EN SUCURSAL
-  //
-  // Se conserva porque puede volver a utilizarse posteriormente.
-  // Actualmente la interfaz correspondiente permanece comentada.
-  // =========================================================
-
-  const [showPickupForm, setShowPickupForm] =
-    useState(false);
-
-  const [customerName, setCustomerName] =
-    useState("");
-
-  const [customerPhone, setCustomerPhone] =
-    useState("");
-
-  const [pickupBranch, setPickupBranch] =
-    useState("");
-
-  const [pickupTime, setPickupTime] =
-    useState("");
-
-  const branches = [
-    "Sucursal San Juan Bosco",
-    "Sucursal Circunvalación",
-    "Sucursal El Salto",
-    "Sucursal Obsidiana",
-    "Sucursal Minerva",
-    "Sucursal Tlaquepaque",
-    "Sucursal Río Nilo",
-    "Sucursal Revolución",
-    "Sucursal Plan de San Luis",
-    "Sucursal Zapopan",
-    "Sucursal Patria",
-  ];
-
-  const isPickupFormValid =
-    customerName.trim().length > 2 &&
-    customerPhone.length === 10 &&
-    pickupBranch &&
-    pickupTime;
 
   // =========================================================
   // IDIOMA
   // =========================================================
-
   useEffect(() => {
     const saved = localStorage.getItem("lang");
-
-    if (
-      saved &&
-      saved !== i18n.language
-    ) {
+    if (saved && saved !== i18n.language) {
       i18n.changeLanguage(saved);
     }
   }, [i18n]);
@@ -156,10 +71,7 @@ export default function Checkout() {
   // =========================================================
   // TOTALES
   // =========================================================
-
-  const shippingAmount = Number(
-    shipping?.amount || 0
-  );
+  const shippingAmount = Number(shipping?.amount || 0);
 
   const grandTotal = useMemo(() => {
     return Number(subtotal || 0) + shippingAmount;
@@ -168,50 +80,26 @@ export default function Checkout() {
   // =========================================================
   // HABILITACIÓN DEL PAGO
   // =========================================================
-
   const canPayOnline =
-  cart.length > 0 &&
-  !!user &&
-  !!address &&
-  !!address.deliveryDate &&
-  !!address.deliveryWindow &&
-  !!shipping &&
-  shipping.available === true &&
-  shipping.covered === true &&
-  !loadingPay;
-
-  const canReserveStore =
     cart.length > 0 &&
-    !loadingPay &&
-    !!user;
-
-  // =========================================================
-  // RAPPI
-  // =========================================================
+    !!user &&
+    !!address &&
+    !!address.deliveryDate &&
+    !!address.deliveryWindow &&
+    !!shipping &&
+    shipping.available === true &&
+    shipping.covered === true &&
+    !loadingPay;
 
   const openRappiDrawer = () => {
-    window.dispatchEvent(
-      new CustomEvent("open-rappi-drawer")
-    );
+    window.dispatchEvent(new CustomEvent("open-rappi-drawer"));
   };
-
-  // =========================================================
-  // NÚMERO PÚBLICO DEL PEDIDO
-  // =========================================================
 
   const buildOrderNumber = (orderId) => {
     const now = new Date();
-
     const year = now.getFullYear();
-
-    const month = String(
-      now.getMonth() + 1
-    ).padStart(2, "0");
-
-    const day = String(
-      now.getDate()
-    ).padStart(2, "0");
-
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
     const shortId = orderId
       .replace(/[^a-zA-Z0-9]/g, "")
       .slice(0, 6)
@@ -220,266 +108,84 @@ export default function Checkout() {
     return `PET-${year}${month}${day}-${shortId}`;
   };
 
-  // =========================================================
-  // ITEMS
-  // =========================================================
-
   const buildItems = () => {
     return cart.map((item) => ({
       id: item.id,
-
       title: item.title,
-
       qty: Number(item.qty),
-
       price: Number(item.price),
-
       img: item.img || "",
-
       options: item.options || null,
     }));
   };
 
-  // =========================================================
-  // CREAR PEDIDO DE ENTREGA
-  //
-  // IMPORTANTE:
-  // Por ahora esto crea el pedido en Firestore.
-  // En la siguiente etapa NetPay utilizará este orderId.
-  // =========================================================
-
   const createDeliveryOrder = async () => {
-    if (!user) {
-      throw new Error(
-        "Debes iniciar sesión para realizar el pedido."
-      );
+    if (!user) throw new Error("Debes iniciar sesión para realizar el pedido.");
+    if (!address) throw new Error("Selecciona una dirección de entrega.");
+    if (!shipping || shipping.available !== true || shipping.covered !== true) {
+      throw new Error("La dirección seleccionada no cuenta con cobertura de entrega.");
     }
+    if (!address.deliveryDate) throw new Error("Selecciona una fecha de entrega.");
+    if (!address.deliveryWindow) throw new Error("Selecciona un horario de entrega.");
+    if (!cart.length) throw new Error("Tu carrito está vacío.");
 
-    if (!address) {
-  throw new Error(
-    "Selecciona una dirección de entrega."
-  );
-}
-
-    if (
-      !shipping ||
-      shipping.available !== true ||
-      shipping.covered !== true
-    ) {
-      throw new Error(
-        "La dirección seleccionada no cuenta con cobertura de entrega."
-      );
-    }
-
-    if (!address.deliveryDate) {
-      throw new Error(
-        "Selecciona una fecha de entrega."
-      );
-    }
-
-    if (!address.deliveryWindow) {
-      throw new Error(
-        "Selecciona un horario de entrega."
-      );
-    }
-
-    if (!cart.length) {
-      throw new Error(
-        "Tu carrito está vacío."
-      );
-    }
-
-    // Creamos la referencia SIN escribir todavía.
-    const orderRef = doc(
-      collection(db, "orders")
-    );
-
-    const orderNumber =
-      buildOrderNumber(orderRef.id);
+    const orderRef = doc(collection(db, "orders"));
+    const orderNumber = buildOrderNumber(orderRef.id);
 
     const orderData = {
       orderNumber,
-
-      // =============================================
-      // PRODUCTOS
-      // =============================================
-
       items: buildItems(),
-
-      // =============================================
-      // CLIENTE
-      // =============================================
-
       customer: {
         uid: user.uid,
-
-        name:
-          String(
-            address.fullName || ""
-          ).trim(),
-
+        name: String(address.fullName || "").trim(),
         email: user.email || "",
-
-        phone:
-          String(
-            address.phone || ""
-          ).trim(),
+        phone: String(address.phone || "").trim(),
       },
-
-      // =============================================
-      // DIRECCIÓN
-      //
-      // Aquí NO guardamos datos temporales
-      // como fecha u horario.
-      // =============================================
-
       address: {
-        street:
-          String(
-            address.street || ""
-          ).trim(),
-
-        extNumber:
-          String(
-            address.extNumber || ""
-          ).trim(),
-
-        intNumber:
-          String(
-            address.intNumber || ""
-          ).trim(),
-
-        neighborhood:
-          String(
-            address.neighborhood || ""
-          ).trim(),
-
-        postalCode:
-          String(
-            address.postalCode || ""
-          ).trim(),
-
-        city:
-          String(
-            address.city || ""
-          ).trim(),
-
-        state:
-          String(
-            address.state || ""
-          ).trim(),
-
-        country:
-          String(
-            address.country || "México"
-          ).trim(),
-
-        references:
-          String(
-            address.references || ""
-          ).trim(),
+        street: String(address.street || "").trim(),
+        extNumber: String(address.extNumber || "").trim(),
+        intNumber: String(address.intNumber || "").trim(),
+        neighborhood: String(address.neighborhood || "").trim(),
+        postalCode: String(address.postalCode || "").trim(),
+        city: String(address.city || "").trim(),
+        state: String(address.state || "").trim(),
+        country: String(address.country || "México").trim(),
+        references: String(address.references || "").trim(),
       },
-
-      // =============================================
-      // ENTREGA
-      // =============================================
-
       delivery: {
         type: "delivery",
-
-        date:
-          address.deliveryDate || "",
-
-        window:
-          address.deliveryWindow || "",
-
-        branchId:
-          shipping.branchId ||
-          shipping.branchKey ||
-          null,
-
-        branchName:
-          shipping.branchName || "",
-
-        municipality:
-          shipping.municipality || "",
-
-        distanceKm:
-          Number.isFinite(
-            Number(shipping.distanceKm)
-          )
-            ? Number(shipping.distanceKm)
-            : null,
-
-        shippingCost:
-          Number(shipping.amount || 0),
-
-        notes:
-          String(
-            address.notas || ""
-          ).trim(),
+        date: address.deliveryDate || "",
+        window: address.deliveryWindow || "",
+        branchId: shipping.branchId || shipping.branchKey || null,
+        branchName: shipping.branchName || "",
+        municipality: shipping.municipality || "",
+        distanceKm: Number.isFinite(Number(shipping.distanceKm))
+          ? Number(shipping.distanceKm)
+          : null,
+        shippingCost: Number(shipping.amount || 0),
+        notes: String(address.notas || "").trim(),
       },
-
-      // =============================================
-      // TOTALES
-      // =============================================
-
       totals: {
-        subtotal:
-          Number(subtotal || 0),
-
-        shipping:
-          Number(shipping.amount || 0),
-
-        total:
-          Number(grandTotal || 0),
+        subtotal: Number(subtotal || 0),
+        shipping: Number(shipping.amount || 0),
+        total: Number(grandTotal || 0),
       },
-
-      // =============================================
-      // PAGO
-      //
-      // Preparado para NetPay.
-      // =============================================
-
       payment: {
         provider: "netpay",
-
         status: "pending",
-
         transactionId: null,
       },
-
-      // =============================================
-      // SHIPDAY
-      //
-      // NO creamos todavía la entrega.
-      // Solo después de pago aprobado.
-      // =============================================
-
       shipday: {
         status: "not_created",
-
         orderId: null,
       },
-
-      // =============================================
-      // ESTADO GENERAL
-      // =============================================
-
       status: "pending_payment",
-
       createdAt: serverTimestamp(),
-
       updatedAt: serverTimestamp(),
     };
 
     const batch = writeBatch(db);
-
-    batch.set(
-      orderRef,
-      orderData
-    );
-
+    batch.set(orderRef, orderData);
     await batch.commit();
 
     return {
@@ -489,138 +195,87 @@ export default function Checkout() {
     };
   };
 
-  // =========================================================
-  // PRUEBA DEL NUEVO FLUJO
-  //
-  // En la próxima etapa esta función será reemplazada
-  // por el inicio de NetPay Checkout Plus.
-  // =========================================================
-
-  // =========================================================
-// CÓDIGO DE ESTADO PARA NETPAY
-// =========================================================
-
-const getNetPayStateCode = (state) => {
-  const normalized = String(state || "")
-    .trim()
-    .toLowerCase();
-
-  const states = {
-    jalisco: "JAL",
-    jal: "JAL",
+  const getNetPayStateCode = (state) => {
+    const normalized = String(state || "").trim().toLowerCase();
+    const states = {
+      jalisco: "JAL",
+      jal: "JAL",
+    };
+    return states[normalized] || "JAL";
   };
 
-  return states[normalized] || "";
-};
-
+  // =========================================================
+  // FLUJO DE PAGO SECUENCIAL (RESUELVE EL FALLO DE APERTURA A LA PRIMERA)
+  // =========================================================
   const continueToPayment = async () => {
     try {
       setLoadingPay(true);
       setError("");
-      setNetpayCheckout(null);
 
-      // =========================================
-      // 1. CREAR PEDIDO EN FIRESTORE
-      // =========================================
+      // 1. Crear el pedido en Firestore
       const order = await createDeliveryOrder();
 
-      console.log("Pedido preparado para NetPay:", order);
-
-      // =========================================
-      // 2. SOLICITAR TOKEN DE MONTO
-      // =========================================
+      // 2. Solicitar token a NetPay
       const response = await fetch("/api/netpay/create-amount-token", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          orderId: order.id,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: order.id }),
       });
 
       const data = await response.json();
-
       if (!response.ok || !data?.ok) {
-        throw new Error(
-          data?.message || "No se pudo preparar el pago con NetPay."
-        );
+        throw new Error(data?.message || "No se pudo preparar el pago con NetPay.");
       }
 
       const tokenAmount = data?.netpay?.tokenAmount;
-
       if (!tokenAmount) {
         throw new Error("NetPay no devolvió el token de pago.");
       }
 
-      // =========================================
-      // 3. PREPARAR ESTADO DE CHECKOUT PLUS
-      // =========================================
-      setNetpayCheckout({
+      // 3. Guardar estado
+      const checkoutInfo = {
         orderId: order.id,
         orderNumber: order.orderNumber,
         tokenAmount,
-      });
+      };
+      setNetpayCheckout(checkoutInfo);
+      currentCheckoutRef.current = checkoutInfo;
 
-      console.log("Token NetPay generado:", {
-        orderId: order.id,
-        orderNumber: order.orderNumber,
-        tokenAmount,
-      });
+      toast.info("Conectando con pasarela segura...");
 
-      toast.info("Abriendo pasarela de pago segura...");
+      // 4. Secuencia controlada: esperar a que React actualice atributos en el DOM
+      setTimeout(async () => {
+        try {
+          await initializeNetPay();
+          
+          // Dar un pequeño margen para que el SDK de NetPay registre los data-attributes
+          setTimeout(() => {
+            const netpayBtn = document.getElementById("netpay-checkout");
+            if (netpayBtn) {
+              netpayBtn.click();
+            } else {
+              throw new Error("No se pudo conectar con el botón de NetPay.");
+            }
+            setLoadingPay(false);
+          }, 150);
+        } catch (initErr) {
+          console.error("Error al inicializar NetPay SDK:", initErr);
+          setLoadingPay(false);
+          toast.error("La pasarela tardó en responder. Por favor haz clic en pagar nuevamente.");
+        }
+      }, 50);
+
     } catch (err) {
       console.error("Error preparando NetPay:", err);
       setError(err?.message || "No se pudo preparar el pago.");
       toast.error(err?.message || "No se pudo preparar el pago.");
       setLoadingPay(false);
     }
-    // Nota: loadingPay se apaga una vez que se dispara el modal o en el catch
   };
 
   // =========================================================
-  // PAGO / RECOGIDA EN SUCURSAL
-  //
-  // Se conserva para futura reactivación.
+  // CALLBACKS GLOBALES DE NETPAY
   // =========================================================
-
-  /*
-  const reserveInStore = async () => {
-    try {
-      setLoadingPay(true);
-      setError("");
-
-      // Aquí se implementará nuevamente la creación
-      // del pedido de pickup si la pastelería decide
-      // reactivar esta modalidad.
-
-      console.log({
-        customerName,
-        customerPhone,
-        pickupBranch,
-        pickupTime,
-      });
-
-    } catch (err) {
-      console.error(err);
-
-      setError(
-        "No se pudo registrar el pedido"
-      );
-    } finally {
-      setLoadingPay(false);
-    }
-  };
-  */
-
-  // =========================================================
-  // COMPONENTE
-  // =========================================================
-
-// =========================================================
-  // CALLBACKS DE NETPAY Y CONFIRMACIÓN AUTOMÁTICA
-  // =========================================================
-
   useEffect(() => {
     window.onPaymentSuccess = async (response) => {
       console.log("✅ NetPay payment success recibido:", response);
@@ -643,7 +298,6 @@ const getNetPayStateCode = (state) => {
           idToken = await user.getIdToken();
         }
 
-        // Extracción robusta de identificadores desde cualquier nivel del objeto NetPay
         const netpayOrderId =
           response?.orderId ||
           response?.transactionDto?.orderId ||
@@ -681,7 +335,6 @@ const getNetPayStateCode = (state) => {
           authCode: String(authCode),
           rawStatus: response?.status || "success",
           transactionStatus: transactionStatus ? String(transactionStatus) : null,
-          // Datos para el comprobante bancario en el ticket:
           cardLast4: response?.transactionDto?.last4 || response?.last4 || response?.transactionDto?.card?.last4 || "",
           cardBrand: response?.transactionDto?.brand || response?.brand || response?.transactionDto?.card?.brand || "",
           cardType: response?.transactionDto?.cardType || response?.cardType || "Crédito",
@@ -689,8 +342,6 @@ const getNetPayStateCode = (state) => {
           eci: response?.transactionDto?.eci || response?.eci || "06",
           paymentDate: response?.transactionDto?.transactionDate || response?.transactionDate || new Date().toLocaleString("es-MX"),
         };
-
-        console.log("Enviando payload a confirm-payment:", payload);
 
         const res = await fetch("/api/netpay/confirm-payment", {
           method: "POST",
@@ -702,18 +353,14 @@ const getNetPayStateCode = (state) => {
         });
 
         const result = await res.json();
-
         if (!res.ok || !result.ok) {
           throw new Error(result.error || result.message || "No se pudo confirmar el pedido.");
         }
 
-        console.log("✅ Pedido pagado y enviado a Shipday:", result);
         toast.success("¡Pago exitoso! Tu pedido ha sido confirmado.");
-
-        // Limpieza de estado local y carrito
         clearCart();
 
-        // Limpieza de modales residuales inyectados por NetPay
+        // Limpieza de modales residuales
         const selectors = [
           "#netpay-modal",
           ".netpay-modal",
@@ -734,8 +381,6 @@ const getNetPayStateCode = (state) => {
         });
 
         document.body.style.overflow = "auto";
-
-        // Redirección inmediata a la pantalla de éxito con ticket
         const cleanOrderId = String(firestoreOrderId).replace(/^\/+/, "");
         navigate(`/order-success/${cleanOrderId}`);
 
@@ -758,662 +403,170 @@ const getNetPayStateCode = (state) => {
     };
   }, [user, clearCart, navigate]);
 
-// =========================================================
-// INICIALIZAR CHECKOUT PLUS
-//
-// Solo se ejecuta cuando ya tenemos:
-// - pedido
-// - orderNumber
-// - tokenAmount
-//
-// En ese momento React ya renderiza
-// #netpay-checkout.
-// =========================================================
-
-useEffect(() => {
-  if (!netpayCheckout) {
-    return;
-  }
-
-  let cancelled = false;
-
-  const initialize = async () => {
-    try {
-      // Permitimos que React termine de colocar
-      // #netpay-checkout en el DOM.
-      await new Promise((resolve) =>
-        setTimeout(resolve, 0)
-      );
-
-      if (cancelled) {
-        return;
-      }
-
-      const button =
-        document.getElementById(
-          "netpay-checkout"
-        );
-
-      if (!button) {
-        throw new Error(
-          "No se encontró el botón de Checkout Plus."
-        );
-      }
-
-      await initializeNetPay();
-
-      if (cancelled) {
-        return;
-      }
-
-      console.log(
-        "✅ Checkout Plus inicializado."
-      );
-    } catch (err) {
-      if (cancelled) {
-        return;
-      }
-
-      console.error(
-        "❌ Error inicializando Checkout Plus:",
-        err
-      );
-
-      const message =
-        err?.message ||
-        "No se pudo inicializar Checkout Plus.";
-
-      setError(message);
-
-      toast.error(message);
-    }
-  };
-
-  initialize();
-
-  return () => {
-    cancelled = true;
-  };
-}, [netpayCheckout]);
-
   return (
-    <main className="
-      bg-cream
-      min-h-[calc(100vh-80px)]
-      pt-[96px]
-      px-4
-      sm:px-6
-      lg:px-12
-      pb-10
-    ">
-      <div className="
-        flex
-        flex-col
-        gap-3
-        sm:flex-row
-        sm:items-center
-        sm:justify-between
-        mb-6
-      ">
-        <h1 className="
-          font-display
-          text-3xl
-          text-wine
-        ">
+    <main className="bg-cream min-h-[calc(100vh-80px)] pt-[96px] px-4 sm:px-6 lg:px-12 pb-10">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <h1 className="font-display text-3xl text-wine">
           {t("checkout.title")}
         </h1>
       </div>
 
-      <div className="
-        grid
-        lg:grid-cols-3
-        gap-8
-      ">
-        {/* =========================================
-            DIRECCIÓN + ENVÍO
-        ========================================== */}
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* DIRECCIÓN + ENVÍO */}
+        <div className="lg:col-span-2 space-y-6">
+          <AddressForm onSelected={setAddress} />
 
-        <div className="
-          lg:col-span-2
-          space-y-6
-        ">
-          <AddressForm
-            onSelected={setAddress}
-          />
-
-          <div className="
-            bg-white
-            rounded-xl
-            border
-            border-rose/30
-            p-4
-            shadow-sm
-          ">
-            <h3 className="
-              text-wine
-              text-lg
-              font-semibold
-              mb-3
-            ">
-              {t(
-                "checkout.shipping.title"
-              )}
+          <div className="bg-white rounded-xl border border-rose/30 p-4 shadow-sm">
+            <h3 className="text-wine text-lg font-semibold mb-3">
+              {t("checkout.shipping.title")}
             </h3>
-
-            <ShippingPicker
-              address={address}
-              onChange={setShipping}
-            />
+            <ShippingPicker address={address} onChange={setShipping} />
           </div>
 
-          {/* =====================================
-              RAPPI
-          ====================================== */}
-
-          <div className="
-            bg-white
-            rounded-xl
-            border
-            border-rose/30
-            p-4
-            shadow-sm
-          ">
-            <h3 className="
-              text-wine
-              text-lg
-              font-semibold
-              mb-2
-            ">
-              {t(
-                "checkout.rappiCheckout.title"
-              )}
+          {/* RAPPI */}
+          <div className="bg-white rounded-xl border border-rose/30 p-4 shadow-sm">
+            <h3 className="text-wine text-lg font-semibold mb-2">
+              {t("checkout.rappiCheckout.title")}
             </h3>
-
-            <p className="
-              text-sm
-              text-wineDark/70
-            ">
-              {t(
-                "checkout.rappiCheckout.subtitle"
-              )}
+            <p className="text-sm text-wineDark/70">
+              {t("checkout.rappiCheckout.subtitle")}
             </p>
-
             <button
               type="button"
               onClick={openRappiDrawer}
-              className="
-                mt-3
-                inline-flex
-                items-center
-                justify-center
-                px-4
-                py-2
-                rounded-lg
-                bg-[#F44611]
-                text-white
-                text-sm
-                font-medium
-                hover:opacity-90
-                transition
-              "
+              className="mt-3 inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[#F44611] text-white text-sm font-medium hover:opacity-90 transition"
             >
-              {t(
-                "checkout.rappiCheckout.button"
-              )}
+              {t("checkout.rappiCheckout.button")}
             </button>
           </div>
         </div>
 
-        {/* =========================================
-            RESUMEN
-        ========================================== */}
-
+        {/* RESUMEN */}
         <div className="space-y-4">
-          <div className="
-            bg-white
-            rounded-xl
-            border
-            border-rose/30
-            p-4
-            shadow-sm
-          ">
-            <h3 className="
-              text-wine
-              text-lg
-              font-semibold
-              mb-3
-            ">
-              {t(
-                "checkout.summary.title"
-              )}
+          <div className="bg-white rounded-xl border border-rose/30 p-4 shadow-sm">
+            <h3 className="text-wine text-lg font-semibold mb-3">
+              {t("checkout.summary.title")}
             </h3>
 
             {cart.length === 0 ? (
               <p className="text-wineDark/70">
-                {t(
-                  "checkout.summary.empty"
-                )}
+                {t("checkout.summary.empty")}
               </p>
             ) : (
               <>
-                {/* ITEMS */}
-
-                <ul className="
-                  divide-y
-                  divide-rose/20
-                  max-h-72
-                  overflow-y-auto
-                  pr-2
-                ">
+                <ul className="divide-y divide-rose/20 max-h-72 overflow-y-auto pr-2">
                   {cart.map((item) => (
                     <li
-                      key={`${item.id}${
-                        item.options
-                          ? JSON.stringify(
-                              item.options
-                            )
-                          : ""
-                      }`}
-                      className="
-                        py-2
-                        flex
-                        items-center
-                        gap-3
-                      "
+                      key={`${item.id}${item.options ? JSON.stringify(item.options) : ""}`}
+                      className="py-2 flex items-center gap-3"
                     >
                       <img
                         src={item.img}
                         alt={item.title}
-                        className="
-                          w-12
-                          h-12
-                          rounded
-                          object-cover
-                          border
-                          border-rose/30
-                        "
+                        className="w-12 h-12 rounded object-cover border border-rose/30"
                       />
-
                       <div className="flex-1">
-                        <div className="
-                          text-wine
-                          text-sm
-                          font-medium
-                          truncate
-                        ">
+                        <div className="text-wine text-sm font-medium truncate">
                           {item.title}
                         </div>
-
-                        <div className="
-                          text-xs
-                          text-wineDark/60
-                        ">
-                          {item.qty} x{" "}
-                          {mxn(item.price)}
+                        <div className="text-xs text-wineDark/60">
+                          {item.qty} x {mxn(item.price)}
                         </div>
                       </div>
-
-                      <div className="
-                        text-sm
-                        text-wine
-                        font-semibold
-                      ">
-                        {mxn(
-                          item.qty *
-                            item.price
-                        )}
+                      <div className="text-sm text-wine font-semibold">
+                        {mxn(item.qty * item.price)}
                       </div>
                     </li>
                   ))}
                 </ul>
 
-                {/* TOTALES */}
-
-                <div className="
-                  mt-4
-                  space-y-1
-                  text-sm
-                  text-wineDark/80
-                ">
-                  <div className="
-                    flex
-                    justify-between
-                  ">
-                    <span>
-                      {t(
-                        "checkout.summary.subtotal"
-                      )}
-                    </span>
-
-                    <span>
-                      {mxn(subtotal)}
-                    </span>
+                <div className="mt-4 space-y-1 text-sm text-wineDark/80">
+                  <div className="flex justify-between">
+                    <span>{t("checkout.summary.subtotal")}</span>
+                    <span>{mxn(subtotal)}</span>
                   </div>
 
                   {shipping?.amount ? (
-                    <div className="
-                      flex
-                      justify-between
-                    ">
-                      <span>
-                        {t(
-                          "checkout.summary.shipping"
-                        )}
-                      </span>
-
-                      <span>
-                        {mxn(
-                          shipping.amount
-                        )}
-                      </span>
+                    <div className="flex justify-between">
+                      <span>{t("checkout.summary.shipping")}</span>
+                      <span>{mxn(shipping.amount)}</span>
                     </div>
                   ) : null}
 
-                  <div className="
-                    flex
-                    justify-between
-                    font-semibold
-                    text-wine
-                    mt-2
-                  ">
-                    <span>
-                      {t(
-                        "checkout.summary.total"
-                      )}
-                    </span>
-
-                    <span>
-                      {mxn(grandTotal)}
-                    </span>
+                  <div className="flex justify-between font-semibold text-wine mt-2">
+                    <span>{t("checkout.summary.total")}</span>
+                    <span>{mxn(grandTotal)}</span>
                   </div>
                 </div>
 
-                {/* ERROR */}
-
                 {error && (
-                  <p className="
-                    text-red
-                    text-sm
-                    mt-3
-                    whitespace-pre-line
-                  ">
+                  <p className="text-red text-sm mt-3 whitespace-pre-line">
                     {error}
                   </p>
                 )}
 
-                {/* ACCIONES */}
-
-                <div className="
-                  mt-4
-                  grid
-                  gap-3
-                ">
+                <div className="mt-4 grid gap-3">
                   <button
                     type="button"
-                    onClick={
-                      openRappiDrawer
-                    }
-                    className="
-                      w-full
-                      bg-[#F44611]
-                      text-white
-                      py-2
-                      rounded-lg
-                      hover:opacity-90
-                      transition
-                    "
+                    onClick={openRappiDrawer}
+                    className="w-full bg-[#F44611] text-white py-2 rounded-lg hover:opacity-90 transition"
                   >
-                    {t(
-                      "checkout.actions.rappi"
-                    )}
+                    {t("checkout.actions.rappi")}
                   </button>
 
-                  {/* =================================
-                      RECOGER / PAGAR EN SUCURSAL
-
-                      Se mantiene comentado porque
-                      actualmente no se utiliza.
-                  ================================== */}
-
-                  {/*
+                  {/* BOTÓN VISIBLE DE PAGO */}
                   <button
-                    disabled={
-                      !canReserveStore
-                    }
-                    onClick={() =>
-                      setShowPickupForm(
-                        true
-                      )
-                    }
-                    className="
-                      w-full
-                      bg-wine
-                      text-cream
-                      py-2
-                      rounded-lg
-                      hover:opacity-90
-                      transition
-                      disabled:opacity-50
-                    "
+                    type="button"
+                    disabled={!canPayOnline || loadingPay || isAttachingPayment}
+                    onClick={continueToPayment}
+                    className="w-full bg-[#0056B3] hover:bg-[#003B6B] text-white py-3.5 rounded-xl font-bold text-base transition flex items-center justify-center gap-3 shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
-                    {t(
-                      "checkout.actions.reserveStore"
+                    {loadingPay ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Conectando con pasarela segura...</span>
+                      </>
+                    ) : isAttachingPayment ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Confirmando pedido...</span>
+                      </>
+                    ) : (
+                      <span>Pagar con NetPay</span>
                     )}
                   </button>
 
-                  {showPickupForm && (
-                    <div className="
-                      bg-rose/10
-                      border
-                      border-rose/30
-                      rounded-xl
-                      p-4
-                      mt-3
-                      space-y-3
-                    ">
-                      <input
-                        type="text"
-                        placeholder="Nombre"
-                        value={
-                          customerName
-                        }
-                        onChange={(e) =>
-                          setCustomerName(
-                            e.target.value
-                          )
-                        }
-                        className="
-                          w-full
-                          border
-                          border-rose/30
-                          rounded-lg
-                          px-3
-                          py-2
-                        "
-                      />
-
-                      <input
-                        type="tel"
-                        placeholder="Teléfono"
-                        value={
-                          customerPhone
-                        }
-                        onChange={(e) => {
-                          const numbersOnly =
-                            e.target.value.replace(
-                              /\D/g,
-                              ""
-                            );
-
-                          setCustomerPhone(
-                            numbersOnly.slice(
-                              0,
-                              10
-                            )
-                          );
-                        }}
-                        className="
-                          w-full
-                          border
-                          border-rose/30
-                          rounded-lg
-                          px-3
-                          py-2
-                        "
-                      />
-
-                      <select
-                        value={
-                          pickupBranch
-                        }
-                        onChange={(e) =>
-                          setPickupBranch(
-                            e.target.value
-                          )
-                        }
-                        className="
-                          w-full
-                          border
-                          border-rose/30
-                          rounded-lg
-                          px-3
-                          py-2
-                        "
-                      >
-                        <option value="">
-                          Selecciona
-                          sucursal
-                        </option>
-
-                        {branches.map(
-                          (branch) => (
-                            <option
-                              key={branch}
-                              value={
-                                branch
-                              }
-                            >
-                              {branch}
-                            </option>
-                          )
-                        )}
-                      </select>
-
-                      <input
-                        type="time"
-                        min="8:30"
-                        max="21:00"
-                        value={
-                          pickupTime
-                        }
-                        onChange={(e) =>
-                          setPickupTime(
-                            e.target.value
-                          )
-                        }
-                        className="
-                          w-full
-                          border
-                          border-rose/30
-                          rounded-lg
-                          px-3
-                          py-2
-                        "
-                      />
-
-                      <button
-                        disabled={
-                          !isPickupFormValid ||
-                          loadingPay
-                        }
-                        className="
-                          w-full
-                          bg-wine
-                          text-white
-                          py-2
-                          rounded-lg
-                          disabled:bg-gray-400
-                        "
-                      >
-                        Confirmar pedido
-                      </button>
-                    </div>
-                  )}
-                  */}
-
-                  {/* =================================
-                        NETPAY CHECKOUT PLUS
-                    ================================== */}
-
-                    {/* ========================================================
-                            BOTÓN ÚNICO DE PAGO (PAGAR CON NETPAY + LOGO)
-                        ======================================================== */}
-                        <button
-                          type="button"
-                          disabled={!canPayOnline || loadingPay || isAttachingPayment}
-                          onClick={continueToPayment}
-                          className="w-full bg-[#0056B3] hover:bg-[#003B6B] text-white py-3.5 rounded-xl font-bold text-base transition flex items-center justify-center gap-3 shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                        >
-                          {loadingPay ? (
-                            <>
-                              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                              <span>Conectando con pasarela segura...</span>
-                            </>
-                          ) : isAttachingPayment ? (
-                            <>
-                              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                              <span>Confirmando pedido...</span>
-                            </>
-                          ) : (
-                            <>
-                              <span>Pagar con NetPay</span>
-                              
-                            </>
-                          )}
-                        </button>
-
-                      {/* ========================================================
-                              BOTÓN TÉCNICO NETPAY (INVISIBLE EN PANTALLA)
-                          ======================================================== */}
-                          {netpayCheckout && (
-                            <button
-                              id="netpay-checkout"
-                              type="button"
-                              className="fixed -top-[9999px] left-0 w-1 h-1 opacity-0 pointer-events-none overflow-hidden"
-                              data-button-title="Continuar"
-                              data-street1={`${String(address?.street || "").trim()} ${String(
-                                address?.extNumber || ""
-                              ).trim()}`.trim()}
-                              data-country="MX"
-                              data-city={String(address?.city || "").trim()}
-                              data-postal-code={String(address?.postalCode || "").trim()}
-                              data-state={getNetPayStateCode(address?.state)}
-                              data-token={netpayCheckout.tokenAmount}
-                              data-phone-number={String(address?.phone || "").trim()}
-                              data-email={user?.email || address?.email || ""}
-                              data-merchant-reference-code={netpayCheckout.orderNumber}
-                              data-onsuccess="onPaymentSuccess"
-                              data-onerror="onPaymentError"
-                              data-product-count={String(
-                                cart.reduce((total, item) => total + Number(item.qty || 0), 0)
-                              )}
-                              data-commerce-name="Petit Repostería con Alma"
-                              data-logo-url="https://pasteleriaspetit.com/og-image.png"
-                              data-image="https://pasteleriaspetit.com/og-image.png"
-                            />
-                          )}
-
+                  {/* BOTÓN TÉCNICO NETPAY: SIEMPRE PRESENTE EN EL DOM PARA EVITAR FALLO DE RECONOCIMIENTO */}
+                  <button
+                    id="netpay-checkout"
+                    type="button"
+                    className="fixed -top-[9999px] left-0 w-1 h-1 opacity-0 pointer-events-none overflow-hidden"
+                    data-button-title="Continuar"
+                    data-street1={`${String(address?.street || "").trim()} ${String(
+                      address?.extNumber || ""
+                    ).trim()}`.trim()}
+                    data-country="MX"
+                    data-city={String(address?.city || "").trim()}
+                    data-postal-code={String(address?.postalCode || "").trim()}
+                    data-state={getNetPayStateCode(address?.state)}
+                    data-token={netpayCheckout?.tokenAmount || ""}
+                    data-phone-number={String(address?.phone || "").trim()}
+                    data-email={user?.email || address?.email || ""}
+                    data-merchant-reference-code={netpayCheckout?.orderNumber || ""}
+                    data-onsuccess="onPaymentSuccess"
+                    data-onerror="onPaymentError"
+                    data-product-count={String(
+                      cart.reduce((total, item) => total + Number(item.qty || 0), 0)
+                    )}
+                    data-commerce-name="Petit Repostería con Alma"
+                    data-logo-url="https://pasteleriaspetit.com/og-image.png"
+                    data-image="https://pasteleriaspetit.com/og-image.png"
+                  />
                 </div>
 
                 {!user && (
-                  <p className="
-                    text-xs
-                    text-wineDark/60
-                    mt-2
-                  ">
-                    {t(
-                      "checkout.hints.loginRequired"
-                    )}
+                  <p className="text-xs text-wineDark/60 mt-2">
+                    {t("checkout.hints.loginRequired")}
                   </p>
                 )}
               </>

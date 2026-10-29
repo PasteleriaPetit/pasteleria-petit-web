@@ -94,6 +94,15 @@ const handleSubmit = async (e) => {
     } finally {
     setSending(false)
     }
+
+    // Validar que la fecha de nacimiento no sea de hoy ni menor a 15 años
+    const anioNacimiento = new Date(form.fechaNacimiento).getFullYear();
+    const anioActual = new Date().getFullYear();
+
+    if (anioActual - anioNacimiento < 15) {
+    toast.warning("⚠️ Por favor ingresa una fecha de nacimiento válida (año en que naciste).");
+    return;
+    }
 }
 
 const areas = [
@@ -134,24 +143,40 @@ return (
         </p>
 
         <form onSubmit={handleSubmit} className="font-maison neue space-y-4">
-          {/* Nombre y fecha */}
-        <div className="grid md:grid-cols-2 gap-4">
-            <input
-            name="nombre"
-            value={form.nombre}
-            onChange={handleChange}
-              placeholder={t("jobs.name", "Nombre completo *")}
-            className="border border-wine/20 rounded-lg px-4 py-2 focus:ring-2 focus:ring-rose w-full"
-            />
-            <input
-            name="fechaNacimiento"
-            type="date"
-            value={form.fechaNacimiento}
-            onChange={handleChange}
-              placeholder={t("jobs.birthday", "Fecha de nacimiento *")}
-            className="border border-wine/20 rounded-lg px-4 py-2 focus:ring-2 focus:ring-rose w-full"
-            />
-        </div>
+         {/* Nombre y fecha de nacimiento */}
+<div className="grid md:grid-cols-2 gap-4">
+  <div>
+    <label htmlFor="nombre" className="block text-xs font-semibold text-wine mb-1">
+      {t("jobs.nameLabel", "Nombre completo *")}
+    </label>
+        <input
+        id="nombre"
+        name="nombre"
+        value={form.nombre}
+        onChange={handleChange}
+        placeholder={t("jobs.name", "Nombre completo *")}
+        className="border border-wine/20 rounded-lg px-4 py-2 focus:ring-2 focus:ring-rose w-full bg-white text-wineDark"
+        />
+    </div>
+
+    <div>
+        <label htmlFor="fechaNacimiento" className="block text-xs font-semibold text-wine mb-1">
+        {t("jobs.birthdayLabel", "Fecha de nacimiento / Cumpleaños *")}
+        </label>
+        <input
+        id="fechaNacimiento"
+        name="fechaNacimiento"
+        type="date"
+        max={new Date(new Date().setFullYear(new Date().getFullYear() - 15)).toISOString().split("T")[0]} 
+        value={form.fechaNacimiento}
+        onChange={handleChange}
+        className="border border-wine/20 rounded-lg px-4 py-2 focus:ring-2 focus:ring-rose w-full bg-white text-wineDark"
+        />
+        <span className="text-[11px] text-wineDark/60 block mt-1">
+        {t("jobs.birthdayHint", "Indica el día, mes y año en que naciste.")}
+        </span>
+    </div>
+    </div>
 
           {/* Teléfono y correo */}
         <div className="grid md:grid-cols-2 gap-4">

@@ -90,6 +90,20 @@
     }
     </script>
 
+    <!-- En index.html dentro de <head> -->
+      <link rel="preconnect" href="https://cdn.netpay.mx" />
+      <link rel="preconnect" href="https://suite.netpay.com.mx" />
+      <script src="https://suite.netpay.com.mx/checkout/checkout.js"></script>
+
+      <!-- Estilo para que el modal/iframe de NetPay nunca quede oculto detrás de la web -->
+      <style>
+        iframe[name*="netpay"],
+        iframe[id*="netpay"],
+        div[id*="netpay"],
+        .netpay-modal-overlay {
+          z-index: 99999 !important;
+        }
+      </style>
   </head>
 
   <body>

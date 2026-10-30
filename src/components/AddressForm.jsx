@@ -101,6 +101,10 @@ export default function AddressForm({ onSelected }) {
       value: "14:00-16:00",
       label: "2:00 p.m. - 4:00 p.m.",
     },
+    {
+      value: "16:00-18:00",
+      label: "4:00 p.m. - 6:00 p.m.",
+    },
   ];
 
   // ============================================================

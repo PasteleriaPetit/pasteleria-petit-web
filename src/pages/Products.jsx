@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { db } from "../lib/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, X } from "lucide-react";
+import { Heart, X, Users } from "lucide-react";
 import { cld } from "../utils/cloudinary";
 import { useCart } from "../context/CartContext";
 import { toast } from "react-toastify";
@@ -47,12 +47,11 @@ export default function Products() {
   const [showFavs, setShowFavs] = useState(false);
   const [selected, setSelected] = useState(null);
 
-  // ✅ NUEVO: cuando está en true, mostramos "vitrinas" (grid de categorías con imagen)
+  // Vitrinas (grid de categorías con imagen)
   const [showCategoryGrid, setShowCategoryGrid] = useState(true);
 
   const { addToCart } = useCart();
 
-  // OJO: esta lista es tu lista de filtros real.
   const categories = [
     "productsAll",
     "productsChoco",
@@ -84,13 +83,12 @@ export default function Products() {
     productsVelas: VELAS,
   };
 
-  // Construimos el grid a partir de tus filtros (uno por categoría)
   const categoryCards = categories
-    .filter((k) => k !== "productsAll") // el "All" sirve para volver a vitrinas
+    .filter((k) => k !== "productsAll")
     .map((k) => ({
       key: k,
       label: t(`products.${k}`),
-      img: CATEGORY_IMAGES[k] || DEFAULT_CAT_IMG,
+      img: CATEGORY_IMAGES[k] || "",
     }));
 
   useEffect(() => {
@@ -127,14 +125,12 @@ export default function Products() {
     setActiveCategory(catKey);
     setShowFavs(false);
 
-    // ✅ Si eligen "All", regresamos a vitrinas (grid) y mostramos todo reseteado
     if (catKey === "productsAll") {
       setFiltered(items);
       setShowCategoryGrid(true);
       return;
     }
 
-    // ✅ Entrando a una categoría, ocultamos vitrinas
     setShowCategoryGrid(false);
 
     const translatedLabel = t(`products.${catKey}`);
@@ -147,13 +143,11 @@ export default function Products() {
 
   const viewFavorites = () => {
     if (showFavs) {
-      // salir de favoritos -> vuelve a vitrinas (grid)
       setFiltered(items);
       setShowFavs(false);
       setActiveCategory("productsAll");
       setShowCategoryGrid(true);
     } else {
-      // entrar a favoritos -> entra al modo catálogo (sin vitrinas)
       setFiltered(items.filter((p) => favorites.includes(p.id)));
       setShowFavs(true);
       setActiveCategory("");
@@ -165,9 +159,18 @@ export default function Products() {
   const descOf = (p) => pickLang(p.desc, lang);
   const categoryLabelOf = (p) => p.category || "";
 
-  // Normaliza “variantes de precio”:
-  // - Si existe p.prices[] úsalo
-  // - Si no, crea variantes con priceUnit/priceKilo
+  // Helper para leer rendimiento/porciones desde Firestore
+    const portionOf = (p) => {
+      const raw = p.portion || p.rendimiento || p.yield;
+      if (!raw) return "";
+      if (typeof raw === "string") return raw.trim();
+      if (typeof raw === "object") {
+        // Busca primero el idioma actual; si está vacío, usa español o inglés
+        return (raw[lang] || raw.es || raw.en || "").trim();
+      }
+      return String(raw).trim();
+    };
+
   const priceOptionsOf = (p) => {
     if (Array.isArray(p.prices) && p.prices.length) {
       return p.prices
@@ -188,52 +191,51 @@ export default function Products() {
 
   return (
     <main className="bg-cream min-h-[calc(100vh-80px)] pt-[88px] px-4 sm:px-6 lg:px-12 pb-6">
-  {/* Header con QR */}
-  <div className="max-w-6xl mx-auto mb-10">
-    <div className="grid items-center gap-6 md:grid-cols-[1fr_220px]">
-      <div className="flex flex-col items-center">
-        <h1 className="font-agend font-bold text-3xl text-wine text-center mb-4">
-          {t("products.productsTitle")}
-        </h1>
-        <p className="font-maison neue text-center text-wineDark/70 max-w-xl">
-          {t("products.productsDescription")}
-        </p>
-      </div>
-
-      <div className="flex justify-center md:justify-end">
-        <a 
-          href="https://res.cloudinary.com/drdabinip/image/upload/v1793219396/jrey7w2fjozx4ioufpb4.pdf"
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="group flex flex-col items-center" 
-          title="Abrir menú"
-        >
-          {/* Contenedor con las mismas medidas, borde y sombra que tenía tu imagen */}
-          <div className="w-40 h-40 md:w-48 md:h-48 p-2.5 bg-cream rounded-xl border border-wine/20 shadow-sm group-hover:shadow-md transition flex items-center justify-center">
-            <QRCodeSVG
-              value="https://res.cloudinary.com/drdabinip/image/upload/v1793219396/jrey7w2fjozx4ioufpb4.pdf"
-              size={170}
-              level="H"
-              bgColor="#F4E6D4"
-              fgColor="#4A1E2D"
-              className="w-full h-full"
-              imageSettings={{
-                src: "/logo.png", // Asegúrate de que coincida con el nombre de tu logo en /public
-                height: 40,
-                width: 40,
-                excavate: true,
-              }}
-            />
+      {/* Header con QR */}
+      <div className="max-w-6xl mx-auto mb-10">
+        <div className="grid items-center gap-6 md:grid-cols-[1fr_220px]">
+          <div className="flex flex-col items-center">
+            <h1 className="font-agend font-bold text-3xl text-wine text-center mb-4">
+              {t("products.productsTitle")}
+            </h1>
+            <p className="font-maison neue text-center text-wineDark/70 max-w-xl">
+              {t("products.productsDescription")}
+            </p>
           </div>
-          <p className="text-xs text-wineDark/70 text-center mt-2 group-hover:text-wine transition">
-            Escanea para ver el menú
-          </p>
-        </a>
-      </div>
-    </div>
-  </div>
 
-      {/* ✅ NUEVO: GRID DE CATEGORÍAS (solo cuando showCategoryGrid=true) */}
+          <div className="flex justify-center md:justify-end">
+            <a 
+              href="https://res.cloudinary.com/drdabinip/image/upload/v1793219396/jrey7w2fjozx4ioufpb4.pdf"
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="group flex flex-col items-center" 
+              title="Abrir menú"
+            >
+              <div className="w-40 h-40 md:w-48 md:h-48 p-2.5 bg-cream rounded-xl border border-wine/20 shadow-sm group-hover:shadow-md transition flex items-center justify-center">
+                <QRCodeSVG
+                  value="https://res.cloudinary.com/drdabinip/image/upload/v1793219396/jrey7w2fjozx4ioufpb4.pdf"
+                  size={170}
+                  level="H"
+                  bgColor="#F4E6D4"
+                  fgColor="#4A1E2D"
+                  className="w-full h-full"
+                  imageSettings={{
+                    src: "/logo.png",
+                    height: 40,
+                    width: 40,
+                    excavate: true,
+                  }}
+                />
+              </div>
+              <p className="text-xs text-wineDark/70 text-center mt-2 group-hover:text-wine transition">
+                Escanea para ver el menú
+              </p>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Grid de categorías (vitrinas) */}
       {showCategoryGrid && (
         <div className="max-w-6xl mx-auto mb-10">
           <div className="font-maison neue grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -265,7 +267,7 @@ export default function Products() {
         </div>
       )}
 
-      {/* Filtros (NO se tocan; solo se ocultan cuando estás en vitrinas) */}
+      {/* Botones de filtros */}
       {!showCategoryGrid && (
         <div className="font-maison neue flex flex-wrap justify-center gap-3 mb-8">
           {categories.map((catKey) => (
@@ -293,42 +295,27 @@ export default function Products() {
       )}
 
       {!showCategoryGrid && activeCategory === "productsAzucar" && (
-  <div className="max-w-6xl mx-auto mb-10">
-    <div className="bg-cream  rounded-2xl ">
-      
-      <div className="flex flex-col items-center text-center gap-4">
-        {/* Submarca */}
-        {/* <img
-          src={LOGO_SIN_AZUCAR}
-          alt="Petit Sin Azúcar"
-          className="w-30 h-30 sm:w-40 sm:h-40 object-contain"
-        /> */}
-{/* 
-        <p className="text-wineDark/70 max-w-2xl text-sm sm:text-base">
-          Descubre nuestra línea de productos sin azúcar.
-        </p> */}
-
-        {/* Sellos */}
-        <div className="flex flex-wrap justify-center items-center gap-5 mt-2">
-          <img
-            src={SELLO_SIN_AZUCAR}
-            alt="Sello Sin Azúcar"
-            className="w-28 h-28 sm:w-30 sm:h-30 object-contain"
-          />
-
-          <img
-            src={SELLO_KETO}
-            alt="Sello Keto"
-            className="w-28 h-28 sm:w-30 sm:h-30 object-contain"
-          />
+        <div className="max-w-6xl mx-auto mb-10">
+          <div className="bg-cream rounded-2xl">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="flex flex-wrap justify-center items-center gap-5 mt-2">
+                <img
+                  src={SELLO_SIN_AZUCAR}
+                  alt="Sello Sin Azúcar"
+                  className="w-28 h-28 sm:w-30 sm:h-30 object-contain"
+                />
+                <img
+                  src={SELLO_KETO}
+                  alt="Sello Keto"
+                  className="w-28 h-28 sm:w-30 sm:h-30 object-contain"
+                />
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
-    </div>
-  </div>
-)}
-
-      {/* Lista (NO se toca; solo se oculta cuando estás en vitrinas) */}
+      {/* Lista de productos */}
       {!showCategoryGrid && (
         <>
           {filtered.length === 0 ? (
@@ -346,9 +333,9 @@ export default function Products() {
                   const title = titleOf(p);
                   const desc = descOf(p);
                   const catLabel = categoryLabelOf(p);
+                  const portion = portionOf(p);
                   const options = priceOptionsOf(p);
 
-                  // opción por defecto para el botón rápido 🛒
                   const defaultOption =
                     options[0] || { label: t("products.productsPieza", "Pieza"), amount: Number(p.priceUnit) || 0 };
 
@@ -360,9 +347,9 @@ export default function Products() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
                       transition={{ duration: 0.3 }}
-                      className="border rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition relative bg-white"
+                      className="border rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition relative bg-white flex flex-col justify-between"
                     >
-                      {/* Imagen uniforme */}
+                      {/* Imagen */}
                       <div className="relative">
                         <img
                           src={cld(p.img, { w: 900, h: 675, ar: "4:3", fit: "fill", g: "auto" })}
@@ -394,58 +381,68 @@ export default function Products() {
                       </div>
 
                       {/* Detalles */}
-                      <div className="p-5">
-                        <h3 className="font-semibold text-wine text-lg">{title}</h3>
-                        <p className="text-wineDark/80 text-sm mt-1 mb-3">{desc}</p>
+                      <div className="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                          <h3 className="font-semibold text-wine text-lg">{title}</h3>
+                          <p className="text-wineDark/80 text-sm mt-1 mb-2 line-clamp-2">{desc}</p>
 
-                        {/* Precios flexibles */}
-                        <div className="text-wineDark text-sm space-y-1">
-                          {options.length ? (
-                            options.slice(0, 3).map((op, idx) => (
-                              <p key={idx}>
-                                <strong className="text-red">{op.label}:</strong> {fmt(op.amount)}
-                              </p>
-                            ))
-                          ) : (
-                            <p className="text-wineDark/60">Precio no disponible</p>
+                          {/* Rendimiento / Personas */}
+                          {portion && (
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 mb-3 rounded-md bg-rose/20 text-wine border border-rose/30 text-xs font-medium">
+                              <Users size={14} className="text-red flex-shrink-0" />
+                              <span>{t("products.yield", "Rendimiento")}: {portion}</span>
+                            </div>
                           )}
-                          {options.length > 3 ? (
-                            <p className="text-xs text-wineDark/60">+ {options.length - 3} opciones más</p>
-                          ) : null}
+
+                          {/* Precios flexibles */}
+                          <div className="text-wineDark text-sm space-y-1">
+                            {options.length ? (
+                              options.slice(0, 3).map((op, idx) => (
+                                <p key={idx}>
+                                  <strong className="text-red">{op.label}:</strong> {fmt(op.amount)}
+                                </p>
+                              ))
+                            ) : (
+                              <p className="text-wineDark/60">Precio no disponible</p>
+                            )}
+                            {options.length > 3 ? (
+                              <p className="text-xs text-wineDark/60">+ {options.length - 3} opciones más</p>
+                            ) : null}
+                          </div>
                         </div>
 
-                        <div className="mt-4 flex justify-between items-center gap-2">
-                          <span className="text-xs text-wineDark/70">{catLabel}</span>
+                        <div className="mt-4 flex justify-between items-center gap-2 pt-2 border-t border-stone-100">
+                          <span className="text-xs text-wineDark/70 truncate max-w-[130px]">{catLabel}</span>
 
-                          {/* ✅ ESTE ES TU "VER MÁS" (NO SE TOCA) */}
-                          {FEATURES.onlineCheckout && (
-                          <button
-                            onClick={() => setSelected(p)}
-                            className="bg-red text-white px-3 py-1 rounded-lg hover:opacity-90 transition text-sm"
-                          >
-                            {t("products.productsButton")}
-                          </button>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {FEATURES.onlineCheckout && (
+                              <button
+                                onClick={() => setSelected(p)}
+                                className="bg-red text-white px-3 py-1 rounded-lg hover:opacity-90 transition text-sm"
+                              >
+                                {t("products.productsButton")}
+                              </button>
+                            )}
 
-                          {/* ✅ Botón rápido 🛒 (NO SE TOCA) */}
-                          {FEATURES.onlineCheckout && (
-                          <button
-                            onClick={() => {
-                              addToCart({
-                                id: p.id,
-                                title: title || "Producto",
-                                price: defaultOption.amount,
-                                img: p.img,
-                                options: { variantLabel: defaultOption.label },
-                              });
-                              toast.success(`"${title || "Producto"}" agregado 🛒`, { autoClose: 1500 });
-                            }}
-                            className="bg-red text-cream px-4 py-1 rounded-lg hover:scale-105 transition-transform text-sm shadow-md"
-                            title="Agregar al carrito"
-                          >
-                            🛒
-                          </button>
-                          )}
+                            {FEATURES.onlineCheckout && (
+                              <button
+                                onClick={() => {
+                                  addToCart({
+                                    id: p.id,
+                                    title: title || "Producto",
+                                    price: defaultOption.amount,
+                                    img: p.img,
+                                    options: { variantLabel: defaultOption.label },
+                                  });
+                                  toast.success(`"${title || "Producto"}" agregado 🛒`, { autoClose: 1500 });
+                                }}
+                                className="bg-red text-cream px-4 py-1 rounded-lg hover:scale-105 transition-transform text-sm shadow-md"
+                                title="Agregar al carrito"
+                              >
+                                🛒
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </motion.div>
@@ -457,7 +454,7 @@ export default function Products() {
         </>
       )}
 
-      {/* Modal (NO SE TOCA) */}
+      {/* Modal */}
       <AnimatePresence>
         {selected && (
           <ProductModal
@@ -468,6 +465,7 @@ export default function Products() {
             addToCart={addToCart}
             titleOf={titleOf}
             descOf={descOf}
+            portionOf={portionOf}
             priceOptionsOf={priceOptionsOf}
           />
         )}
@@ -476,9 +474,10 @@ export default function Products() {
   );
 }
 
-function ProductModal({ product, lang, t, onClose, addToCart, titleOf, descOf, priceOptionsOf }) {
+function ProductModal({ product, lang, t, onClose, addToCart, titleOf, descOf, portionOf, priceOptionsOf }) {
   const title = titleOf(product);
   const desc = descOf(product);
+  const portion = portionOf(product);
   const options = priceOptionsOf(product);
   const [picked, setPicked] = useState(options[0] || null);
 
@@ -486,8 +485,7 @@ function ProductModal({ product, lang, t, onClose, addToCart, titleOf, descOf, p
 
   useEffect(() => {
     setPicked(options[0] || null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [product?.id]); // cuando cambia el producto
+  }, [product?.id]);
 
   return (
     <motion.div
@@ -519,6 +517,14 @@ function ProductModal({ product, lang, t, onClose, addToCart, titleOf, descOf, p
 
         <h2 className="text-2xl font-display text-wine mb-2">{title}</h2>
         <p className="text-wineDark/80 text-sm mb-3">{desc}</p>
+
+        {/* Rendimiento / Personas dentro del Modal */}
+        {portion && (
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 mb-4 rounded-lg bg-rose/20 text-wine border border-rose/30 text-xs font-semibold">
+            <Users size={16} className="text-red flex-shrink-0" />
+            <span>{t("products.yield", "Rendimiento")}: {portion}</span>
+          </div>
+        )}
 
         {/* Selector de variante */}
         {options.length ? (

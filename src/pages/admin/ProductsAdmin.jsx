@@ -54,10 +54,9 @@ const CATEGORIES = [
   { key: "productsAzucar", labelEs: "Sin azúcar" },
   { key: "productsPanaderia", labelEs: "Panadería" },
   { key: "productsReposteria", labelEs: "Repostería" },
-  { key: "productsVelas", labelEs: "Velas" },
+  { key: "productsVelas", labelEs: "Velas y accesorios" },
   { key: "productsPedidos", labelEs: "Solo por pedido" },
   { key: "productsGalleteria", labelEs: "Galletería" },
-  {key: "productsVelas", labelEs: "Velas y accesorios"},
 ];
 
 const labelFromKey = (key) => CATEGORIES.find((c) => c.key === key)?.labelEs || "";
@@ -75,7 +74,6 @@ const normalizePrices = (prices) => {
 
 // Detecta priceUnit/priceKilo desde variantes (si existen)
 const inferLegacyPrices = (prices) => {
-  // Busca etiquetas tipo: Pieza, Unit, Pastel completo, etc.
   const unitRegex = /(pieza|unit|completo|pastel)/i;
   const kiloRegex = /(kilo|kg)/i;
 
@@ -88,21 +86,20 @@ const inferLegacyPrices = (prices) => {
   };
 };
 
-// ===== Componente =====
 export default function ProductsAdmin() {
   const [items, setItems] = useState([]);
 
-  // Form bilingüe + precios flexibles
+  // Form bilingüe + precios flexibles + rendimiento
   const [form, setForm] = useState({
     titleEs: "",
     titleEn: "",
     descEs: "",
     descEn: "",
+    portionEs: "",
+    portionEn: "",
     categoryKey: "",
     img: "",
-    prices: [
-      { label: "Pieza", amount: "" }, // default útil
-    ],
+    prices: [{ label: "Pieza", amount: "" }],
   });
 
   const [file, setFile] = useState(null);
@@ -115,7 +112,6 @@ export default function ProductsAdmin() {
   const [productToDelete, setProductToDelete] = useState(null);
   const [activeLangTab, setActiveLangTab] = useState("es");
 
-  // Listado en vivo
   useEffect(() => {
     const refCol = collection(db, "products");
     const unsub = onSnapshot(refCol, (snap) => {
@@ -124,7 +120,6 @@ export default function ProductsAdmin() {
     return () => unsub();
   }, []);
 
-  // ===== Validación =====
   const validate = () => {
     if (!form.titleEs.trim()) {
       toast.warning("⚠️ El producto debe tener un título (ES).");
@@ -141,7 +136,6 @@ export default function ProductsAdmin() {
       return false;
     }
 
-    // Evitar etiquetas repetidas
     const labels = prices.map((p) => p.label.toLowerCase());
     const unique = new Set(labels);
     if (unique.size !== labels.length) {
@@ -152,7 +146,6 @@ export default function ProductsAdmin() {
     return true;
   };
 
-  // ===== Acciones precios dinámicos =====
   const addPriceRow = () => {
     setForm((prev) => ({
       ...prev,
@@ -173,7 +166,7 @@ export default function ProductsAdmin() {
       prices: prev.prices.map((p, i) => (i === idx ? { ...p, ...patch } : p)),
     }));
   };
-  // ===== Selección y optimización de imagen =====
+
   const handleImageChange = async (e) => {
     const originalFile = e.target.files?.[0];
 
@@ -188,44 +181,27 @@ export default function ProductsAdmin() {
       setCompressing(true);
       setImageInfo(null);
 
-      const result =
-        await compressContentImage(originalFile);
+      const result = await compressContentImage(originalFile);
 
-      // `file` ahora contiene la versión optimizada,
-      // no la imagen pesada original.
       setFile(result.file);
-
-      setPreview(
-        URL.createObjectURL(result.file)
-      );
-
+      setPreview(URL.createObjectURL(result.file));
       setImageInfo(result);
 
       toast.success(
         `🖼️ Imagen optimizada: ${result.original.sizeFormatted} → ${result.optimized.sizeFormatted}`
       );
     } catch (error) {
-      console.error(
-        "Error optimizando imagen:",
-        error
-      );
-
+      console.error("Error optimizando imagen:", error);
       setFile(null);
       setPreview(null);
       setImageInfo(null);
-
-      // Permite volver a seleccionar el mismo archivo.
       e.target.value = "";
-
-      toast.error(
-        `❌ ${error.message}`
-      );
+      toast.error(`❌ ${error.message}`);
     } finally {
       setCompressing(false);
     }
   };
 
-  // ===== Guardar =====
   const save = async () => {
     try {
       if (!validate()) return;
@@ -238,25 +214,18 @@ export default function ProductsAdmin() {
       }
 
       const pricesNormalized = normalizePrices(form.prices);
-
-      // Mantener compatibilidad:
-      // si hay prices[] -> inferimos priceUnit/priceKilo (opcional)
       const legacy = inferLegacyPrices(pricesNormalized);
 
       const payload = {
         title: { es: form.titleEs.trim(), en: form.titleEn.trim() },
         desc: { es: form.descEs.trim(), en: form.descEn.trim() },
+        portion: { es: form.portionEs.trim(), en: form.portionEn.trim() },
         categoryKey: form.categoryKey || "",
         category: labelFromKey(form.categoryKey),
         img: imageUrl,
-
-        // ✅ NUEVO
         prices: pricesNormalized,
-
-        // ✅ LEGACY (para que nada se rompa en otras partes)
-        priceUnit: legacy.priceUnit, // puede quedar null si no existe etiqueta de unit
-        priceKilo: legacy.priceKilo, // puede quedar null
-
+        priceUnit: legacy.priceUnit,
+        priceKilo: legacy.priceKilo,
         updatedAt: serverTimestamp(),
         ...(editingId ? {} : { createdAt: serverTimestamp() }),
       };
@@ -278,13 +247,14 @@ export default function ProductsAdmin() {
     }
   };
 
-  // ===== Reset =====
   const resetForm = () => {
     setForm({
       titleEs: "",
       titleEn: "",
       descEs: "",
       descEn: "",
+      portionEs: "",
+      portionEn: "",
       categoryKey: "",
       img: "",
       prices: [{ label: "Pieza", amount: "" }],
@@ -297,7 +267,6 @@ export default function ProductsAdmin() {
     setActiveLangTab("es");
   };
 
-  // ===== Eliminar =====
   const confirmDelete = (product) => {
     setProductToDelete(product);
     setConfirmOpen(true);
@@ -353,7 +322,7 @@ export default function ProductsAdmin() {
             <>
               <input
                 className="border rounded-lg px-3 py-2 w-full"
-                placeholder="Nombre (ES)"
+                placeholder="Nombre (ES) *"
                 value={form.titleEs}
                 onChange={(e) => setForm({ ...form, titleEs: e.target.value })}
               />
@@ -363,6 +332,12 @@ export default function ProductsAdmin() {
                 placeholder="Descripción (ES)"
                 value={form.descEs}
                 onChange={(e) => setForm({ ...form, descEs: e.target.value })}
+              />
+              <input
+                className="border rounded-lg px-3 py-2 w-full"
+                placeholder='Rendimiento / Porciones (ES) — Ej. "14-16 personas", "10-12 rebanadas"'
+                value={form.portionEs}
+                onChange={(e) => setForm({ ...form, portionEs: e.target.value })}
               />
             </>
           ) : (
@@ -380,6 +355,12 @@ export default function ProductsAdmin() {
                 value={form.descEn}
                 onChange={(e) => setForm({ ...form, descEn: e.target.value })}
               />
+              <input
+                className="border rounded-lg px-3 py-2 w-full"
+                placeholder='Yield / Servings (EN) — e.g. "14-16 people", "10-12 slices"'
+                value={form.portionEn}
+                onChange={(e) => setForm({ ...form, portionEn: e.target.value })}
+              />
             </>
           )}
 
@@ -389,7 +370,7 @@ export default function ProductsAdmin() {
             value={form.categoryKey}
             onChange={(e) => setForm({ ...form, categoryKey: e.target.value })}
           >
-            <option value="">Selecciona categoría</option>
+            <option value="">Selecciona categoría *</option>
             {CATEGORIES.map((c) => (
               <option key={c.key} value={c.key}>
                 {c.labelEs}
@@ -397,7 +378,7 @@ export default function ProductsAdmin() {
             ))}
           </select>
 
-          {/* ✅ Variantes de precio (Opción B) */}
+          {/* Variantes de precio */}
           <div className="border border-rose/30 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-3">
               <h3 className="font-semibold text-wine">Variantes de precio</h3>
@@ -415,7 +396,7 @@ export default function ProductsAdmin() {
                 <div key={idx} className="grid grid-cols-[1fr_140px_44px] gap-2 items-center">
                   <input
                     className="border rounded-lg px-3 py-2 w-full"
-                    placeholder='Ej. "Rebanada", "Caja 6", "300 g", "Pastel completo"'
+                    placeholder='Ej. "Rebanada", "Caja 6", "Pastel completo"'
                     value={row.label}
                     onChange={(e) => updatePriceRow(idx, { label: e.target.value })}
                   />
@@ -462,10 +443,7 @@ export default function ProductsAdmin() {
           {imageInfo && !compressing && (
             <div className="rounded-xl border border-rose/30 bg-cream p-4">
               <div className="flex items-center justify-between gap-3 mb-3">
-                <p className="font-semibold text-wine">
-                  ✓ Imagen optimizada
-                </p>
-
+                <p className="font-semibold text-wine">✓ Imagen optimizada</p>
                 <span className="text-sm font-semibold text-green-700">
                   -{imageInfo.reductionPercent}%
                 </span>
@@ -473,32 +451,18 @@ export default function ProductsAdmin() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                 <div>
-                  <p className="text-wineDark/60">
-                    Original
-                  </p>
-
-                  <p className="font-medium text-wineDark">
-                    {imageInfo.original.sizeFormatted}
-                  </p>
-
+                  <p className="text-wineDark/60">Original</p>
+                  <p className="font-medium text-wineDark">{imageInfo.original.sizeFormatted}</p>
                   <p className="text-xs text-wineDark/60">
-                    {imageInfo.original.width} ×{" "}
-                    {imageInfo.original.height}
+                    {imageInfo.original.width} × {imageInfo.original.height}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-wineDark/60">
-                    Optimizada
-                  </p>
-
-                  <p className="font-medium text-green-700">
-                    {imageInfo.optimized.sizeFormatted}
-                  </p>
-
+                  <p className="text-wineDark/60">Optimizada</p>
+                  <p className="font-medium text-green-700">{imageInfo.optimized.sizeFormatted}</p>
                   <p className="text-xs text-wineDark/60">
-                    {imageInfo.optimized.width} ×{" "}
-                    {imageInfo.optimized.height} · WebP
+                    {imageInfo.optimized.width} × {imageInfo.optimized.height} · WebP
                   </p>
                 </div>
               </div>
@@ -507,9 +471,7 @@ export default function ProductsAdmin() {
 
           {compressing && (
             <div className="rounded-lg border border-rose/30 bg-cream p-4">
-              <p className="text-sm text-wine">
-                Optimizando imagen...
-              </p>
+              <p className="text-sm text-wine">Optimizando imagen...</p>
             </div>
           )}
 
@@ -528,7 +490,7 @@ export default function ProductsAdmin() {
               onClick={save}
               className={`${uploading ? "bg-gray-400" : "bg-red"} text-cream px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition`}
             >
-              {compressing ? "Optimizando imagen..." : uploading? "Subiendo...": editingId? "Guardar cambios": "Agregar"}
+              {compressing ? "Optimizando imagen..." : uploading ? "Subiendo..." : editingId ? "Guardar cambios" : "Agregar"}
             </button>
             {editingId && (
               <button
@@ -548,6 +510,7 @@ export default function ProductsAdmin() {
             {items.map((p) => {
               const titleEs = safeText(p.title);
               const descEs = safeText(p.desc);
+              const portionEs = safeText(p.portion || p.rendimiento);
               const catLabel = p.category || labelFromKey(p.categoryKey) || "";
 
               const prices = Array.isArray(p.prices) ? p.prices : [];
@@ -564,7 +527,18 @@ export default function ProductsAdmin() {
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-wine break-words">{titleEs}</h3>
                     <p className="text-sm text-wineDark/70 break-words">{descEs}</p>
-                    <p className="text-xs text-wineDark/60 mt-1">{catLabel}</p>
+                    
+                    <div className="flex flex-wrap gap-2 items-center mt-2">
+                      <span className="text-xs bg-cream text-wineDark px-2 py-0.5 rounded border border-rose/30">
+                        {catLabel}
+                      </span>
+                      {portionEs && (
+                        <span className="text-xs bg-rose/20 text-wine px-2 py-0.5 rounded border border-rose/30 font-medium">
+                          👥 {portionEs}
+                        </span>
+                      )}
+                    </div>
+
                     <p className="text-xs text-wineDark/70 mt-2">{pricesPreview}</p>
                   </div>
 
@@ -572,7 +546,6 @@ export default function ProductsAdmin() {
                     <button
                       className="px-3 py-1 rounded border border-rose hover:bg-rose/10"
                       onClick={() => {
-                        // editar: normaliza precios desde prices[] o legacy
                         const normalizedFromDoc =
                           Array.isArray(p.prices) && p.prices.length
                             ? p.prices.map((x) => ({ label: x.label || "", amount: x.amount ?? "" }))
@@ -586,6 +559,8 @@ export default function ProductsAdmin() {
                           titleEn: getEN(p.title),
                           descEs: getES(p.desc),
                           descEn: getEN(p.desc),
+                          portionEs: getES(p.portion || p.rendimiento),
+                          portionEn: getEN(p.portion || p.rendimiento),
                           categoryKey: p.categoryKey || "",
                           img: p.img || "",
                           prices: normalizedFromDoc.length ? normalizedFromDoc : [{ label: "Pieza", amount: "" }],

@@ -135,11 +135,25 @@ const categoryCards = categories
         <br />
         <p className="text-sm text-wineDark/80">
           <Trans
+            i18nKey="special.nota"
+            components={{
+              strong: <strong className="font-bold" />,
+            }}
+          />
+        </p>
+        <br />
+        <p className="font-maison neue text-wineDark/80 max-w-2xl mx-auto">
+          <Trans
             i18nKey="special.subtitle2"
             components={{
               strong: <strong className="font-bold" />,
             }}
           />
+        </p>
+        <br />
+        <p className="font-maison neue text-wineDark/80 max-w-2xl mx-auto">
+          {t(
+            "special.detalles")}
         </p>
       </motion.div>
 

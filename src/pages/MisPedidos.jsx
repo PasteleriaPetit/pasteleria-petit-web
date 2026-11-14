@@ -25,10 +25,28 @@ export default function MisPedidos() {
         );
 
         const snap = await getDocs(q);
-        const list = snap.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const list = snap.docs
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+          .filter((order) => {
+            const isPaidStatus =
+              order.status === "paid" ||
+              order.status === "confirmed" ||
+              order.status === "preparing" ||
+              order.status === "delivered";
+
+            const isPaymentApproved =
+              order.payment?.status === "paid" ||
+              order.payment?.status === "approved" ||
+              order.payment?.status === "succeeded";
+
+            return (
+              order.status !== "pending_payment" &&
+              (isPaidStatus || isPaymentApproved)
+            );
+          });
 
         setOrders(list);
       } catch (err) {
@@ -77,7 +95,7 @@ export default function MisPedidos() {
           </div>
         ) : orders.length === 0 ? (
           <div className="bg-white rounded-2xl p-12 text-center border border-rose/20 space-y-4">
-            <p className="text-wineDark/70 text-sm">Aún no tienes pedidos registrados con esta cuenta.</p>
+            <p className="text-wineDark/70 text-sm">Aún no tienes pedidos pagados registrados con esta cuenta.</p>
             <Link
               to="/productos"
               className="inline-block bg-wine text-cream px-6 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition"
@@ -97,14 +115,8 @@ export default function MisPedidos() {
                     <span className="font-mono font-bold text-wine text-base">
                       {order.orderNumber || order.id}
                     </span>
-                    <span
-                      className={`text-xs px-2.5 py-0.5 rounded-full font-semibold capitalize ${
-                        order.status === "paid"
-                          ? "bg-emerald-100 text-emerald-800"
-                          : "bg-amber-100 text-amber-800"
-                      }`}
-                    >
-                      {order.status === "paid" ? "Pagado" : "Pendiente"}
+                    <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold capitalize bg-emerald-100 text-emerald-800">
+                      Pagado
                     </span>
                   </div>
 

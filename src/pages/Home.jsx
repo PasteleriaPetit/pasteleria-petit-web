@@ -11,7 +11,8 @@ import { Link } from "react-router-dom";
 
 import BANNER_DESKTOP_DELIVERY from "../assets/imagenes-home/banner-deskp-delivery.jpg";
 import BANNER_MOBILE_DELIVERY from "../assets/imagenes-home/banner-movil-delivery.jpg";
-import BANNER_DESKTOP from "../assets/imagenes-home/banner-desktop.jpg";
+/* import BANNER_DESKTOP from "../assets/imagenes-home/banner-desktop.jpg";*/
+import BANNER_DESKTOP from "../assets/imagenes-home/banner-desktop2.png";
 import BANNER_MOBILE from "../assets/imagenes-home/banner-movil.jpg";
 import REBANADA from "../assets/imagenes-home/rebanada.png";
 import ROMBO from "../assets/imagenes-home/rombos.png";
@@ -89,7 +90,7 @@ export default function Home() {
 
 
       {/* ================= CONTENIDO ================= */}
-      <main className="bg-cream pt-10 pb-6">
+      <main className="bg-cream pb-6">
         {/* CTA Rebanada */}
   <section className="font-maison neue bg-rosepier text-wine py-10 flex flex-col items-center text-center">
     <div className="px-4 py-4">

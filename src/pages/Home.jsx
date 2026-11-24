@@ -7,13 +7,10 @@ import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from 
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 
-
-
 import BANNER_DESKTOP_DELIVERY from "../assets/imagenes-home/banner-deskp-delivery.jpg";
 import BANNER_MOBILE_DELIVERY from "../assets/imagenes-home/banner-movil-delivery.jpg";
-/* import BANNER_DESKTOP from "../assets/imagenes-home/banner-desktop.jpg";*/
 import BANNER_DESKTOP from "../assets/imagenes-home/banner-desktop2.png";
-import BANNER_MOBILE from "../assets/imagenes-home/banner-movil.jpg";
+import BANNER_MOBILE from "../assets/imagenes-home/banner-movil.png";
 import REBANADA from "../assets/imagenes-home/rebanada.png";
 import ROMBO from "../assets/imagenes-home/rombos.png";
 import NATURALES from "../assets/imagenes-home/ingredientes-naturales.png";
@@ -21,9 +18,7 @@ import ARTESANAL from "../assets/imagenes-home/procesos-tradicionales.png";
 import CONSERVADORES from "../assets/imagenes-home/sin-conservadores.png";
 import MENU from "../assets/menu-digital-pagina.pdf";
 
-
 export default function Home() {
-
   const { t } = useTranslation();
 
   // --- Estado comentarios ---
@@ -66,160 +61,168 @@ export default function Home() {
 
   return (
     <>
-  <section
-  className="
-    relative w-full
-    mt-20                     
-    h-[90vh] md:h-[90vh] lg:h-[115vh]
-    overflow-hidden bg-cream
-  "
->
+      {/* ================= HERO BANNER INTERACTIVO ================= */}
+      <section className="relative w-full mt-20 overflow-hidden bg-cream">
+        {/* BANNER ESCRITORIO (Proporción 16:9 exacta) */}
+        <div className="hidden md:block relative w-full aspect-[16/9]">
+          <img
+            src={BANNER_DESKTOP}
+            alt="Promoción Petit Plaisir - Ordena en Línea"
+            className="w-full h-full object-cover block select-none"
+          />
 
-    <img
-      src={BANNER_DESKTOP}
-      alt="Promoción Petit Plaisir"
-      className="hidden md:block w-full h-full object-cover object-[center_top]"
-    />
+          <Link
+            to="/productos"
+            aria-label="Comprar ahora"
+            className="
+              absolute
+              left-[6.7%]
+              top-[79.6%]
+              w-[26.6%]
+              h-[7.4%]
+              rounded-full
+              cursor-pointer
+              hover:bg-white/10
+              hover:shadow-lg
+              active:scale-[0.98]
+              transition
+            "
+          />
+        </div>
 
-    <img
-      src={BANNER_MOBILE}
-      alt="Promoción Petit Plaisir"
-      className="block md:hidden w-full h-full object-cover object-[center_top]"
-    />
-  </section>
+        {/* BANNER MÓVIL (Proporción 9:16 exacta) */}
+        <div className="block md:hidden relative w-full aspect-[9/16]">
+          <img
+            src={BANNER_MOBILE}
+            alt="Promoción Petit Plaisir - Ordena en Línea"
+            className="w-full h-full object-cover block select-none"
+          />
 
+          <Link
+            to="/productos"
+            aria-label="Comprar ahora"
+            className="
+              absolute
+              left-[15.8%]
+              top-[83.4%]
+              w-[68.4%]
+              h-[6.0%]
+              rounded-full
+              cursor-pointer
+              hover:bg-white/10
+              active:scale-[0.98]
+              transition
+            "
+          />
+        </div>
+      </section>
 
       {/* ================= CONTENIDO ================= */}
       <main className="bg-cream pb-6">
         {/* CTA Rebanada */}
-  <section className="font-maison neue bg-rosepier text-wine py-10 flex flex-col items-center text-center">
-    <div className="px-4 py-4">
-      <img
-        src={REBANADA}
-        alt="La rebanada de tu antojo"
-        className="w-full max-w-md h-auto mb-6"
-      />
-    </div>
+        <section className="font-maison neue bg-rosepier text-wine py-10 flex flex-col items-center text-center">
+          <div className="px-4 py-4">
+            <img
+              src={REBANADA}
+              alt="La rebanada de tu antojo"
+              className="w-full max-w-md h-auto mb-6"
+            />
+          </div>
 
-    <p className="text-lg mt-2 mb-6 max-w-4xl px-4">
-      {t("home.ctaRebanadaText")}
-    </p>
+          <p className="text-lg mt-2 mb-6 max-w-4xl px-4">
+            {t("home.ctaRebanadaText")}
+          </p>
 
-    <a
-      href={MENU}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="bg-red text-white px-8 py-3 rounded-xl font-semibold hover:opacity-90 transition"
-    >
-      {t("home.ctaButton")}
-    </a>
-  </section>
+          <a
+            href={MENU}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-red text-white px-8 py-3 rounded-xl font-semibold hover:opacity-90 transition"
+          >
+            {t("home.ctaButton")}
+          </a>
+        </section>
 
-  <div className="w-full bg-cream overflow-hidden">
+        {/* Banner Delivery + Cobertura */}
+        <div className="w-full bg-cream overflow-hidden">
+          <img
+            src={BANNER_DESKTOP_DELIVERY}
+            alt="Servicio a domicilio Petit Repostería con Alma"
+            className="hidden md:block w-full h-auto object-cover"
+          />
 
-    {/* Banner desktop */}
-    <img
-      src={BANNER_DESKTOP_DELIVERY}
-      alt="Servicio a domicilio Petit Repostería con Alma"
-      className="
-        hidden md:block
-        w-full
-        h-auto
-        object-cover
-      "
-    />
+          <img
+            src={BANNER_MOBILE_DELIVERY}
+            alt="Servicio a domicilio Petit Repostería con Alma"
+            className="block md:hidden w-full h-auto object-cover"
+          />
 
-    {/* Banner móvil */}
-    <img
-      src={BANNER_MOBILE_DELIVERY}
-      alt="Servicio a domicilio Petit Repostería con Alma"
-      className="
-        block md:hidden
-        w-full
-        h-auto
-        object-cover
-      "
-    />
+          {/* Botón de cobertura */}
+          <div className="flex justify-center items-center py-5 md:py-6 bg-cream">
+            <Link
+              to="/cobertura-entrega/"
+              className="
+                inline-flex
+                items-center
+                justify-center
+                bg-wine
+                text-cream
+                font-semibold
+                px-6 py-3
+                md:px-8 md:py-3
+                rounded-full
+                shadow-lg
+                text-sm
+                md:text-base
+                hover:bg-wineDark
+                hover:scale-105
+                transition-all
+                duration-300
+                text-center
+                whitespace-nowrap
+              "
+            >
+              {t("home.cobertura")}
+            </Link>
+          </div>
+        </div>
 
-    {/* Botón de cobertura */}
-    <div className="flex justify-center items-center py-5 md:py-6 bg-cream">
-      <Link
-        to="/cobertura-entrega/"
-        className="
-          inline-flex
-          items-center
-          justify-center
-          bg-wine
-          text-cream
-          font-semibold
-          px-6 py-3
-          md:px-8 md:py-3
-          rounded-full
-          shadow-lg
-          text-sm
-          md:text-base
-          hover:bg-wineDark
-          hover:scale-105
-          transition-all
-          duration-300
-          text-center
-          whitespace-nowrap
-        "
-      >
-        {t("home.cobertura")}
-      </Link>
-    </div>
+        {/* Separador rombos superior */}
+        <div className="relative w-full h-12 sm:h-10 md:h-12 lg:h-16 xl:h-20 bg-cream overflow-hidden">
+          <div
+            className="absolute inset-0 bg-repeat-x bg-center bg-contain"
+            style={{ backgroundImage: `url(${ROMBO})` }}
+          />
+        </div>
 
-  </div>
+        {/* ICONOS DE CALIDAD */}
+        <div className="flex justify-center items-center gap-18 mt-8 mb-8 px-4 overflow-x-auto">
+          <img
+            src={CONSERVADORES}
+            alt="Sin conservadores"
+            className="w-32 md:w-36 h-auto"
+          />
 
- 
+          <img
+            src={ARTESANAL}
+            alt="Producto artesanal"
+            className="w-32 md:w-36 h-auto"
+          />
+
+          <img
+            src={NATURALES}
+            alt="Ingredientes naturales"
+            className="w-32 md:w-36 h-auto"
+          />
+        </div>
 
         {/* Separador rombos inferior */}
         <div className="relative w-full h-12 sm:h-10 md:h-12 lg:h-16 xl:h-20 bg-cream overflow-hidden">
           <div
-            className="
-              absolute inset-0
-              bg-repeat-x
-              bg-center
-              bg-contain
-            "
+            className="absolute inset-0 bg-repeat-x bg-center bg-contain"
             style={{ backgroundImage: `url(${ROMBO})` }}
           />
-          
         </div>
-        {/* ICONOS DE CALIDAD */}
-    <div className="flex justify-center items-center gap-18 mt-8 mb-8 px-4 overflow-x-auto">
-      <img
-        src={CONSERVADORES}
-        alt="Sin conservadores"
-        className="w-32 md:w-36 h-auto"
-      />
-      
-      <img
-        src={ARTESANAL}
-        alt="Producto artesanal"
-        className="w-32 md:w-36 h-auto"
-      />
-      <img
-        src={NATURALES}
-        alt="Ingredientes naturales"
-        className="w-32 md:w-36 h-auto"
-      />
-    </div>
-    {/* Separador rombos inferior */}
-        <div className="relative w-full h-12 sm:h-10 md:h-12 lg:h-16 xl:h-20 bg-cream overflow-hidden">
-          <div
-            className="
-              absolute inset-0
-              bg-repeat-x
-              bg-center
-              bg-contain
-            "
-            style={{ backgroundImage: `url(${ROMBO})` }}
-          />
-          
-        </div>
-    
 
         {/* Contacto */}
         <section className="font-maison neue bg-cream py-16">
@@ -236,7 +239,6 @@ export default function Home() {
 
               <ul className="space-y-3 text-wineDark">
                 <li><strong>Tel:</strong> 33-3639-7058</li>
-                {/* <li><strong>Cel:</strong> 33-3639-7058</li> */}
                 <li><strong>Email:</strong> marketing@pasteleriaspetit.com</li>
                 <li>
                   <strong>{t("home.contactAddress")}:</strong> Francisco I. Madero No. 163, Tlaquepaque Centro
